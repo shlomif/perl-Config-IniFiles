@@ -11,6 +11,7 @@ my (@value);
 # test 1
 # print "Tying a hash ..................... ";
 ok( tie %ini, 'Config::IniFiles', ( -file => "t/test.ini", -default => 'test1', -nocase => 1 ) );
+tied(%ini)->SetFileName("t/test05.ini");
 
 # test 2
 # print "Accessing a hash ................. ";
@@ -50,6 +51,7 @@ ok( $ini{TEST2}{four} eq 'value4' );
 # print "Listing sections ................. ";
 $value = 1;
 $ini = new Config::IniFiles( -file => "t/test.ini" );
+$ini->SetFileName("t/test05b.ini");
 my @S1 = $ini->Sections;
 my @S2 = keys %ini;
 foreach (@S1) {

@@ -31,6 +31,7 @@ ok($value);
 
 # test 3 
 $ini = new Config::IniFiles( -file => "t/test.ini", -default => 'test1', -nocase => 1 );
+$ini->SetFileName("t/test03.ini");
 # print "-default option .................. ";
 ok( (defined $ini) && ($ini->val('test2', 'three') eq 'value3') );
 
