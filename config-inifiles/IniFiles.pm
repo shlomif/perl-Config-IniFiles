@@ -1,12 +1,12 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.14 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.15 $))[1];
 use Carp;
 use strict;
 require 5.004;
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.14 2001-01-08 18:02:32 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.15 2001-01-30 11:46:48 rbowen Exp $
 
 =head1 NAME
 
@@ -968,7 +968,7 @@ sub Delete {
 
 =head1 USAGE -- Tied Hash
 
-=head2 tie $ini, 'Config::Inifiles', (-file=>$filename, [-option=>value ...] )
+=head2 tie $ini, 'Config::IniFiles', (-file=>$filename, [-option=>value ...] )
 
 Using C<tie>, you can tie a hash to a Config::IniFiles object. This creates a new
 object which you can access through your hash, so you use this instead of the 
@@ -1609,6 +1609,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.14  2001/01/08 18:02:32  wadg
+     [Bug #127325] Fixed proken import; changelog; moved
+
      Revision 2.13  2000/12/18 07:14:41  wadg
      [Bugs# 122441,122437] Alien EOLs and OO delete method
 
