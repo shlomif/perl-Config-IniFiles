@@ -1,7 +1,7 @@
 use strict;
 use Test;
 
-BEGIN { $| = 1; plan tests => 8 }
+BEGIN { $| = 1; plan tests => 10 }
 use Config::IniFiles;
 my $loaded = 1;
 ok($loaded);
@@ -78,6 +78,16 @@ ok(!$@ && !$ERRORS && defined($ini));
 $ini = new Config::IniFiles -file => "en.ini";
 ok($ini);
 
+# Test 9
+# Create a new INI file, and set the name using SetFileName
+$ini = new Config::IniFiles;
+my $filename = $ini->GetFileName;
+ok(not defined($filename));
+
+# Test 10
+$ini->SetFileName("test9_name.ini");
+$filename = $ini->GetFileName;
+ok($filename eq "test9_name.ini");
 
 
 __END__

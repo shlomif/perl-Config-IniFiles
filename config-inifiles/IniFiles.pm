@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.30 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.31 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.30 2002-10-15 18:51:07 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.31 2002-10-29 01:45:47 grail Exp $
 
 =head1 NAME
 
@@ -189,7 +189,7 @@ sub new {
 
   my $self           = {};
   # Set config file to default value, which is nothing
-  $self->{cf}        = '';
+  $self->{cf}        = undef;
   if( ref($parms{-import}) && ($parms{-import}->isa('Config::IniFiles')) ) {
     # Import from the import object by COPYing, so we
 	# don't clobber the old object
@@ -275,7 +275,7 @@ sub new {
   bless $self, $class;
 
   # No config file specified, so everything's okay so far.
-  if ($self->{cf} eq '') {
+  if (not defined $self->{cf}) {
     return $self;
   }
   
@@ -939,6 +939,26 @@ sub RewriteConfig {
   
   # Return whatever WriteConfig returns :)
   $self->WriteConfig($self->{cf});
+}
+
+=head2 GetFileName
+
+Returns the filename associated with this INI file.
+
+If no filename has been specified, returns undef.
+
+=cut
+
+sub GetFileName
+{
+	my $self = shift;
+	my $filename;
+	if (exists $self->{cf}) {
+		$filename = $self->{cf};
+	} else {
+		undef $filename;
+	}
+	return $filename;
 }
 
 =head2 SetFileName ($filename)
@@ -2026,6 +2046,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.30  2002/10/15 18:51:07  wadg
+     Patched to stopwarnings about utf8 usage.
+
      Revision 2.29  2002/08/15 21:33:58  wadg
      - Support for UTF Byte-Order-Mark (Raviraj Murdeshwar)
      - Made tests portable to Mac (p. kent)
