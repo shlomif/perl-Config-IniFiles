@@ -1,8 +1,6 @@
 NAME
     Config::IniFiles - A module for reading .ini-style configuration files.
 
-         $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/README,v 1.3 2000-12-18 17:53:05 rbowen Exp $
-
 SYNOPSIS
       use Config::IniFiles;
       my $cfg = new Config::IniFiles( -file => "/path/configfile.ini" );
@@ -455,6 +453,9 @@ Change log
          Revision 2.13  2000/12/18 07:14:41  wadg
          [Bugs# 122441,122437] Alien EOLs and OO delete method
 
+         Revision 2.12  2000/12/18 04:59:37  wadg
+         [Bug #125524] Writing multiline of 2 with tied hash
+
          Revision 2.11  2000/12/16 12:53:13  grail
          [BUG #122455] Problem with File Permissions
 
@@ -502,6 +503,9 @@ Change log
          * Changed version number to the CVS version number, so that I won't
          have to think about changing it ever again. Big version change
          should not be taken as a huge leap forward.
+
+         Revision 1.3  2000/12/18 17:53:05  rbowen
+         Update readme to reflect latest release
 
          0.12 September 13, 2000 by JW/WADG
          * Added documentation to clarify autovivification issues when 

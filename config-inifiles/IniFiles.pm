@@ -1,16 +1,16 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.13 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.14 $))[1];
 use Carp;
 use strict;
 require 5.004;
 
 @Config::IniFiles::errors = ( );
 
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.14 2001-01-08 18:02:32 wadg Exp $
+
 =head1 NAME
 
 Config::IniFiles - A module for reading .ini-style configuration files.
-
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.13 2000-12-18 07:14:41 wadg Exp $
 
 =head1 SYNOPSIS
 
@@ -325,6 +325,7 @@ sub ReadConfig {
   my($group, $groupmem);
   my($parm, $val);
   my @cmts;
+  my %loaded_params = ();			# A has to remember which params are loaded vs. imported
   @Config::IniFiles::errors = ( );
 
   # Initialize (and clear out) storage hashes
@@ -426,7 +427,9 @@ sub ReadConfig {
 	  }
 	}
 	if ($foundeot) {
-	    if (exists $self->{v}{$sect}{$parm}) {
+	    if (exists $self->{v}{$sect}{$parm} && 
+	        exists $loaded_params{$sect} && 
+	        grep( /^$parm$/, @{$loaded_params{$sect}}) ) {
 	      if (ref($self->{v}{$sect}{$parm}) eq "ARRAY") {
 	        # Add to the array
 	        push @{$self->{v}{$sect}{$parm}}, @val;
@@ -437,26 +440,32 @@ sub ReadConfig {
 	        $self->{v}{$sect}{$parm} = \@new_value;
 	      }
 	    } else {
-		  $self->{v}{$sect}{$parm} = \@val;
-		}
-		$self->{EOT}{$sect}{$parm} = $eotmark;
+		$self->{v}{$sect}{$parm} = \@val;
+		$loaded_params{$sect} = [] unless $loaded_params{$sect};
+		push @{$loaded_params{$sect}}, $parm;
+	    }
+	    $self->{EOT}{$sect}{$parm} = $eotmark;
 	} else {
 	  push(@Config::IniFiles::errors, sprintf('%d: %s', $startline,
 			      qq#no end marker ("$eotmark") found#));
 	}
       } else {
-    if (exists $self->{v}{$sect}{$parm}) {
-      if (ref($self->{v}{$sect}{$parm}) eq "ARRAY") {
-        # Add to the array
-        push @{$self->{v}{$sect}{$parm}}, $val;
-      } else {
-        # Create array
-        my $old_value = $self->{v}{$sect}{$parm};
-        my @new_value = ($old_value, $val);
-        $self->{v}{$sect}{$parm} = \@new_value;
-      }
-    } else {
-	$self->{v}{$sect}{$parm} = $val;
+	if (exists $self->{v}{$sect}{$parm} &&
+	    exists $loaded_params{$sect} && 
+	    grep( /^$parm$/, @{$loaded_params{$sect}}) ) {
+	    if (ref($self->{v}{$sect}{$parm}) eq "ARRAY") {
+		# Add to the array
+		push @{$self->{v}{$sect}{$parm}}, $val;
+	    } else {
+		# Create array
+		my $old_value = $self->{v}{$sect}{$parm};
+		my @new_value = ($old_value, $val);
+		$self->{v}{$sect}{$parm} = \@new_value;
+	    }
+	} else {
+	    $self->{v}{$sect}{$parm} = $val;
+	    $loaded_params{$sect} = [] unless $loaded_params{$sect};
+	    push @{$loaded_params{$sect}}, $parm;
 	}
       }
       push(@{$self->{parms}{$sect}}, $parm) unless grep(/\Q$parm\E/, @{$self->{parms}{$sect}});
@@ -1600,6 +1609,12 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.13  2000/12/18 07:14:41  wadg
+     [Bugs# 122441,122437] Alien EOLs and OO delete method
+
+     Revision 2.12  2000/12/18 04:59:37  wadg
+     [Bug #125524] Writing multiline of 2 with tied hash
+
      Revision 2.11  2000/12/16 12:53:13  grail
      [BUG #122455] Problem with File Permissions
 
