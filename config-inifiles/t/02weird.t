@@ -10,7 +10,7 @@ $ini = new Config::IniFiles -file => "t/test.ini";
 $ini->SetFileName("t/test02.ini");
 # print "Weird characters in section name . ";
 $value = $ini->val('[w]eird characters', 'multiline');
-ok($value eq "This\nis a multi-line\nvalue");
+ok($value eq "This$/is a multi-line$/value");
 
 $ini->newval("test7|anything", "exists", "yes");
 $value = $ini->val("test7|anything", "exists");

@@ -440,7 +440,7 @@ AUTHOR and ACKNOWLEDGEMENTS
     Bernie Cosell, Alan Young, Alex Satrapa, Mike Blazer, Wilbert van de
     Pieterman, Steve Campbell, Robert Konigsberg, Scott Dellinger, R.
     Bernstein, Jeremy Wadsack, Daniel Winkelmann, Pires Claudio, and Adrian
-    Phillips.
+    Phillips, Tom Allebrandi.
 
     Geez, that's a lot of people. And apologies to the folks I missed.
 
@@ -463,6 +463,20 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.20  2001/06/07 02:49:52  grail
+         - Added checks for method parameters being defined
+         - fixed some regexes to make them stricter
+         - Fixed greps to make them consistent through the code (also a vain
+           attempt to help my editors do syntax colouring properly)
+         - Added AddSection method, replaced chunk of ReadConfig with AddSection
+         - Added case handling stuff to more methods
+         - Added RemoveGroupMember
+         - Made variable names more consistent through OO methods
+         - Restored Unix EOLs
+
+         Revision ???  2001/04/05 01:00:13  rbowen
+         Bring README up to POD
+
          Revision 2.19  2001/04/04 23:33:40  wadg
          Fixed case sensitivity bug
 

@@ -1,12 +1,12 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.20 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.21 $))[1];
 use Carp;
 use strict;
 require 5.004;
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.20 2001-06-07 02:49:52 grail Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.21 2001-08-14 01:49:06 wadg Exp $
 
 =head1 NAME
 
@@ -412,14 +412,14 @@ sub ReadConfig {
   my @stats = stat CF;
   $self->{file_mode} = sprintf "%04o", $stats[2];
   local $_;
-  my @lines = split /[\015\012]+/, join( '', <CF>);
+  my @lines = split /\015\012?|\012/, join( '', <CF>);
   close(CF);
   # Store what our line ending char was for output
   ($self->{line_ends}) = $lines[0] =~ /([\015\012]+)/;
   while ( @lines ) {
     $_ = shift @lines;
 
-    s/[\015\012]+$//;				# remove line ending char(s)
+    s/(\015\012?|\012)$//;				# remove line ending char(s)
     $lineno++;
     if (/^\s*$/) {				# ignore blank lines
       next;
@@ -445,7 +445,7 @@ sub ReadConfig {
 	my @val = ( );
 	while ( @lines ) {
 	  $_ = shift @lines;
-	  s/[\015\012]+$//;				# remove line ending char(s)
+	  s/(\015\012?|\012)$//;				# remove line ending char(s)
 	  $lineno++;
 	  if ($_ eq $eotmark) {
 	    $foundeot = 1;
@@ -1838,6 +1838,17 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.20  2001/06/07 02:49:52  grail
+      - Added checks for method parameters being defined
+      - fixed some regexes to make them stricter
+      - Fixed greps to make them consistent through the code (also a vain
+        attempt to help my editors do syntax colouring properly)
+      - Added AddSection method, replaced chunk of ReadConfig with AddSection
+      - Added case handling stuff to more methods
+      - Added RemoveGroupMember
+      - Made variable names more consistent through OO methods
+      - Restored Unix EOLs
+
      Revision 2.19  2001/04/04 23:33:40  wadg
      Fixed case sensitivity bug
 
