@@ -8,7 +8,7 @@ my ($cgi, $VERSION, $prog,
 	$row, @rows, $input,
     );
 
-$VERSION = qw($Revision)[1];
+$VERSION = qw($Revision: 1.3 $)[1];
 
 $cgi = new CGI;
 $inifile = "configuration.ini"; # Hardcoded for security
@@ -95,3 +95,4 @@ Any
 CGI
 
 =cut
+
