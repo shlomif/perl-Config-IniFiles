@@ -543,6 +543,9 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.30  2002/10/15 18:51:07  wadg
+         Patched to stopwarnings about utf8 usage.
+
          Revision 2.29  2002/08/15 21:33:58  wadg
          - Support for UTF Byte-Order-Mark (Raviraj Murdeshwar)
          - Made tests portable to Mac (p. kent)
