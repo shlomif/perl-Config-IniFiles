@@ -533,6 +533,12 @@ modify it under the same terms as Perl itself.</P>
 <H1><A NAME="change log">Change log</A></H1>
 <PRE>
      $Log: not supported by cvs2svn $
+     Revision 2.27  2001/12/20 16:03:49  wadg
+     - Fixed bug introduced in new valid file check where ';' comments in first lines were not considered valid
+     - Rearranged some tests to put them in the proper files (case and -default)
+     - Added more comment test to cover more cases
+     - Fixed first two comments tests which weren't doing anything</PRE>
+<PRE>
      Revision 2.26  2001/12/19 22:20:50  wadg
      #481513 Recognize badly formatted files</PRE>
 <PRE>
