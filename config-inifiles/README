@@ -406,7 +406,8 @@ DIAGNOSTICS
 BUGS
     *  The output from [Re]WriteConfig/OutputConfig might not be as pretty
        as it can be. Comments are tied to whatever was immediately below
-       them.
+       them. And case is not preserved for Section and Parameter names if
+       the -nocase option was used.
 
     *  No locking is done by [Re]WriteConfig. When writing servers, take
        care that only the parent ever calls this, and consider making your
@@ -462,8 +463,21 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.19  2001/04/04 23:33:40  wadg
+         Fixed case sensitivity bug
+
+         Revision 2.18  2001/03/30 04:41:08  rbowen
+         Small documentation change in IniFiles.pm - pod2* was choking on misplaces
+         =item tags. And I regenerated the README
+         The main reason for this release is that the MANIFEST in the 2.17 version was
+         missing one of the new test suite files, and that is included in this
+         re-release.
+
          Revision 2.17  2001/03/21 21:05:12  wadg
          Documentation edits
+
+         Revision 2.16  2001/03/21 19:59:09 wadg
+         410327 -default not in original; 233255 substring parameters
 
          Revision 2.15  2001/01/30 11:46:48  rbowen
          Very minor documentation bug fixed.
