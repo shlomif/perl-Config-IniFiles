@@ -16,7 +16,7 @@ DESCRIPTION
 FILE FORMAT
     INI files consist of a number of sections, each preceded with the
     section name in square brackets. The first non-blank character of the
-    line indicating a section must be a left bracket and the last nonblank
+    line indicating a section must be a left bracket and the last non-blank
     character of a line indicating a section must be a right bracket. The
     characters making up the section name can be any symbols at all. However
     section names must be unique.
@@ -32,9 +32,9 @@ FILE FORMAT
     Both the hash mark (#) and the semicolon (;) are comment characters. by
     default (this can be changed by configuration) Lines that begin with
     either of these characters will be ignored. Any amount of whitespace may
-    preceed the comment character.
+    precede the comment character.
 
-    Multiline or multi-valued parameters may also be defined ala UNIX "here
+    Multi-line or multi-valued parameters may also be defined ala UNIX "here
     document" syntax:
 
       Parameter=<<EOT
@@ -50,7 +50,7 @@ FILE FORMAT
     allowed:
 
       [Section]
-      Parameter=this paramater \
+      Parameter=this parameter \
         spreads across \
         a few lines
 
@@ -152,7 +152,7 @@ METHODS
               a set of characters (concatenating them to a string). Note
               that the character specified by -commentchar (see above) is
               always part of the allowed comment characters. Note: The given
-              string is evaluated as a character class (ie: like
+              string is evaluated as a character class (i.e.: like
               "/[chars]/").
 
   val ($section, $parameter [, $default] )
@@ -561,21 +561,13 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.37  2003/01/31 23:00:35  wadg
+         Updated t/07misc test 4 to remove warning
+
          Revision 2.36  2002/12/18 01:43:11  wadg
          - Improved error message when an invalid line is encountered in INI file
          - Fixed bug 649220; importing a non-file-based object into a file one
            no longer destroys the original object
-
-         Revision 2.35  2002/12/18 00:34:19  wadg
-         - Fixed "bug" 613796. Actually whitespace was handled correctly anyway.
-         - Added tests for bug 613796 and 511326 (could not duplicate)
-         - Doco: "tie $ini" -> "tie %ini"
-
-         Revision 2.34  2002/12/17 23:31:48  wadg
-         - Added default options to val method (Feat. Req. 511413)
-         - Clarified some documentation
-         - Made test files clean up after themselves
-         - t/06oo.t now uses 'test06.ini' as a consitent file name
 
          Revision 2.33  2002/11/12 14:48:16  grail
          Addresses feature request - [ 403496 ] A simple change will allow support on more platforms
