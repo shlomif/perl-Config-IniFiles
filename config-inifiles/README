@@ -4,7 +4,7 @@ NAME
 SYNOPSIS
       use Config::IniFiles;
       my $cfg = new Config::IniFiles( -file => "/path/configfile.ini" );
-      print "We have parm " . $cfg->val( 'Section', 'Parameter' ) . "."
+      print "The value is " . $cfg->val( 'Section', 'Parameter' ) . "."
             if $cfg->val( 'Section', 'Parameter' );
 
 DESCRIPTION
@@ -155,11 +155,11 @@ METHODS
               string is evaluated as a character class (ie: like
               "/[chars]/").
 
-  val ($section, $parameter)
+  val ($section, $parameter [, $default] )
 
     Returns the value of the specified parameter ("$parameter") in section
-    "$section", returns undef if no section or no parameter for the given
-    section section exists.
+    "$section", returns undef (or "$default" if specified) if no section or
+    no parameter for the given section section exists.
 
     If you want a multi-line/value field returned as an array, just specify
     an array as the receiver:
@@ -266,16 +266,34 @@ METHODS
 
     GroupMembers would return ("Group Element 1", "Group Element 2").
 
+  SetWriteMode ($mode)
+
+    Sets the mode (permissions) to use when writing the INI file.
+
+    $mode must be a string representation of the octal mode.
+
+  GetWriteMode ($mode)
+
+    Gets the current mode (permissions) to use when writing the INI file.
+
+    $mode is a string representation of the octal mode.
+
   WriteConfig ($filename)
 
     Writes out a new copy of the configuration file. A temporary file
-    (ending in .new) is written out and then renamed to the specified
+    (ending in '-new') is written out and then renamed to the specified
     filename. Also see BUGS below.
 
   RewriteConfig
 
     Same as WriteConfig, but specifies that the original configuration file
     should be rewritten.
+
+  GetFileName
+
+    Returns the filename associated with this INI file.
+
+    If no filename has been specified, returns undef.
 
   SetFileName ($filename)
 
@@ -318,11 +336,11 @@ METHODS
     prepended with one. See the SetSectionComment($section, @comment) entry
     elsewhere in this document above
 
-  GetParameterComment ($sect, $parm)
+  GetParameterComment ($section, $parameter)
 
     Gets the comment attached to a parameter.
 
-  DeleteParameterComment ($sect, $parm)
+  DeleteParameterComment ($section, $parmeter)
 
     Deletes the comment attached to a parameter.
 
@@ -341,7 +359,7 @@ METHODS
 
     To un-set the EOT text, use DeleteParameterEOT ($section, $parameter).
 
-  DeleteParameterEOT ($sect, $parm)
+  DeleteParameterEOT ($section, $parmeter)
 
     Removes the EOT marker for the given section and parameter. When writing
     a configuration file, if no EOT marker is defined then "EOT" is used.
@@ -351,7 +369,7 @@ METHODS
     Deletes the entire configuration file in memory.
 
 USAGE -- Tied Hash
-  tie $ini, 'Config::IniFiles', (-file=>$filename, [-option=>value ...] )
+  tie %ini, 'Config::IniFiles', (-file=>$filename, [-option=>value ...] )
 
     Using "tie", you can tie a hash to a Config::IniFiles object. This
     creates a new object which you can access through your hash, so you use
@@ -543,6 +561,31 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.36  2002/12/18 01:43:11  wadg
+         - Improved error message when an invalid line is encountered in INI file
+         - Fixed bug 649220; importing a non-file-based object into a file one
+           no longer destroys the original object
+
+         Revision 2.35  2002/12/18 00:34:19  wadg
+         - Fixed "bug" 613796. Actually whitespace was handled correctly anyway.
+         - Added tests for bug 613796 and 511326 (could not duplicate)
+         - Doco: "tie $ini" -> "tie %ini"
+
+         Revision 2.34  2002/12/17 23:31:48  wadg
+         - Added default options to val method (Feat. Req. 511413)
+         - Clarified some documentation
+         - Made test files clean up after themselves
+         - t/06oo.t now uses 'test06.ini' as a consitent file name
+
+         Revision 2.33  2002/11/12 14:48:16  grail
+         Addresses feature request - [ 403496 ] A simple change will allow support on more platforms
+
+         Revision 2.32  2002/11/12 14:15:44  grail
+         Addresses bug - [225971] Respect Read-Only Permissions of File System
+
+         Revision 2.31  2002/10/29 01:45:47  grail
+         [ 540867 ] Add GetFileName method
+
          Revision 2.30  2002/10/15 18:51:07  wadg
          Patched to stopwarnings about utf8 usage.
 
