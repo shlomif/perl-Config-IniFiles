@@ -1,7 +1,7 @@
 use strict;
 use Test;
 
-BEGIN { $| = 1; plan tests => 5 }
+BEGIN { $| = 1; plan tests => 6 }
 use Config::IniFiles;
 my $loaded = 1;
 ok($loaded);
@@ -49,5 +49,12 @@ if( eval( "require IO::File" ) && (my $fh = new IO::File( "t/test.ini" )) ) {
 # the pathname of a file
 $ini = new Config::IniFiles -file => "t/test.ini";
 ok($ini);
+
+# A non-INI file should fail, but not throw warnings
+local $@ = '';
+my $ERRORS = '';
+local $SIG{__WARN__} = sub { $ERRORS .= $_[0] };
+eval { $ini = new Config::IniFiles -file => "IniFiles.pm" };
+ok(!$@ && !$ERRORS &&!defined($ini));
 
 
