@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.15 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.16 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.15 2000-12-07 14:12:06 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.16 2000-12-07 14:48:38 grail Exp $
 
 =head1 SYNOPSIS
 
@@ -382,13 +382,13 @@ sub ReadConfig {
     elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {		# New Section
       $sect = $1;
       $sect = lc($sect) if $nocase;
-      push(@{$self->{sects}}, $sect);
+      push(@{$self->{sects}}, $sect) unless grep(/$sect/, @{$self->{sects}});
       if ($sect =~ /(\S+)\s+\S+/) {		# New Group Member
 	$group = $1;
 	if (!defined($self->{group}{$group})) {
 	  $self->{group}{$group} = [];
 	}
-	push(@{$self->{group}{$group}}, $sect);
+	push(@{$self->{group}{$group}}, $sect) unless grep(/$sect/, @{$self->{group}{$group}});
       }
       if (!defined($self->{v}{$sect})) {
 	$self->{sCMT}{$sect} = [@cmts] if @cmts > 0;
@@ -427,7 +427,7 @@ sub ReadConfig {
       } else {
 	$self->{v}{$sect}{$parm} = $val;
       }
-      push(@{$self->{parms}{$sect}}, $parm);
+      push(@{$self->{parms}{$sect}}, $parm) unless grep(/$parm/, @{$self->{parms}{$sect}});
     }
     else {
       push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno, $_));
@@ -674,9 +674,7 @@ sub SetSectionComment
 	defined($section) || return undef;
 	@comment || return undef;
 	
-	if (not exists $self->{sCMT}{$section}) {
-		$self->{sCMT}{$section} = [];
-	}
+	$self->{sCMT}{$section} = [];
 	# At this point it's possible to have a comment for a section that
 	# doesn't exist. This comment will not get written to the INI file.
 	
