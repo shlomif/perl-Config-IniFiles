@@ -1,6 +1,7 @@
-BEGIN { $| = 1; print "1..1\n"; }
-END {print "not ok 1\n" unless $loaded;}
-use Config::IniFiles;
-$loaded = 1;
-print "ok 1\n";
+use strict;
+use Test;
 
+BEGIN { $| = 1; plan tests => 1 }
+use Config::IniFiles;
+my $loaded = 1;
+ok($loaded);

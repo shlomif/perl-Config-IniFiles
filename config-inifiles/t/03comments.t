@@ -1,7 +1,11 @@
+use strict;
+use Test;
 use Config::IniFiles;
-print "1..$t\n";
+
+BEGIN { plan tests => 10 }
 
 my $ors = $\ || "\n";
+my ($ini, $value);
 
 #
 # Comment preservation, -default and -nocase tests added by JW/WADG
@@ -9,7 +13,6 @@ my $ors = $\ || "\n";
 
 # test 1
 
-$t = 1;
 $value = 0;
 if( open FILE, "<t/test.ini" ) {
 	$_ = join( '', <FILE> );
@@ -17,107 +20,54 @@ if( open FILE, "<t/test.ini" ) {
 	close FILE;
 }
 # print "Section comments preserved ....... ";
-if ($value) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok($value);
 
 
 # test 2
-$t++;
 $value = /\# This is a parm comment[$ors]five=value5/;
 # print "Parameter comments preserved ..... ";
-if ($value) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok($value);
 
 
 # test 3 
-$t++;
 $ini = new Config::IniFiles( -file => "t/test.ini", -default => 'test1', -nocase => 1 );
 # print "-default option .................. ";
-if( (defined $ini) && 
-    ($ini->val('test2', 'three') eq 'value3') ) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok( (defined $ini) && ($ini->val('test2', 'three') eq 'value3') );
 
 
 # test 4
-$t++;
 # print "Case insensitivity ............... ";
-if( (defined $ini) && 
-    ($ini->val('TEST2', 'THREE') eq 'value3') ) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok( (defined $ini) && ($ini->val('TEST2', 'THREE') eq 'value3') );
 
-my $ini = new Config::IniFiles ( -file => "t/test.ini" );
+$ini = new Config::IniFiles ( -file => "t/test.ini" );
 $ini->setval("foo","bar","qux");
 
 # test 5
-$t++;
 # print "Setting Section Comment........... ";
-if ($ini->SetSectionComment("foo", "This is a section comment", "This comment takes two lines!")) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok($ini->SetSectionComment("foo", "This is a section comment", "This comment takes two lines!"));
 
 # test 6
-$t++;
 # print "Getting Section Comment........... ";
 my @comment = $ini->GetSectionComment("foo");
-if ( join("", @comment) eq "# This is a section comment# This comment takes two lines!") {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok( join("", @comment) eq "# This is a section comment# This comment takes two lines!");
 
 #test 7
-$t++;
 # print "Deleting Section Comment.......... ";
 $ini->DeleteSectionComment("foo");
 # Should not exist!
-if (not defined $ini->GetSectionComment("foo")) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok(not defined $ini->GetSectionComment("foo"));
 
 # test 8
-$t++;
 # print "Setting Parameter Comment......... ";
-if ($ini->SetParameterComment("foo", "bar", "This is a parameter comment", "This comment takes two lines!")) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok($ini->SetParameterComment("foo", "bar", "This is a parameter comment", "This comment takes two lines!"));
 
 # test 9
-$t++;
 # print "Getting Parameter Comment......... ";
 @comment = $ini->GetParameterComment("foo", "bar");
-if (join("", @comment) eq "# This is a parameter comment# This comment takes two lines!") {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+ok(join("", @comment) eq "# This is a parameter comment# This comment takes two lines!");
 
 # test 10
-$t++;
 # print "Deleting Parameter Comment........ ";
 $ini->DeleteParameterComment("foo", "bar");
 # Should not exist!
-if (not defined $ini->GetSectionComment("foo", "bar")) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
-
-BEGIN {$t = 10}
+ok(not defined $ini->GetSectionComment("foo", "bar"));

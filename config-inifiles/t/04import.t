@@ -1,48 +1,42 @@
+use strict;
+use Test;
 use Config::IniFiles;
-print "1..$t\n";
+
+BEGIN { plan tests => 3 }
 
 my $ors = $\ || "\n";
+my ($ini,$value);
 
 #
 # Import tests added by JW/WADG
 #
 
 # test 1
-$t = 1;
 # print "Import a file .................... ";
-$en = new Config::IniFiles( -file => 't/en.ini' );
-if( $es = new Config::IniFiles( -file => 't/es.ini', -import => $en ) ) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+my $en = new Config::IniFiles( -file => 't/en.ini' );
+my $es;
+ok( $es = new Config::IniFiles( -file => 't/es.ini', -import => $en ) );
 
 
 # test 2
-$t++;
 # print "Imported values are good ......... ";
-$en_sn = $en->val( 'x', 'ShortName' );
-$es_sn = $es->val( 'x', 'ShortName' );
-$en_ln = $en->val( 'x', 'LongName' );
-$es_ln = $es->val( 'x', 'LongName' );
-$en_dn = $en->val( 'm', 'DataName' );
-$es_dn = $es->val( 'm', 'DataName' );
-if( 
+my $en_sn = $en->val( 'x', 'ShortName' );
+my $es_sn = $es->val( 'x', 'ShortName' );
+my $en_ln = $en->val( 'x', 'LongName' );
+my $es_ln = $es->val( 'x', 'LongName' );
+my $en_dn = $en->val( 'm', 'DataName' );
+my $es_dn = $es->val( 'm', 'DataName' );
+ok( 
 	($en_sn eq $es_sn) &&
 	($en_ln ne $es_ln) &&
 	($en_dn ne $es_dn) &&
 	1#
-  ) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
+  );
 
 # test 3
-$t++;
 # print "Import another level ............. ";
-$ca = new Config::IniFiles( -file => 't/ca.ini', -import => $es );
-if( 
+my $ca = new Config::IniFiles( -file => 't/ca.ini', -import => $es );
+ok( 
 	($en_sn eq $ca->val( 'x', 'ShortName' )) &&
 	($en_sn eq $ca->val( 'x', 'ShortName' )) &&
 
@@ -53,11 +47,4 @@ if(
 	($es_dn eq $ca->val( 'm', 'DataName' )) &&
 
 	1#
-  ) {
-	print "ok $t\n";
-} else {
-	print "not ok $t\n";
-}
-
-BEGIN { $t = 3 }
-
+  );
