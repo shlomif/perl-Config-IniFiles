@@ -1,6 +1,6 @@
 #[JW for editor]:mode=perl:tabSize=8:indentSize=2:noTabs=true:indentOnEnter=true:
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.26 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.27 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -8,7 +8,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.26 2001-12-19 22:20:50 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.27 2001-12-20 16:03:49 wadg Exp $
 
 =head1 NAME
 
@@ -437,7 +437,7 @@ sub ReadConfig {
   my $first = '';
   foreach ( @lines ) {
     next if /^\s*$/;	# ignore blank lines
-    next if /^\s*\#/;	# ignore comments
+    next if /^\s*[\#\;]/;	# ignore comments
     $first = $_;
     last;
   }
@@ -1912,6 +1912,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.26  2001/12/19 22:20:50  wadg
+     #481513 Recognize badly formatted files
+
      Revision 2.25  2001/12/12 20:44:48  wadg
      Update to bring CVS version in synch
 
