@@ -1,12 +1,13 @@
+#[JW for editor]:mode=perl:tabSize=8:indentSize=2:noTabs=true:indentOnEnter=true:
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.21 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.22 $))[1];
 use Carp;
 use strict;
 require 5.004;
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.21 2001-08-14 01:49:06 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.22 2001-12-06 16:52:39 wadg Exp $
 
 =head1 NAME
 
@@ -430,6 +431,9 @@ sub ReadConfig {
     }
     elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {		# New Section
       $sect = $1;
+      if ($self->{nocase}) {
+        $sect = lc($sect);
+      }
       $self->AddSection($sect);
       $self->SetSectionComment($sect, @cmts);
       @cmts = ();
@@ -1807,20 +1811,21 @@ data structure.
 =head1 AUTHOR and ACKNOWLEDGEMENTS
 
 The original code was written by Scott Hutton.
-It has since been taken over by Rich Bowen,
+Then handled for a time by Rich Bowen (thanks!),
+It is now managed by Jeremy Wadsack,
 with many contributions from various other people.
 
 In particular, special thanks go to (in roughly chronological order):
 
 Bernie Cosell, Alan Young, Alex Satrapa, Mike Blazer, Wilbert van de Pieterman,
 Steve Campbell, Robert Konigsberg, Scott Dellinger, R. Bernstein,
-Jeremy Wadsack, Daniel Winkelmann, Pires Claudio,  and Adrian Phillips.
+Jeremy Wadsack, Daniel Winkelmann, Pires Claudio, and Adrian Phillips.
 
-Geez, that's a lot of people. And apologies to the folks I missed.
+Geez, that's a lot of people. And apologies to the folks who were missed.
 
 If you want someone to bug about this, that would be:
 
-	Rich Bowen <rbowen at rcbowen dot com>
+	Jeremy Wadsack <dgsupport at wadsack-allen dot com>
 
 If you want more information, or want to participate, go to:
 
@@ -1838,6 +1843,10 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.21  2001/08/14 01:49:06  wadg
+     Bug fix: multiple blank lines counted as one
+     Patched README change log to include recent updates
+
      Revision 2.20  2001/06/07 02:49:52  grail
       - Added checks for method parameters being defined
       - fixed some regexes to make them stricter

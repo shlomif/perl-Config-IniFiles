@@ -134,7 +134,7 @@ METHODS
     configuration file. setval will return *undef* if this is attempted. See
     newval below to do this. Otherwise, it returns 1.
 
-  newval($setion, $parameter, $value [, $value2, ...])
+  newval($section, $parameter, $value [, $value2, ...])
 
     Assignes a new value, "$value" (or set of values) to the parameter
     "$parameter" in section "$section" in the configuration file.
@@ -159,7 +159,25 @@ METHODS
     the *nocase* option was turned on when the config object was created,
     the section names will be returned in lowercase.
 
-  Parameters ($section_name)
+  SectionExists ( $sect_name )
+
+    Returns 1 if the specified section exists in the INI file, 0 otherwise
+    (undefined if section_name is not defined).
+
+  AddSection ( $sect_name )
+
+    Ensures that the named section exists in the INI file. If the section
+    already exists, nothing is done. In this case, the "new" section will
+    possibly contain data already.
+
+    If you really need to have a new section with no parameters in it, check
+    that the name that you're adding isn't in the list of sections already.
+
+  DeleteSection ( $sect_name )
+
+    Completely removes the entire section from the configuration.
+
+  Parameters ($sect_name)
 
     Returns an array containing the parameters contained in the specified
     section.
@@ -176,6 +194,18 @@ METHODS
     "member" section are referenced normally (i.e., the section name is
     still "Groupname Membername", including the space) - the concept of
     Groups is to aid people building more complex configuration files.
+
+  SetGroupMember ( $sect )
+
+    Makes sure that the specified section is a member of the appropriate
+    group.
+
+    Only intended for use in newval.
+
+  RemoveGroupMember ( $sect )
+
+    Makes sure that the specified section is no longer a member of the
+    appropriate group. Only intended for use in DeleteSection.
 
   GroupMembers ($group)
 
@@ -237,11 +267,11 @@ METHODS
     Any line of @comment that does not have a comment character will be
     prepended with "#".
 
-  GetParameterComment ($section, $parameter)
+  GetParameterComment ($sect, $parm)
 
     Gets the comment attached to a parameter.
 
-  DeleteParameterComment ($section, $parameter)
+  DeleteParameterComment ($sect, $parm)
 
     Deletes the comment attached to a parameter.
 
@@ -260,14 +290,10 @@ METHODS
 
     To un-set the EOT text, use DeleteParameterEOT ($section, $parameter).
 
-  DeleteParameterEOT ($section, $parameter)
+  DeleteParameterEOT ($sect, $parm)
 
     Removes the EOT marker for the given section and parameter. When writing
     a configuration file, if no EOT marker is defined then "EOT" is used.
-
-  DeleteSection ( $section_name )
-
-    Completely removes the entire section from the configuration.
 
   Delete
 
@@ -424,29 +450,31 @@ Data Structure
               ->{nocase} = 0
               ->{reloadwarn} = 0
               ->{sects} = \@sections
-              ->{sCMT}{$section} = \@comment_lines
+              ->{sCMT}{$sect} = \@comment_lines
               ->{group}{$group} = \@group_members
-              ->{parms}{$section} = \@section_parms
+              ->{parms}{$sect} = \@section_parms
               ->{EOT}{$sect}{$parm} = "end of text string"
-              ->{pCMT}{$section}{$parm} = \@comment_lines
-              ->{v}{$section}{$parm} = $value   OR  \@values
+              ->{pCMT}{$sect}{$parm} = \@comment_lines
+              ->{v}{$sect}{$parm} = $value   OR  \@values
 
 AUTHOR and ACKNOWLEDGEMENTS
-    The original code was written by Scott Hutton. It has since been taken
-    over by Rich Bowen, with many contributions from various other people.
+    The original code was written by Scott Hutton. Then handled for a time
+    by Rich Bowen (thanks!), It is now managed by Jeremy Wadsack, with many
+    contributions from various other people.
 
     In particular, special thanks go to (in roughly chronological order):
 
     Bernie Cosell, Alan Young, Alex Satrapa, Mike Blazer, Wilbert van de
     Pieterman, Steve Campbell, Robert Konigsberg, Scott Dellinger, R.
     Bernstein, Jeremy Wadsack, Daniel Winkelmann, Pires Claudio, and Adrian
-    Phillips, Tom Allebrandi.
+    Phillips.
 
-    Geez, that's a lot of people. And apologies to the folks I missed.
+    Geez, that's a lot of people. And apologies to the folks who were
+    missed.
 
     If you want someone to bug about this, that would be:
 
-            Rich Bowen <rbowen at rcbowen dot com>
+            Jeremy Wadsack <dgsupport at wadsack-allen dot com>
 
     If you want more information, or want to participate, go to:
 
@@ -463,19 +491,20 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
-         Revision 2.20  2001/06/07 02:49:52  grail
-         - Added checks for method parameters being defined
-         - fixed some regexes to make them stricter
-         - Fixed greps to make them consistent through the code (also a vain
-           attempt to help my editors do syntax colouring properly)
-         - Added AddSection method, replaced chunk of ReadConfig with AddSection
-         - Added case handling stuff to more methods
-         - Added RemoveGroupMember
-         - Made variable names more consistent through OO methods
-         - Restored Unix EOLs
+         Revision 2.21  2001/08/14 01:49:06  wadg
+         Bug fix: multiple blank lines counted as one
+         Patched README change log to include recent updates
 
-         Revision ???  2001/04/05 01:00:13  rbowen
-         Bring README up to POD
+         Revision 2.20  2001/06/07 02:49:52  grail
+          - Added checks for method parameters being defined
+          - fixed some regexes to make them stricter
+          - Fixed greps to make them consistent through the code (also a vain
+            attempt to help my editors do syntax colouring properly)
+          - Added AddSection method, replaced chunk of ReadConfig with AddSection
+          - Added case handling stuff to more methods
+          - Added RemoveGroupMember
+          - Made variable names more consistent through OO methods
+          - Restored Unix EOLs
 
          Revision 2.19  2001/04/04 23:33:40  wadg
          Fixed case sensitivity bug
