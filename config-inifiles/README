@@ -499,6 +499,9 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.25  2001/12/12 20:44:48  wadg
+         Update to bring CVS version in synch
+
          Revision 2.24  2001/12/07 10:03:06  wadg
          222444 Abilite to load from arbitrary source
 
