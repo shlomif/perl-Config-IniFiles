@@ -20,12 +20,12 @@ ok($ini = new Config::IniFiles);
 
 # test 3
 # print "Setting new file name .............";
-ok($ini->SetFileName("newfile.ini"));
+ok($ini->SetFileName('test06.ini'));
 
 # test 4
 # print "Saving under new file name ........";
 if ($ini->RewriteConfig()) {
-	if ( -f "newfile.ini" ) {
+	if ( -f 'test06.ini' ) {
 		$success = 1;
 	} else {
 		$success = 0;
@@ -69,4 +69,7 @@ ok( not $ini->Parameters( 'Section1' ) );
 # Delete entire config
 $ini->Delete();
 ok( not $ini->Sections() );
+
+# Clean up when we're done
+unlink "test06.ini";
 

@@ -151,3 +151,7 @@ ok($value == 3);
 $ini{newsect}{five} = @thing;
 $value = $ini{newsect}{five};
 ok($value == 1);
+
+# Clean up when we're done
+unlink "test05.ini";
+

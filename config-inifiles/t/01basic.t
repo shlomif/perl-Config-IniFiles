@@ -2,7 +2,7 @@ use strict;
 use Test;
 use Config::IniFiles;
 
-BEGIN { plan tests => 8 }
+BEGIN { plan tests => 10 }
 
 my ($value, @value);
 umask 0000;
@@ -63,3 +63,17 @@ $ini->ReadConfig;
 $value='';
 $value = $ini->val('test1', 'seven');
 ok (! defined ($value));
+
+# Test 9
+# Reading a default values from existing section
+$value = $ini->val('test1', 'not a real parameter name', '12345');
+ok (defined($value) && ($value == '12345'));
+
+# Test 10
+# Reading a default values from non-existent section
+$value = $ini->val('not a real section', 'no parameter by this name', '12345');
+ok (defined($value) && ($value == '12345'));
+
+# Clean up when we're done
+unlink "test01.ini";
+

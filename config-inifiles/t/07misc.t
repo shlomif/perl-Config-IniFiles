@@ -37,3 +37,7 @@ $ini->setval('test2', 'three', 'should not be here');
 $value = $ini->WriteConfig("test07.ini");
 warn "Value is $value!" if (defined $value);
 ok(not defined $value);
+
+# Clean up when we're done
+unlink "test07.ini";
+
