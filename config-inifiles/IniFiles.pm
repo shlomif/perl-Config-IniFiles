@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.33 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.34 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.33 2002-11-12 14:48:16 grail Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.34 2002-12-17 23:31:48 wadg Exp $
 
 =head1 NAME
 
@@ -17,7 +17,7 @@ Config::IniFiles - A module for reading .ini-style configuration files.
 
   use Config::IniFiles;
   my $cfg = new Config::IniFiles( -file => "/path/configfile.ini" );
-  print "We have parm " . $cfg->val( 'Section', 'Parameter' ) . "."
+  print "The value is " . $cfg->val( 'Section', 'Parameter' ) . "."
   	if $cfg->val( 'Section', 'Parameter' );
 
 =head1 DESCRIPTION
@@ -286,11 +286,12 @@ sub new {
   }
 }
 
-=head2 val ($section, $parameter)
+=head2 val ($section, $parameter [, $default] )
 
 Returns the value of the specified parameter (C<$parameter>) in section 
-C<$section>, returns undef if no section or no parameter for the given section
-section exists.
+C<$section>, returns undef (or C<$default> if specified) if no section or 
+no parameter for the given section section exists.
+
 
 If you want a multi-line/value field returned as an array, just
 specify an array as the receiver:
@@ -304,10 +305,12 @@ otherwise the values will be joined using \n.
 =cut
 
 sub val {
-  my ($self, $sect, $parm) = @_;
+  my ($self, $sect, $parm, $def) = @_;
 
+  # Always return undef on bad parameters
   return undef if not defined $sect;
   return undef if not defined $parm;
+  
   if ($self->{nocase}) {
     $sect = lc($sect);
     $parm = lc($parm);
@@ -316,6 +319,10 @@ sub val {
   my $val = defined($self->{v}{$sect}{$parm}) ?
     $self->{v}{$sect}{$parm} :
     $self->{v}{$self->{default}}{$parm};
+  
+  # If the value is undef, make it $def instead (which could just be undef)
+  $val = $def unless defined $val;
+  
   # Return the value in the desired context
   if (wantarray and ref($val) eq "ARRAY") {
     return @$val;
@@ -932,7 +939,7 @@ sub WriteConfig {
   my $self = shift;
   my $file = shift;
   
-  return undef if not defined $file;
+  return undef unless defined $file;
   if (-e $file) {
   	if (not (-w $file))
  	{
@@ -942,7 +949,7 @@ sub WriteConfig {
 	my $mode = (stat $file)[2];
 	$self->{file_mode} = sprintf "%04o", ($mode & 0777);
 	#carp "Using mode $self->{file_mode} for file $file";
-  } elsif (not (oct($self->{file_mode}) & 0222)) {
+  } elsif (defined($self->{file_mode}) and not (oct($self->{file_mode}) & 0222)) {
   	#carp "Store mode $self->{file_mode} prohibits writing config";
   }
 
@@ -1230,7 +1237,7 @@ sub SetParameterComment
 	return scalar @comment;
 }
 
-=head2 GetParameterComment ($sect, $parm)
+=head2 GetParameterComment ($section, $parameter)
 
 Gets the comment attached to a parameter.
 
@@ -1257,7 +1264,7 @@ sub GetParameterComment
 	return (wantarray)?@comment:join " ", @comment;
 }
 
-=head2 DeleteParameterComment ($sect, $parm)
+=head2 DeleteParameterComment ($section, $parmeter)
 
 Deletes the comment attached to a parameter.
 
@@ -1346,7 +1353,7 @@ sub SetParameterEOT
     $self->{EOT}{$sect}{$parm} = $EOT;
 }
 
-=head2 DeleteParameterEOT ($sect, $parm)
+=head2 DeleteParameterEOT ($section, $parmeter)
 
 Removes the EOT marker for the given section and parameter.
 When writing a configuration file, if no EOT marker is defined 
@@ -2091,6 +2098,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.33  2002/11/12 14:48:16  grail
+     Addresses feature request - [ 403496 ] A simple change will allow support on more platforms
+
      Revision 2.32  2002/11/12 14:15:44  grail
      Addresses bug - [225971] Respect Read-Only Permissions of File System
 
