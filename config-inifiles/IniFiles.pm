@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.29 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.30 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.29 2002-08-15 21:33:58 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.30 2002-10-15 18:51:07 wadg Exp $
 
 =head1 NAME
 
@@ -515,7 +515,14 @@ sub ReadConfig {
 
   # If there's a UTF BOM (Byte-Order-Mark) in the first character of the first line
   # then remove it before processing (http://www.unicode.org/unicode/faq/utf_bom.html#22)
-  ($lines[0] =~ s/^\x{FEFF}//) || ($lines[0] =~ s/^﻿//);
+  ($lines[0] =~ s/^﻿//);
+# Disabled the utf8 one for now (JW) because it doesn't work on all perl distros
+# e.g. 5.61 works with or w/o 'use utf8' 5.6.0 fails w/o it. 5.005_03 
+# says "invalid hex value", etc. If anyone has a clue how to make this work 
+# please let me know!
+#  ($lines[0] =~ s/^﻿//) || (eval('use utf8; $lines[0] =~ s/^\x{FEFF}//;'));
+#  $@ = ''; $! = undef;  # Clear any error messages
+
   
   
   # The first lines of the file must be blank, comments or start with [
@@ -2019,6 +2026,16 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.29  2002/08/15 21:33:58  wadg
+     - Support for UTF Byte-Order-Mark (Raviraj Murdeshwar)
+     - Made tests portable to Mac (p. kent)
+     - Made file parsing portable for s390/EBCDIC, etc. (Adam Fischler)
+     - Fixed import bug with Perl 5.8.0 (Marek Rouchal)
+     - Fixed precedence bug in WriteConfig (Luc St Louis)
+     - Fixed broken group detection in SetGroupMember and RemoveGroupMember (Kay R�pke)
+     - Added line continuation character (/) support (Marek Rouchal)
+     - Added configurable comment character support (Marek Rouchal)
+
      Revision 2.28  2002/07/04 03:56:05  grail
      Changes for resolving bug 447532 - _section::FETCH should return array ref for multiline values.
 
