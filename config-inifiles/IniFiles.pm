@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.10 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.11 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.10 2000-12-13 17:40:18 rbowen Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.11 2000-12-16 12:53:13 grail Exp $
 
 =head1 SYNOPSIS
 
@@ -367,6 +367,8 @@ sub ReadConfig {
     carp "Failed to open $self->{cf}: $!";
     return undef;
   }
+  my @stats = stat CF;
+  $self->{file_mode} = sprintf "%04o", $stats[2];
   local $_;
   while (<CF>) {
     chomp;
@@ -572,6 +574,9 @@ sub WriteConfig {
     carp "Unable to rename temp config file to $file: $!";
     return undef;
   };
+  if (exists $self->{file_mode}) {
+    chmod oct($self->{file_mode}), $file;
+  }
   return 1;
 }
 
@@ -1522,6 +1527,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.10  2000/12/13 17:40:18  rbowen
+     Updated version number so that CPAN will stop being angry with us.
+
      Revision 1.18  2000/12/08 00:45:35  grail
      Change as requested by Jeremy Wadsack, for Bug 123146
 
