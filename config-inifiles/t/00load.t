@@ -72,16 +72,18 @@ if( open( CONFIG, "test.ini" ) ) {
   $ini->RewriteConfig();
   close CONFIG;
   # Now test opening and re-write to the same handle
-  if( open( CONFIG, "<+test01.ini" ) ) {
-    $ini = new Config::IniFiles -file => \*CONFIG;
-    my $badname = scalar(\*CONFIG);
+  chmod(0644, "test01.ini");
+  if(! open( CONFIG, "+<test01.ini" ) ) {
+    die "Could not open test01.ini read/write";
+  }
+  $ini = new Config::IniFiles -file => \*CONFIG;
+  my $badname = scalar(\*CONFIG);
                                        # Have to use open/close because -e seems to be always true!
-    ok( $ini && $ini->RewriteConfig() && !(open( I, $badname )&&close(I)) );
-    close CONFIG;
-    # In case it failed, remove the file
-    # (old behavior was to write to a file whose filename is the scalar value of the handle!)
-    unlink $badname;
-  } # end if
+  ok( $ini && $ini->RewriteConfig() && !(open( I, $badname )&&close(I)) );
+  close CONFIG;
+  # In case it failed, remove the file
+  # (old behavior was to write to a file whose filename is the scalar value of the handle!)
+  unlink $badname;
 } else {
 ok( 0 );
 } # end if
