@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.13 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.14 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.13 2000-11-28 12:41:42 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.14 2000-11-29 11:26:03 grail Exp $
 
 =head1 SYNOPSIS
 
@@ -21,8 +21,7 @@ Config::IniFiles - A module for reading .ini-style configuration files.
 =head1 DESCRIPTION
 
 Config::IniFiles provides a way to have readable configuration files outside
-your Perl script. The configuration can be safely reloaded upon
-receipt of a signal. Configurations can be imported (inherited, stacked,...), 
+your Perl script.  Configurations can be imported (inherited, stacked,...), 
 sections can be grouped, and settings can be accessed from a tied hash.
 
 =cut
@@ -110,8 +109,6 @@ whenever the config file is reloaded.  The reload message is of the
 form:
 
   PID <PID> reloading config file <file> at YYYY.MM.DD HH:MM:SS
-
-See your system documentation for information on valid signals.
 
 =item I<-nocase> 0|1
 
@@ -316,9 +313,7 @@ sub delval {
 
 =head2 ReadConfig
 
-Forces the config file to be re-read.  Also see the I<-reloadsig>
-option to the B<new> method for a way to connect this method to a
-signal (such as SIGHUP). Returns undef if the file can not be 
+Forces the config file to be re-read. Returns undef if the file can not be 
 opened.
 
 =cut
@@ -496,7 +491,8 @@ Groups are specified in the config file as new sections of the form
 
 This is useful for building up lists.  Note that parameters within a
 "member" section are referenced normally (i.e., the section name is
-still "Groupname Membername", including the space).
+still "Groupname Membername", including the space) - the concept of
+Groups is to aid people building more complex configuration files.
 
 =cut
 
@@ -508,7 +504,16 @@ sub Groups	{
 
 =head2 GroupMembers ($group)
 
-Returns an array containing the members of specified $group.
+Returns an array containing the members of specified $group. Each element
+of the array is a section name. For example, given the sections
+
+  [Group Element 1]
+  ...
+
+  [Group Element 2]
+  ...
+
+GroupMembers would return ("Group Element 1", "Group Element 2").
 
 =cut
 
@@ -1452,6 +1457,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 1.13  2000/11/28 12:41:42  grail
+     Added test for being able to add sections with wierd names like section|version2
+
      Revision 1.11  2000/11/24 21:20:11  rbowen
      Resolved SourceForge bug #122445 - a parameter should be split from its value on the first = sign encountered, not on the last one. Added test suite to test this, and put test case in test.ini
 
