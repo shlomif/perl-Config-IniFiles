@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.32 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.33 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.32 2002-11-12 14:15:44 grail Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.33 2002-11-12 14:48:16 grail Exp $
 
 =head1 NAME
 
@@ -923,7 +923,7 @@ sub GetWriteMode
 =head2 WriteConfig ($filename)
 
 Writes out a new copy of the configuration file.  A temporary file
-(ending in .new) is written out and then renamed to the specified
+(ending in '-new') is written out and then renamed to the specified
 filename.  Also see B<BUGS> below.
 
 =cut
@@ -946,7 +946,7 @@ sub WriteConfig {
   	#carp "Store mode $self->{file_mode} prohibits writing config";
   }
 
-  my $new_file = "$file.new";
+  my $new_file = $file . "-new";
   local(*F);
   open(F, "> $new_file") || do {
     carp "Unable to write temp config file $new_file: $!";
@@ -2091,6 +2091,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.32  2002/11/12 14:15:44  grail
+     Addresses bug - [225971] Respect Read-Only Permissions of File System
+
      Revision 2.31  2002/10/29 01:45:47  grail
      [ 540867 ] Add GetFileName method
 
