@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.34 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.35 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.34 2002-12-17 23:31:48 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.35 2002-12-18 00:34:19 wadg Exp $
 
 =head1 NAME
 
@@ -568,7 +568,7 @@ sub ReadConfig {
       $self->SetSectionComment($sect, @cmts);
       @cmts = ();
     }
-    elsif (($parm, $val) = /^\s*([^=]+?)\s*=\s*(.*)$/) {	# new parameter
+    elsif (($parm, $val) = /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {	# new parameter
       $parm = lc($parm) if $nocase;
       $self->{pCMT}{$sect}{$parm} = [@cmts];
       @cmts = ( );
@@ -1404,7 +1404,7 @@ sub Delete {
 
 =head1 USAGE -- Tied Hash
 
-=head2 tie $ini, 'Config::IniFiles', (-file=>$filename, [-option=>value ...] )
+=head2 tie %ini, 'Config::IniFiles', (-file=>$filename, [-option=>value ...] )
 
 Using C<tie>, you can tie a hash to a B<Config::IniFiles> object. This creates a new
 object which you can access through your hash, so you use this instead of the 
