@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.31 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.32 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.31 2002-10-29 01:45:47 grail Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.32 2002-11-12 14:15:44 grail Exp $
 
 =head1 NAME
 
@@ -506,7 +506,7 @@ sub ReadConfig {
   
   # Get mod time of file so we can retain it (if not from STDIN)
   my @stats = stat $fh;
-  $self->{file_mode} = sprintf "%04o", $stats[2] if defined $stats[2];
+  $self->{file_mode} = sprintf("%04o", $stats[2]) if defined $stats[2];
   
   # Get the entire file into memory (let's hope it's small!)
   local $_;
@@ -887,6 +887,39 @@ sub GroupMembers {
   return ();
 }
 
+=head2 SetWriteMode ($mode)
+
+Sets the mode (permissions) to use when writing the INI file.
+
+$mode must be a string representation of the octal mode.
+
+=cut
+
+sub SetWriteMode
+{
+	my $self = shift;
+	my $mode = shift;
+	return undef if not defined ($mode);
+	return undef if not ($mode =~ m/[0-7]{3,3}/);
+	$self->{file_mode} = $mode;
+	return $mode;
+}
+
+=head2 GetWriteMode ($mode)
+
+Gets the current mode (permissions) to use when writing the INI file.
+
+$mode is a string representation of the octal mode.
+
+=cut
+
+sub GetWriteMode
+{
+	my $self = shift;
+	return undef if not exists $self->{file_mode};
+	return $self->{file_mode};
+}
+
 =head2 WriteConfig ($filename)
 
 Writes out a new copy of the configuration file.  A temporary file
@@ -900,6 +933,18 @@ sub WriteConfig {
   my $file = shift;
   
   return undef if not defined $file;
+  if (-e $file) {
+  	if (not (-w $file))
+ 	{
+		#carp "File $file is not writable.  Refusing to write config";
+		return undef;
+ 	}
+	my $mode = (stat $file)[2];
+	$self->{file_mode} = sprintf "%04o", ($mode & 0777);
+	#carp "Using mode $self->{file_mode} for file $file";
+  } elsif (not (oct($self->{file_mode}) & 0222)) {
+  	#carp "Store mode $self->{file_mode} prohibits writing config";
+  }
 
   my $new_file = "$file.new";
   local(*F);
@@ -2046,6 +2091,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.31  2002/10/29 01:45:47  grail
+     [ 540867 ] Add GetFileName method
+
      Revision 2.30  2002/10/15 18:51:07  wadg
      Patched to stopwarnings about utf8 usage.
 

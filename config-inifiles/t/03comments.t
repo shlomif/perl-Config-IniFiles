@@ -18,6 +18,8 @@ chdir('t') if ( -d 't' );
 # Load ini file and write as new file
 $ini = new Config::IniFiles -file => "test.ini";
 $ini->SetFileName("test03.ini");
+$ini->SetWriteMode("0666");
+unlink "test03.ini";
 $ini->RewriteConfig;
 $ini->ReadConfig;
 ok($ini);

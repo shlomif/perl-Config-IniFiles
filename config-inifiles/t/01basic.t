@@ -5,6 +5,7 @@ use Config::IniFiles;
 BEGIN { plan tests => 8 }
 
 my ($value, @value);
+umask 0000;
 
 # Get files from the 't' directory, portably
 chdir('t') if ( -d 't' );
@@ -12,7 +13,9 @@ chdir('t') if ( -d 't' );
 # Test 1
 # Loading from a file
 my $ini = new Config::IniFiles -file => "test.ini";
+unlink "test01.ini";
 $ini->SetFileName("test01.ini");
+$ini->SetWriteMode("0666");
 ok($ini);
 
 # Test 2

@@ -10,12 +10,14 @@ my (@value);
 
 # Get files from the 't' directory, portably
 chdir('t') if ( -d 't' );
+unlink "test05.ini";
 
 
 # Test 1
 # Tying a hash.
 ok( tie %ini, 'Config::IniFiles', ( -file => "test.ini", -default => 'test1', -nocase => 1 ) );
 tied(%ini)->SetFileName("test05.ini");
+tied(%ini)->SetWriteMode("0666");
 
 # Test 2
 # Retrieve scalar value
