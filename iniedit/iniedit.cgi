@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use IniConf;
+use Config::IniFiles;
 use strict;
 use CGI;
 my ($cgi, $VERSION, $prog,
@@ -8,14 +8,12 @@ my ($cgi, $VERSION, $prog,
 	$row, @rows, $input,
     );
 
+$VERSION = qw($Revision)[1];
 
 $cgi = new CGI;
-
-$VERSION = 0.5;
-
 $inifile = "configuration.ini"; # Hardcoded for security
 $prog = "iniedit.cgi"; # The name of this file
-$cfg = IniConf->new(-file => $inifile);
+$cfg = Config::IniFiles->new(-file => $inifile);
 
 #  Has the user already filled in some values?
 if ($cgi->param('action') eq "change")	{
@@ -24,6 +22,8 @@ if ($cgi->param('action') eq "change")	{
 
 # Display the HTML page
 print $cgi->header;
+print $cgi->start_html();
+
 print "<table>";
 print $cgi->start_form(-method=>'POST',
                        -action=>$prog);
@@ -49,6 +49,7 @@ for $section ($cfg->Sections)	{
 $row = $cgi->td({-colspan=>'2'}, $cgi->submit('Make changes'));
 print $cgi->Tr($row);
 print "</form></table>";
+print $cgi->end_html();
 
 sub MakeChanges	{
 	my ($cgi, $cfg) = @_;
@@ -83,7 +84,7 @@ Generates a HTML form containing the sections and values from a
 
 =head1 PREREQUISITES
 
-	C<IniConf>
+	C<Config::IniFiles>, C<CGI.pm>
 
 =pod OSNAMES
 
