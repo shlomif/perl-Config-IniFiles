@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.10 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.11 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.10 2000-11-24 20:40:58 rbowen Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.11 2000-11-24 21:20:11 rbowen Exp $
 
 =head1 SYNOPSIS
 
@@ -404,7 +404,7 @@ sub ReadConfig {
 	$self->{v}{$sect} = {};
       }
     }
-    elsif (($parm, $val) = /\s*([\S\s]+?)\s*=\s*(.*)/) {	# new parameter
+    elsif (($parm, $val) = /\s*([^=]+?)\s*=\s*(.*)/) {	# new parameter
       $parm = lc($parm) if $nocase;
       $self->{pCMT}{$sect}{$parm} = [@cmts];
       @cmts = ( );
@@ -1452,6 +1452,11 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 1.10  2000/11/24 20:40:58  rbowen
+     Updated MANIFEST to have file list of new files in t/
+     Updated IniFiles.pm to have mention of sourceforge addresses, rather than rcbowen.com addresses
+     Regenerated README from IniFiles.pm
+
      Revision 1.9  2000/11/23 05:08:08  grail
      Fixed documentation for bug 122443 - Check that INI files can be created from scratch.
 
