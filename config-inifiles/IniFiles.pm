@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.12 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.13 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.12 2000-12-18 04:59:37 wadg Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.13 2000-12-18 07:14:41 wadg Exp $
 
 =head1 SYNOPSIS
 
@@ -370,10 +370,15 @@ sub ReadConfig {
   my @stats = stat CF;
   $self->{file_mode} = sprintf "%04o", $stats[2];
   local $_;
-  while (<CF>) {
-    chomp;
-    $lineno++;
+  my @lines = split /[\015\012]+/, join( '', <CF>);
+  close(CF);
+  # Store what our line ending char was for output
+  ($self->{line_ends}) = $lines[0] =~ /([\015\012]+)/;
+  while ( @lines ) {
+    $_ = shift @lines;
 
+    s/[\015\012]+$//;				# remove line ending char(s)
+    $lineno++;
     if (/^\s*$/) {				# ignore blank lines
       next;
     }
@@ -409,8 +414,9 @@ sub ReadConfig {
 	my $foundeot = 0;
 	my $startline = $lineno;
 	my @val = ( );
-	while (<CF>) {
-	  chomp;
+	while ( @lines ) {
+	  $_ = shift @lines;
+	  s/[\015\012]+$//;				# remove line ending char(s)
 	  $lineno++;
 	  if ($_ eq $eotmark) {
 	    $foundeot = 1;
@@ -459,7 +465,6 @@ sub ReadConfig {
       push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno, $_));
     }
   }
-  close(CF);
 
   #
   # Now convert all the parameter hashes into tied hashes.
@@ -477,6 +482,7 @@ sub ReadConfig {
 
   @Config::IniFiles::errors ? undef : 1;
 }
+
 
 =head2 Sections
 
@@ -629,27 +635,27 @@ sub OutputConfig {
   my $self = shift;
 
   my($sect, $parm, @cmts);
-  my $ors = $\ || "\n";		# $\ is normally unset
+  my $ors = $self->{line_ends} || $\ || "\n";		# $\ is normally unset, but use input by default
   my $notfirst = 0;
   local $_;
   foreach $sect (@{$self->{sects}}) {
     next unless defined $self->{v}{$sect};
-    print "\n" if $notfirst;
+    print $ors if $notfirst;
     $notfirst = 1;
     if ((ref($self->{sCMT}{$sect}) eq 'ARRAY') &&
 	(@cmts = @{$self->{sCMT}{$sect}})) {
       foreach (@cmts) {
-	print "$_\n";
+	print "$_$ors";
       }
     }
-    print "[$sect]\n";
+    print "[$sect]$ors";
     next unless ref $self->{v}{$sect} eq 'HASH';
 
     foreach $parm (@{$self->{parms}{$sect}}) {
       if ((ref($self->{pCMT}{$sect}{$parm}) eq 'ARRAY') &&
 	  (@cmts = @{$self->{pCMT}{$sect}{$parm}})) {
 	foreach (@cmts) {
-	  print "$_\n";
+	  print "$_$ors";
 	}
       }
 
@@ -657,11 +663,11 @@ sub OutputConfig {
       next if ! defined ($val);	# No parameter exists !!
       if (ref($val) eq 'ARRAY') {
 	my $eotmark = $self->{EOT}{$sect}{$parm};
-	print "$parm= <<$eotmark\n";
+	print "$parm= <<$eotmark$ors";
 	foreach (@{$val}) {
-	  print "$_\n";
+	  print "$_$ors";
 	}
-	print "$eotmark\n";
+	print "$eotmark$ors";
       } elsif( $val =~ /[$ors]/ ) {
         # The FETCH of a tied hash is never called in 
         # an array context, so gerenate a EOT multiline
@@ -670,14 +676,14 @@ sub OutputConfig {
         my @val = split /[$ors]/, $val;
         if( @val > 1 ) {
           my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
-          print "$parm= <<$eotmark\n";
-          print map "$_\n", @val;
-          print "$eotmark\n";
+          print "$parm= <<$eotmark$ors";
+          print map "$_$ors", @val;
+          print "$eotmark$ors";
         } else {
-           print "$parm=$val[0]\n";
+           print "$parm=$val[0]$ors";
         } # end if
       } else {
-        print "$parm=$val\n";
+        print "$parm=$val$ors";
       }
     }
   }
@@ -897,6 +903,59 @@ sub DeleteParameterEOT
 
 	delete $self->{EOT}{$section}{$parameter};
 }
+
+=item DeleteSection ( $section_name )
+
+Completely removes the entire section from the configuration.
+
+=cut
+
+sub DeleteSection {
+	my $self = shift;
+	my( $section_name ) = @_;
+
+	# This is done, the fast way, change if delval changes!!
+	delete $self->{v}{$section_name};
+	delete $self->{sCMT}{$section_name};
+	delete $self->{pCMT}{$section_name};
+	delete $self->{EOT}{$section_name};
+	delete $self->{parms}{$section_name};
+
+	@{$self->{sects}} = grep !/\Q$section_name\E$/, @{$self->{sects}};
+
+	if( $section_name =~ /(\S+)\s+\S+/ ) {
+		my $group = $1;
+		if( defined($self->{group}{$group}) ) {
+			@{$self->{group}{$group}} = grep !/\Q$section_name\E/, @{$self->{group}{$group}};
+		} # end if
+	} # end if
+
+	return 1;
+	} # end DeleteSection
+
+
+=item Delete
+
+Deletes the entire configuration file.
+
+=cut
+
+sub Delete {
+	my $self = shift;
+
+	# Again, done the fast way, if the data structure changes, change this!
+	$self->{sects}  = [];
+	$self->{parms}  = {};
+	$self->{group}  = {};
+	$self->{v}      = {};
+	$self->{sCMT}   = {};
+	$self->{pCMT}   = {};
+	$self->{EOT}    = {};
+
+	return 1;
+} # end Delete
+
+
 
 =head1 USAGE -- Tied Hash
 
@@ -1119,10 +1178,23 @@ sub STORE {
 # Date      Modification                              Author
 # ----------------------------------------------------------
 # 2000May09 Created method                                JW
+# 2000Dec17 Now removes comments, groups and EOTs too     JW
 # ----------------------------------------------------------
 sub DELETE {
   my $self = shift;
   my( $key ) = @_;
+
+  delete $self->{sCMT}{$key};
+  delete $self->{pCMT}{$key};
+  delete $self->{EOT}{$key};
+  delete $self->{parms}{$key};
+
+  if( $key =~ /(\S+)\s+\S+/ ) {
+    my $group = $1;
+    if( defined($self->{group}{$group}) ) {
+      @{$self->{group}{$group}} = grep !/\Q$key\E/, @{$self->{group}{$group}};
+    } # end if
+  } # end if
 
   @{$self->{sects}} = grep !/^\Q$key\E$/, @{$self->{sects}};
   return delete( $self->{v}{$key} );
@@ -1140,6 +1212,7 @@ sub CLEAR {
   foreach (keys %{$self->{v}}) {
      $self->DELETE( $_ );
   } # end foreach
+ 
 } # end CLEAR
 
 # ----------------------------------------------------------

@@ -2,7 +2,7 @@ use strict;
 use Test;
 use Config::IniFiles;
 
-BEGIN { plan tests => 7 }
+BEGIN { plan tests => 9 }
 
 my ($en, $ini, $success);
 
@@ -56,3 +56,14 @@ ok($success);
 # print "DeleteSectionComment ..............";
 $ini->DeleteSectionComment("Section1");
 ok(not defined $ini->GetSectionComment("Section1"));
+
+# test 8
+# DeleteSection
+$ini->DeleteSection( 'Section1' );
+ok( not $ini->Parameters( 'Section1' ) );
+
+# test 9
+# Delete entire config
+$ini->Delete();
+ok( not $ini->Sections() );
+

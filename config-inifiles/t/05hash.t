@@ -10,6 +10,7 @@ BEGIN { plan tests => 17 }
 
 my %ini;
 my ($ini, $value);
+my (@value);
 
 # test 1
 # print "Tying a hash ..................... ";
@@ -137,11 +138,13 @@ ok( $n1 == $n1 && $n2 == $n3 );
 
 # test 17
 # Writing 2 line multilvalue and returing it
-$t++;
-$ini{'test2'}{'multi_2'} = ['line 1', 'line 2'];
+$ini{newsect} = {};
+$ini{test1}{multi_2} = ['line 1', 'line 2'];
 tied(%ini)->RewriteConfig;
 tied(%ini)->ReadConfig;
-@value = split( /[\$\n]/, $ini{'test2'}{'seven'} );;
-ok(@value == 2 && $value[0] eq 'line1' && $value[1] eq 'line 2');
-
+@value = split( /[\015\012]+/, $ini{test1}{multi_2} || '' );
+ok( (@value == 2) 
+    && ($value[0] eq 'line 1')
+    && ($value[1] eq 'line 2')
+  );
 
