@@ -2,7 +2,7 @@ use strict;
 use Test;
 use Config::IniFiles;
 
-BEGIN { plan tests => 4 }
+BEGIN { plan tests => 6 }
 
 my $ors = $\ || "\n";
 my ($ini,$value);
@@ -52,4 +52,30 @@ ok(
 	($ca->val( 'm', 'DataName' ) eq 'Mes') &&
 	1#
   );
+
+
+# test 5
+# Try creating a config file that imports from a hand-built object
+my $a = Config::IniFiles->new();
+$a -> AddSection('alpha');
+$a -> AddSection('x');
+$a -> newval('x', 'x', 1);
+$a -> newval('x', 'LongName', 1);
+$a -> newval('m', 'z', 1);
+ok( 
+	($a->val('x', 'x') == 1) &&
+	($a->val('x', 'LongName') == 1) &&
+	($a->val('m', 'z') == 1)
+  );
+
+# test 6
+## show that importing a file-less object into a file-based one works
+my $b = Config::IniFiles->new( -file=>'ca.ini', -import=>$a );
+ok( 
+	($b->val('x', 'LongName') eq 'Resum general') &&
+	($b->val('x', 'x', 0) == 1) &&
+	($b->val('m', 'z', 0) == 1) &&
+	($b->val('m', 'LongName') eq 'Resum mensual')
+  );
+
 

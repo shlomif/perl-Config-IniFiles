@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.35 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.36 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.35 2002-12-18 00:34:19 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.36 2002-12-18 01:43:11 wadg Exp $
 
 =head1 NAME
 
@@ -199,7 +199,7 @@ sub new {
     $self->{default}   = '';
     $self->{imported}  = [];
     if( defined $parms{-import} ) {
-      carp "Invalid -import value was ignored.";
+      carp "Invalid -import value \"$parms{-import}\" was ignored.";
       delete $parms{-import};
     } # end if
   } # end if
@@ -217,7 +217,11 @@ sub new {
   # because each() could return parameters in any order
   if (defined ($v = delete $parms{'-import'})) {
     # Store the imported object's file parameter for reload
-    push( @{$self->{imported}}, $self->{cf} ) if $self->{cf};
+    if( $self->{cf} ) {
+        push( @{$self->{imported}}, $self->{cf} );
+    } else {
+        push( @{$self->{imported}}, "<Un-named file>" );
+    } # end if
   }
   if (defined ($v = delete $parms{'-file'})) {
     # Should we be pedantic and check that the file exists?
@@ -468,21 +472,23 @@ sub ReadConfig {
   # Initialize (and clear out) storage hashes
   # unless we imported them from another file [JW]
   if( @{$self->{imported}} ) {
-    #
-    # Run up the import tree to the top, then reload coming
-    # back down, maintaining the imported file names and our 
-    # file name
-    #
-    my $cf = $self->{cf};
-    $self->{cf} = pop @{$self->{imported}};
-    $self->ReadConfig;
-    push @{$self->{imported}}, $self->{cf};
-    $self->{cf} = $cf;
+      #
+      # Run up the import tree to the top, then reload coming
+      # back down, maintaining the imported file names and our 
+      # file name.
+      # This is only needed on a re-load though
+      unless( $self->{firstload} ) {
+        my $cf = $self->{cf};
+        $self->{cf} = pop @{$self->{imported}};
+        $self->ReadConfig;
+        push @{$self->{imported}}, $self->{cf};
+        $self->{cf} = $cf;
+      } # end unless
   } else {
-    $self->{sects}  = [];		# Sections
-    $self->{group}  = {};		# Subsection lists
-    $self->{v}      = {};		# Parameter values
-    $self->{sCMT}   = {};		# Comments above section
+      $self->{sects}  = [];		# Sections
+      $self->{group}  = {};		# Subsection lists
+      $self->{v}      = {};		# Parameter values
+      $self->{sCMT}   = {};		# Comments above section
   } # end if
   
   return undef if (
@@ -643,7 +649,7 @@ sub ReadConfig {
       push(@{$self->{parms}{$sect}}, $parm) unless grep(/^\Q$parm\E$/, @{$self->{parms}{$sect}});
     }
     else {
-      push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno, $_));
+      push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $lineno, $_));
     }
   }
 
