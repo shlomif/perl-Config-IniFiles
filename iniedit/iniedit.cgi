@@ -2,28 +2,26 @@
 use Config::IniFiles;
 use strict;
 use CGI;
-my ($cgi, $VERSION, $prog,
+my ($prog,
     $cfg, $inifile, $form,
     $section, $param, $value, $name, $length,
 	$row, @rows, $input,
     );
+my $VERSION = qw($Revision: 1.4 $)[1];
 
-$VERSION = qw($Revision: 1.3 $)[1];
-
-$cgi = new CGI;
+# Configuration variables
 $inifile = "configuration.ini"; # Hardcoded for security
 $prog = "iniedit.cgi"; # The name of this file
-$cfg = Config::IniFiles->new(-file => $inifile);
 
-#  Has the user already filled in some values?
+my $cgi = new CGI;
+my $cfg = Config::IniFiles->new(-file => $inifile);
+
 if ($cgi->param('action') eq "change")	{
 	MakeChanges($cgi, $cfg);
 }
 
-# Display the HTML page
 print $cgi->header;
 print $cgi->start_html();
-
 print "<table>";
 print $cgi->start_form(-method=>'POST',
                        -action=>$prog);
