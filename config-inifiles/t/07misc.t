@@ -32,11 +32,15 @@ ok( (defined $ini) && ($ini->val('test2', 'three') eq 'value3') );
 # Check that Config::IniFiles respects RO permission on original INI file
 $ini->WriteConfig("test07.ini");
 chmod 0444, "test07.ini";
-warn "Test 4 has problems" if (-w "test07.ini");
-$ini->setval('test2', 'three', 'should not be here');
-$value = $ini->WriteConfig("test07.ini");
-warn "Value is $value!" if (defined $value);
-ok(not defined $value);
+if (-w "test07.ini") {
+	skip(1,'RO Permissions not settable.');
+} else {
+	$ini->setval('test2', 'three', 'should not be here');
+	$value = $ini->WriteConfig("test07.ini");
+	warn "Value is $value!" if (defined $value);
+	ok(not defined $value);
+} # end if
+
 
 # Clean up when we're done
 unlink "test07.ini";

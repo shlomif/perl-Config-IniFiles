@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.36 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.37 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.36 2002-12-18 01:43:11 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.37 2003-01-31 23:00:35 wadg Exp $
 
 =head1 NAME
 
@@ -31,7 +31,7 @@ sections can be grouped, and settings can be accessed from a tied hash.
 INI files consist of a number of sections, each preceded with the
 section name in square brackets.  The first non-blank character of
 the line indicating a section must be a left bracket and the last
-nonblank character of a line indicating a section must be a right
+non-blank character of a line indicating a section must be a right
 bracket. The characters making up the section name can be any 
 symbols at all. However section names must be unique.
 
@@ -46,9 +46,9 @@ the section, but must be unique within a section.
 Both the hash mark (#) and the semicolon (;) are comment characters.
 by default (this can be changed by configuration)
 Lines that begin with either of these characters will be ignored.  Any
-amount of whitespace may preceed the comment character.
+amount of whitespace may precede the comment character.
 
-Multiline or multi-valued parameters may also be defined ala UNIX 
+Multi-line or multi-valued parameters may also be defined ala UNIX 
 "here document" syntax:
 
   Parameter=<<EOT
@@ -64,7 +64,7 @@ As a configuration option (default is off), continuation lines can
 be allowed:
 
   [Section]
-  Parameter=this paramater \
+  Parameter=this parameter \
     spreads across \
     a few lines
 
@@ -174,7 +174,7 @@ option you may enlarge or narrow this range to a set of characters
 (concatenating them to a string). Note that the character specified by
 B<-commentchar> (see above) is always part of the allowed comment
 characters. Note: The given string is evaluated as a character class
-(ie: like C</[chars]/>).
+(i.e.: like C</[chars]/>).
 
 =back
 
@@ -2104,6 +2104,11 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.36  2002/12/18 01:43:11  wadg
+     - Improved error message when an invalid line is encountered in INI file
+     - Fixed bug 649220; importing a non-file-based object into a file one
+       no longer destroys the original object
+
      Revision 2.33  2002/11/12 14:48:16  grail
      Addresses feature request - [ 403496 ] A simple change will allow support on more platforms
 
