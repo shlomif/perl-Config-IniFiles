@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.37 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.38 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.37 2003-01-31 23:00:35 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.38 2003-05-14 01:30:32 wadg Exp $
 
 =head1 NAME
 
@@ -225,6 +225,7 @@ sub new {
   }
   if (defined ($v = delete $parms{'-file'})) {
     # Should we be pedantic and check that the file exists?
+    # .. no, because now it could be a handle, IO:: object or something else
     $self->{cf} = $v;
   }
   if (defined ($v = delete $parms{'-default'})) {
@@ -453,7 +454,7 @@ file can not be opened, no filename was defined (with the C<-file>
 option) when the object was constructed, or an error occurred while 
 reading.
 
-If an error occurs while parsinf the INI file the @Config::IniFiles::errors
+If an error occurs while parsing the INI file the @Config::IniFiles::errors
 array will contain messages that might help you figure out where the 
 problem is in the file.
 
@@ -524,13 +525,23 @@ sub ReadConfig {
   # Get the entire file into memory (let's hope it's small!)
   local $_;
   my @lines = split /\015\012?|\012|\025|\n/, join( '', <$fh>);
-  close($fh);
+  
+  # Only close if this is a filename, if it's
+  # an open handle, then just roll back to the start
+  if( !ref($fh) ) {
+    close($fh);
+  } else {
+    # But we can't roll back STDIN so skip that one
+    if( $fh != 0 ) {
+      seek( $fh, 0, 0 );
+    } # end if
+  } # end if
 
   # If there's a UTF BOM (Byte-Order-Mark) in the first character of the first line
   # then remove it before processing (http://www.unicode.org/unicode/faq/utf_bom.html#22)
   ($lines[0] =~ s/^﻿//);
 # Disabled the utf8 one for now (JW) because it doesn't work on all perl distros
-# e.g. 5.61 works with or w/o 'use utf8' 5.6.0 fails w/o it. 5.005_03 
+# e.g. 5.6.1 works with or w/o 'use utf8' 5.6.0 fails w/o it. 5.005_03 
 # says "invalid hex value", etc. If anyone has a clue how to make this work 
 # please let me know!
 #  ($lines[0] =~ s/^﻿//) || (eval('use utf8; $lines[0] =~ s/^\x{FEFF}//;'));
@@ -939,6 +950,8 @@ Writes out a new copy of the configuration file.  A temporary file
 (ending in '-new') is written out and then renamed to the specified
 filename.  Also see B<BUGS> below.
 
+Returns true on success, C<undef> on failure.
+
 =cut
 
 sub WriteConfig {
@@ -946,37 +959,69 @@ sub WriteConfig {
   my $file = shift;
   
   return undef unless defined $file;
-  if (-e $file) {
-  	if (not (-w $file))
- 	{
-		#carp "File $file is not writable.  Refusing to write config";
-		return undef;
- 	}
-	my $mode = (stat $file)[2];
-	$self->{file_mode} = sprintf "%04o", ($mode & 0777);
-	#carp "Using mode $self->{file_mode} for file $file";
-  } elsif (defined($self->{file_mode}) and not (oct($self->{file_mode}) & 0222)) {
-  	#carp "Store mode $self->{file_mode} prohibits writing config";
-  }
+  
+  # If we are using a filename, then do mode checks and write to a 
+  # temporary file to avoid a race condition
+  if( !ref($file) ) {
+    if (-e $file) {
+          if (not (-w $file))
+          {
+                  #carp "File $file is not writable.  Refusing to write config";
+                  return undef;
+          }
+          my $mode = (stat $file)[2];
+          $self->{file_mode} = sprintf "%04o", ($mode & 0777);
+          #carp "Using mode $self->{file_mode} for file $file";
+    } elsif (defined($self->{file_mode}) and not (oct($self->{file_mode}) & 0222)) {
+          #carp "Store mode $self->{file_mode} prohibits writing config";
+    }
+  
+    my $new_file = $file . "-new";
+    local(*F);
+    open(F, "> $new_file") || do {
+      carp "Unable to write temp config file $new_file: $!";
+      return undef;
+    };
+    my $oldfh = select(F);
+    $self->OutputConfig;
+    close(F);
+    select($oldfh);
+    rename( $new_file, $file ) || do {
+      carp "Unable to rename temp config file ($new_file) to $file: $!";
+      return undef;
+    };
+    if (exists $self->{file_mode}) {
+      chmod oct($self->{file_mode}), $file;
+    }
+  
+  } # Otherwise, reset to the start of the file and write, unless we are using STDIN
+  else {
+    # Get a filehandle, allowing almost any type of 'file' parameter
+    ## NB: If this were a filename, this would fail because _make_file 
+    ##     opens a read-only handle, but we have already checked that case
+    ##     so re-using the logic is ok [JW/WADG]
+    my $fh = $self->_make_filehandle( $file );
+    if (!$fh) {
+      carp "Could not find a filehandle for the input stream ($file): $!";
+      return undef;
+    }
+    
+    
+    # Only roll back if it's not STDIN (if it is, Carp)
+    if( $fh == 0 ) {
+      carp "Cannot write configuration file to STDIN.";
+    } else {
+      seek( $fh, 0, 0 );
+      my $oldfh = select($fh);
+      $self->OutputConfig;
+      seek( $fh, 0, 0 );
+      select($oldfh);
+    } # end if
 
-  my $new_file = $file . "-new";
-  local(*F);
-  open(F, "> $new_file") || do {
-    carp "Unable to write temp config file $new_file: $!";
-    return undef;
-  };
-  my $oldfh = select(F);
-  $self->OutputConfig;
-  close(F);
-  select($oldfh);
-  rename( $new_file, $file ) || do {
-    carp "Unable to rename temp config file ($new_file) to $file: $!";
-    return undef;
-  };
-  if (exists $self->{file_mode}) {
-    chmod oct($self->{file_mode}), $file;
-  }
+  } # end if (filehandle/name)
+  
   return 1;
+  
 }
 
 =head2 RewriteConfig
@@ -1740,7 +1785,7 @@ sub DESTROY {
 # ----------------------------------------------------------
 sub _make_filehandle {
   my $self = shift;
-  
+
   #
   # This code is 'borrowed' from Lincoln D. Stein's GD.pm module
   # with modification for this module. Thanks Lincoln!
@@ -2080,7 +2125,7 @@ Bernie Cosell, Alan Young, Alex Satrapa, Mike Blazer, Wilbert van de Pieterman,
 Steve Campbell, Robert Konigsberg, Scott Dellinger, R. Bernstein,
 Daniel Winkelmann, Pires Claudio, Adrian Phillips, 
 Marek Rouchal, Luc St Louis, Adam Fischler, Kay R�pke, Matt Wilson, 
-Raviraj Murdeshwar and Slaven Rezic.
+Raviraj Murdeshwar and Slaven Rezic, Florian Pfaff
 
 Geez, that's a lot of people. And apologies to the folks who were missed.
 
@@ -2104,6 +2149,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.37  2003/01/31 23:00:35  wadg
+     Updated t/07misc test 4 to remove warning
+
      Revision 2.36  2002/12/18 01:43:11  wadg
      - Improved error message when an invalid line is encountered in INI file
      - Fixed bug 649220; importing a non-file-based object into a file one

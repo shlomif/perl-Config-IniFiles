@@ -18,3 +18,5 @@ t/en.ini
 t/es.ini
 t/test.ini
 t/cmt.ini
+t/bad.ini
+t/blank.ini

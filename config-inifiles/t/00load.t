@@ -1,7 +1,7 @@
 use strict;
 use Test;
 
-BEGIN { $| = 1; plan tests => 10 }
+BEGIN { $| = 1; plan tests => 14 }
 use Config::IniFiles;
 my $loaded = 1;
 ok($loaded);
@@ -50,14 +50,51 @@ if( eval( "require IO::File" ) && (my $fh = new IO::File( "test.ini" )) ) {
   $fh->close;
 } else {
   ok( 0 );
-}
+} # endif
+
 
 # Test 5
+# Reread on an open handle
+if( open( CONFIG, "test.ini" ) ) {
+  $ini = new Config::IniFiles -file => \*CONFIG;
+  ok($ini && $ini->ReadConfig());
+  close CONFIG;
+} else {
+  ok( 0 );
+}
+
+
+# Test 6
+# Write to a new file name and write to it
+if( open( CONFIG, "test.ini" ) ) {
+  $ini = new Config::IniFiles -file => \*CONFIG;
+  $ini->SetFileName( 'test01.ini' );
+  $ini->RewriteConfig();
+  close CONFIG;
+  # Now test opening and re-write to the same handle
+  if( open( CONFIG, "test01.ini" ) ) {
+    $ini = new Config::IniFiles -file => \*CONFIG;
+    my $badname = scalar(\*CONFIG);
+                                       # Have to use open/close because -e seems to be always true!
+    ok( $ini && $ini->RewriteConfig() && (open( I, $badname )&&close(I)) );
+    close CONFIG;
+    # In case it failed, remove the file
+    # (old behavior was to write to a file whose filename is the scalar value of the handle!)
+    unlink $badname;
+  } # end if
+} else {
+ok( 0 );
+} # end if
+  
+
+
+
+# Test 7
 # the pathname of a file
 $ini = new Config::IniFiles -file => "test.ini";
 ok($ini);
 
-# Test 6
+# Test 8
 # A non-INI file should fail, but not throw warnings
 local $@ = '';
 my $ERRORS = '';
@@ -66,28 +103,44 @@ eval { $ini = new Config::IniFiles -file => "00load.t" };
 ok(!$@ && !$ERRORS && !defined($ini));
 
 
-# Test 7
+# Test 9
 # Read in the DATA file without errors
 $@ = '';
-$ERRORS = '';
 eval { $ini = new Config::IniFiles -file => \*DATA };
-ok(!$@ && !$ERRORS && defined($ini));
+ok(!$@ && defined($ini));
 
-# Test 8
+# Test 10
 # Try a file with utf-8 encoding (has a Byte-Order-Mark at the start)
 $ini = new Config::IniFiles -file => "en.ini";
 ok($ini);
 
-# Test 9
+# Test 11
 # Create a new INI file, and set the name using SetFileName
 $ini = new Config::IniFiles;
 my $filename = $ini->GetFileName;
 ok(not defined($filename));
 
-# Test 10
+# Test 12
+# Check GetFileName method
 $ini->SetFileName("test9_name.ini");
 $filename = $ini->GetFileName;
 ok($filename eq "test9_name.ini");
+
+# Test 13
+# Make sure that no warnings are thrown for an empty file
+$@ = '';
+eval { $ini = new Config::IniFiles -file => 'blank.ini' };
+ok(!$@ && !defined($ini));
+
+# Test 14
+# A malformed file should throw an error message
+$@ = '';
+eval { $ini = new Config::IniFiles -file => 'bad.ini' };
+ok(!$@ && !defined($ini) && @Config::IniFiles::errors);
+
+
+# Clean up when we're done
+unlink "test01.ini";
 
 
 __END__
