@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.14 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.15 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.14 2000-11-29 11:26:03 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.15 2000-12-07 14:12:06 grail Exp $
 
 =head1 SYNOPSIS
 
@@ -41,8 +41,7 @@ section name in square brackets.  The first nonblank character of
 the line indicating a section must be a left bracket and the last
 nonblank character of a line indicating a section must be a right
 bracket. The characters making up the section name can be any 
-symbols at all. The section may even be be empty. However section
-names must be unique.
+symbols at all. However section names must be unique.
 
 Parameters are specified in each section as Name=Value.  Any spaces
 around the equals sign will be ignored, and the value extends to the
@@ -749,17 +748,60 @@ sub SetParameterComment
 		$self->{pCMT}{$section} = {};
 	}
 	
-	if (not exists $self->{pCMT}{$section}{$parameter}) {
-		$self->{pCMT}{$section}{$parameter} = [];
-	}
+	$self->{pCMT}{$section}{$parameter} = [];
 	# Note that at this point, it's possible to have a comment for a parameter,
 	# without that parameter actually existing in the INI file.
 	
 	foreach my $comment_line (@comment) {
 		($comment_line =~ m/^\s*[#;]/) or ($comment_line = "# $comment_line");
-		push @{$self->{sCMT}{$section}{$parameter}}, $comment_line;
+		push @{$self->{pCMT}{$section}{$parameter}}, $comment_line;
 	}
 	return scalar @comment;
+}
+
+=head2 GetParameterComment ($section, $parameter)
+
+Gets the comment attached to a parameter.
+
+=cut
+
+sub GetParameterComment
+{
+	my $self = shift;
+	my $section = shift;
+	my $parameter = shift;
+	
+	defined($section) || return undef;
+	defined($parameter) || return undef;
+	
+	exists($self->{pCMT}{$section}) || return undef;
+	exists($self->{pCMT}{$section}{$parameter}) || return undef;
+	
+	my @comment = @{$self->{pCMT}{$section}{$parameter}};
+	return (wantarray)?@comment:join " ", @comment;
+}
+
+=head2 DeleteParameterComment ($section, $parameter)
+
+Deletes the comment attached to a parameter.
+
+=cut
+
+sub DeleteParameterComment
+{
+	my $self = shift;
+	my $section = shift;
+	my $parameter = shift;
+	
+	defined($section) || return undef;
+	defined($parameter) || return undef;
+	
+	# If the parameter doesn't exist, our goal has already been achieved
+	exists($self->{pCMT}{$section}) || return 1;
+	exists($self->{pCMT}{$section}{$parameter}) || return 1;
+	
+	delete $self->{pCMT}{$section}{$parameter};
+	return 1;
 }
 
 =head2 GetParameterEOT ($section, $parameter)
@@ -1457,6 +1499,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 1.14  2000/11/29 11:26:03  grail
+     Updates for task 22401 (no more reloadsig) and 22402 (Group and GroupMember doco)
+
      Revision 1.13  2000/11/28 12:41:42  grail
      Added test for being able to add sections with wierd names like section|version2
 

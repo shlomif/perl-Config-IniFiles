@@ -57,4 +57,67 @@ if( (defined $ini) &&
 	print "not ok $t\n";
 }
 
-BEGIN {$t = 4}
+my $ini = new Config::IniFiles ( -file => "t/test.ini" );
+$ini->setval("foo","bar","qux");
+
+# test 5
+$t++;
+# print "Setting Section Comment........... ";
+if ($ini->SetSectionComment("foo", "This is a section comment", "This comment takes two lines!")) {
+	print "ok $t\n";
+} else {
+	print "not ok $t\n";
+}
+
+# test 6
+$t++;
+# print "Getting Section Comment........... ";
+my @comment = $ini->GetSectionComment("foo");
+if ( join("", @comment) eq "# This is a section comment# This comment takes two lines!") {
+	print "ok $t\n";
+} else {
+	print "not ok $t\n";
+}
+
+#test 7
+$t++;
+# print "Deleting Section Comment.......... ";
+$ini->DeleteSectionComment("foo");
+# Should not exist!
+if (not defined $ini->GetSectionComment("foo")) {
+	print "ok $t\n";
+} else {
+	print "not ok $t\n";
+}
+
+# test 8
+$t++;
+# print "Setting Parameter Comment......... ";
+if ($ini->SetParameterComment("foo", "bar", "This is a parameter comment", "This comment takes two lines!")) {
+	print "ok $t\n";
+} else {
+	print "not ok $t\n";
+}
+
+# test 9
+$t++;
+# print "Getting Parameter Comment......... ";
+@comment = $ini->GetParameterComment("foo", "bar");
+if (join("", @comment) eq "# This is a parameter comment# This comment takes two lines!") {
+	print "ok $t\n";
+} else {
+	print "not ok $t\n";
+}
+
+# test 10
+$t++;
+# print "Deleting Parameter Comment........ ";
+$ini->DeleteParameterComment("foo", "bar");
+# Should not exist!
+if (not defined $ini->GetSectionComment("foo", "bar")) {
+	print "ok $t\n";
+} else {
+	print "not ok $t\n";
+}
+
+BEGIN {$t = 10}
