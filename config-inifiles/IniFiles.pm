@@ -1,12 +1,12 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.18 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.19 $))[1];
 use Carp;
 use strict;
 require 5.004;
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.18 2001-03-30 04:41:08 rbowen Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.19 2001-04-04 23:33:40 wadg Exp $
 
 =head1 NAME
 
@@ -254,6 +254,13 @@ sub setval {
   my $parm = shift;
   my @val  = @_;
 
+# tom@ytram.com +
+  if ($self->{nocase}) {
+    $sect = lc($sect);
+    $parm = lc($parm);
+  }
+# tom@ytram.com -
+
   if (defined($self->{v}{$sect}{$parm})) {
     if (@val > 1) {
       $self->{v}{$sect}{$parm} = \@val;
@@ -280,6 +287,13 @@ sub newval {
   my $sect = shift;
   my $parm = shift;
   my @val  = @_;
+
+# tom@ytram.com +
+  if ($self->{nocase}) {
+    $sect = lc($sect);
+    $parm = lc($parm);
+  }
+# tom@ytram.com -
 
     push(@{$self->{sects}}, $sect) unless (grep /^\Q$sect\E$/, @{$self->{sects}});
     $self->{v}{$sect} = {} unless ref $self->{v}{$sect} eq 'HASH';
@@ -308,6 +322,13 @@ sub delval {
   my $self = shift;
   my $sect = shift;
   my $parm = shift;
+
+# tom@ytram.com +
+  if ($self->{nocase}) {
+    $sect = lc($sect);
+    $parm = lc($parm);
+  }
+# tom@ytram.com -
 
 	@{$self->{parms}{$sect}} = grep !/^\Q$parm\E$/, @{$self->{parms}{$sect}};
 	delete $self->{v}{$sect}{$parm};
@@ -697,9 +718,8 @@ sub OutputConfig {
 	print "$eotmark$ors";
       } elsif( $val =~ /[$ors]/ ) {
         # The FETCH of a tied hash is never called in 
-        # an array context, so gerenate a EOT multiline
+        # an array context, so generate a EOT multiline
         # entry if the entry looks to be multiline
-
         my @val = split /[$ors]/, $val;
         if( @val > 1 ) {
           my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
@@ -1180,12 +1200,15 @@ sub FETCH {
 # ----------------------------------------------------------
 # 2000Jun14 Fixed bug where wrong ref was saved           JW
 # 2000Oct09 Fixed possible but in %parms with defaults    JW
+# 2001Apr04 Fixed -nocase problem in storing              JW
 # ----------------------------------------------------------
 sub STORE {
   my $self = shift;
   my( $key, $ref ) = @_;
 
   return undef unless ref($ref) eq 'HASH';
+
+  $key = lc($key) if( $self->{nocase} );
 
   # Create a new hash and tie it to a _sections object with the ref's data
   $self->{v}{$key} = {};
@@ -1208,10 +1231,13 @@ sub STORE {
 # ----------------------------------------------------------
 # 2000May09 Created method                                JW
 # 2000Dec17 Now removes comments, groups and EOTs too     JW
+# 2001Arp04 Fixed -nocase problem                         JW
 # ----------------------------------------------------------
 sub DELETE {
   my $self = shift;
   my( $key ) = @_;
+
+  $key = lc($key) if( $self->{nocase} );
 
   delete $self->{sCMT}{$key};
   delete $self->{pCMT}{$key};
@@ -1274,12 +1300,14 @@ sub NEXTKEY {
 # Date      Modification                              Author
 # ----------------------------------------------------------
 # 2000May09 Created method                                JW
+# 2001Apr04 Fixed -nocase bug and false true bug          JW
 # ----------------------------------------------------------
 sub EXISTS {
   my $self = shift;
   my( $key ) = @_;
+  $key = lc($key) if( $self->{nocase} );
 
-  return exists $self->{v};
+  return exists $self->{v}{$key};
 } # end EXISTS
 
 
@@ -1419,11 +1447,14 @@ sub FETCH {
 # ----------------------------------------------------------
 # Date      Modification                              Author
 # ----------------------------------------------------------
+# 2001Apr04 Fixed -nocase bug                             JW
 # ----------------------------------------------------------
 sub STORE {
   my $self = shift;
   my $key = shift;
   my @val = @_;
+
+  $key = lc($key) if( $self->{nocase} );
 
   # Add the parameter the the parent's list if it isn't there yet
   push(@{$self->{parms}}, $key) unless (grep /^\Q$key\E$/, @{$self->{parms}});
@@ -1448,11 +1479,13 @@ sub STORE {
 # ----------------------------------------------------------
 # Date      Modification                              Author
 # ----------------------------------------------------------
+# 2001Apr04 Fixed -nocase bug                              JW
 # ----------------------------------------------------------
 sub DELETE   {
   my $self = shift;
   my $key = shift;
 
+  $key = lc($key) if( $self->{nocase} );
 #	@{$self->{parms}{$sect}} = grep !/^$parm$/, @{$self->{parms}{$sect}};
   return delete $self->{v}{$key};
 } # end DELETE
@@ -1487,10 +1520,12 @@ sub CLEAR    {
 # ----------------------------------------------------------
 # Date      Modification                              Author
 # ----------------------------------------------------------
+# 2001Apr04 Fixed -nocase bug                             JW
 # ----------------------------------------------------------
 sub EXISTS   {
   my $self = shift;
   my $key = shift;
+  $key = lc($key) if( $self->{nocase} );
   return exists $self->{v}{$key};
 } # end EXISTS
 
@@ -1570,6 +1605,8 @@ is read.
 
 The output from [Re]WriteConfig/OutputConfig might not be as pretty as
 it can be.  Comments are tied to whatever was immediately below them.
+And case is not preserved for Section and Parameter names if the -nocase
+option was used.
 
 =item *
 
@@ -1632,8 +1669,18 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.18  2001/03/30 04:41:08  rbowen
+     Small documentation change in IniFiles.pm - pod2* was choking on misplaces
+     =item tags. And I regenerated the README
+     The main reason for this release is that the MANIFEST in the 2.17 version was
+     missing one of the new test suite files, and that is included in this
+     re-release.
+
      Revision 2.17  2001/03/21 21:05:12  wadg
      Documentation edits
+
+     Revision 2.16  2001/03/21 19:59:09 wadg
+     410327 -default not in original; 233255 substring parameters
 
      Revision 2.15  2001/01/30 11:46:48  rbowen
      Very minor documentation bug fixed.
