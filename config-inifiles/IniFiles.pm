@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.9 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.10 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.9 2000-11-23 05:08:08 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.10 2000-11-24 20:40:58 rbowen Exp $
 
 =head1 SYNOPSIS
 
@@ -1430,17 +1430,21 @@ Bernie Cosell, Alan Young, Alex Satrapa, Mike Blazer, Wilbert van de Pieterman,
 Steve Campbell, Robert Konigsberg, Scott Dellinger, R. Bernstein,
 Jeremy Wadsack, Daniel Winkelmann, Pires Claudio,  and Adrian Phillips.
 
-Geez, that's a lot of people.
+Geez, that's a lot of people. And apologies to the folks I missed.
 
 If you want someone to bug about this, that would be:
 
-	Rich Bowen <rbowen@rcbowen.com>
+	Rich Bowen <rbowen at rcbowen dot com>
 
 If you want more information, or want to participate, go to:
 
-	http://dev.rcbowen.com/iniconf/
+	http://sourceforge.net/projects/config-inifiles/
 
-Please send bug reports to iniconf@rcbowen.com     
+Please send bug reports to config-inifiles-bugs@lists.sourceforge.net
+
+Development discussion occurs on the mailing list
+config-inifiles-dev@lists.sourceforge.net, which you can subscribe
+to by going to the project web site (link above).
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
@@ -1448,8 +1452,11 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 1.9  2000/11/23 05:08:08  grail
+     Fixed documentation for bug 122443 - Check that INI files can be created from scratch.
+
      Revision 1.1.1.1  2000/11/10 03:04:01  rbowen
-     Initial checkin of the Config::IniFiles source
+     Initial checkin of the Config::IniFiles source to SourceForge
 
      Revision 1.8  2000/10/17 01:52:55  rbowen
      Patch from Jeremy. Fixed "defined" warnings.

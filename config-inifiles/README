@@ -1,7 +1,7 @@
 NAME
     Config::IniFiles - A module for reading .ini-style configuration files.
 
-         $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/README,v 1.1.1.1 2000-11-10 03:04:02 rbowen Exp $
+         $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/README,v 1.2 2000-11-24 20:40:58 rbowen Exp $
 
 SYNOPSIS
       use Config::IniFiles;
@@ -67,11 +67,17 @@ USAGE -- Object Interface
       @values = $cfg->val('Section', 'Parameter');
 
 METHODS
-  new (-file=>$filename, [-option=>value ...] )
+  new ( [-option=>value ...] )
 
     Returns a new configuration object (or "undef" if the configuration file
     has an error). One Config::IniFiles object is required per configuration
     file. The following named parameters are available:
+
+    *-file* filename
+              Specifies a file to load the parameters from. If this option
+              is not specified, (ie: you are creating a config file from
+              scratch) you must specify a target file using SetFileName in
+              order to save the parameters.
 
     *-default* section
               Specifies a section is used for default values. For example,
@@ -406,25 +412,35 @@ AUTHOR and ACKNOWLEDGEMENTS
     Bernstein, Jeremy Wadsack, Daniel Winkelmann, Pires Claudio, and Adrian
     Phillips.
 
-    Geez, that's a lot of people.
+    Geez, that's a lot of people. And apologies to the folks I missed.
 
     If you want someone to bug about this, that would be:
 
-            Rich Bowen <rbowen@rcbowen.com>
+            Rich Bowen <rbowen at rcbowen dot com>
 
     If you want more information, or want to participate, go to:
 
-            http://dev.rcbowen.com/iniconf/
+            http://sourceforge.net/projects/config-inifiles/
 
-    Please send bug reports to iniconf@rcbowen.com
+    Please send bug reports to config-inifiles-bugs@lists.sourceforge.net
+
+    Development discussion occurs on the mailing list
+    config-inifiles-dev@lists.sourceforge.net, which you can subscribe to by
+    going to the project web site (link above).
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
 
 Change log
          $Log: not supported by cvs2svn $
-         Revision 1.3  2000/09/21 11:20:05  rbowen
-         README
+         Revision 1.9  2000/11/23 05:08:08  grail
+         Fixed documentation for bug 122443 - Check that INI files can be created from scratch.
+
+         Revision 1.1.1.1  2000/11/10 03:04:01  rbowen
+         Initial checkin of the Config::IniFiles source to SourceForge
+
+         Revision 1.8  2000/10/17 01:52:55  rbowen
+         Patch from Jeremy. Fixed "defined" warnings.
 
          Revision 1.7  2000/09/21 11:19:17  rbowen
          Mostly documentation changes. I moved the change log into the POD rather
