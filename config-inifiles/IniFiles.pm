@@ -1,12 +1,12 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.16 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.17 $))[1];
 use Carp;
 use strict;
 require 5.004;
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.16 2001-03-21 19:59:09 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.17 2001-03-21 21:05:12 wadg Exp $
 
 =head1 NAME
 
@@ -16,7 +16,9 @@ Config::IniFiles - A module for reading .ini-style configuration files.
 
   use Config::IniFiles;
   my $cfg = new Config::IniFiles( -file => "/path/configfile.ini" );
-  print "We have parm $cfg->val( 'Section', 'Parameter' )." if $cfg->val( 'Section', 'Parameter' );
+  print "We have ni
+  " . $cfg->val( 'Section', 'Parameter' ) . "."
+  	if $cfg->val( 'Section', 'Parameter' );
 
 =head1 DESCRIPTION
 
@@ -24,20 +26,10 @@ Config::IniFiles provides a way to have readable configuration files outside
 your Perl script.  Configurations can be imported (inherited, stacked,...), 
 sections can be grouped, and settings can be accessed from a tied hash.
 
-=cut
+=head1 FILE FORMAT
 
-=head1 USAGE -- Object Interface
-
-Get a new Config::IniFiles object with the I<new> method:
-
-  $cfg = Config::IniFiles->new( -file => "/path/configfile.ini" );
-  $cfg = new Config::IniFiles -file => "/path/configfile.ini";
-
-Optional named parameters may be specified after the configuration
-file name.  See the I<new> in the B<METHODS> section, below.
-
-INI files consist of a number of sections, each preceeded with the
-section name in square brackets.  The first nonblank character of
+INI files consist of a number of sections, each preceded with the
+section name in square brackets.  The first non-blank character of
 the line indicating a section must be a left bracket and the last
 nonblank character of a line indicating a section must be a right
 bracket. The characters making up the section name can be any 
@@ -55,8 +47,8 @@ Both the hash mark (#) and the semicolon (;) are comment characters.
 Lines that begin with either of these characters will be ignored.  Any
 amount of whitespace may preceed the comment character.
 
-Multiline or multivalued fields may also be defined ala UNIX "here
-document" syntax:
+Multiline or multi-valued parameters may also be defined ala UNIX 
+"here document" syntax:
 
   Parameter=<<EOT
   value/line 1
@@ -67,7 +59,15 @@ You may use any string you want in place of "EOT".  Note that what
 follows the "<<" and what appears at the end of the text MUST match
 exactly, including any trailing whitespace.
 
-See the B<METHODS> section, below, for settable options.
+=head1 USAGE -- Object Interface
+
+Get a new Config::IniFiles object with the I<new> method:
+
+  $cfg = Config::IniFiles->new( -file => "/path/configfile.ini" );
+  $cfg = new Config::IniFiles -file => "/path/configfile.ini";
+
+Optional named parameters may be specified after the configuration
+file name.  See the I<new> in the B<METHODS> section, below.
 
 Values from the config file are fetched with the val method:
 
@@ -96,7 +96,7 @@ using SetFileName in order to save the parameters.
 
 =item I<-default> section
 
-Specifies a section is used for default values.  For example, if you
+Specifies a section to be used for default values. For example, if you
 look up the "permissions" parameter in the "users" section, but there
 is none, Config::IniFiles will look to your default section for a "permissions"
 value before returning undef.
@@ -108,6 +108,8 @@ whenever the config file is reloaded.  The reload message is of the
 form:
 
   PID <PID> reloading config file <file> at YYYY.MM.DD HH:MM:SS
+
+Default behavior is to not warn (i.e. -reloadwarn => 0).
 
 =item I<-nocase> 0|1
 
@@ -207,9 +209,9 @@ sub new {
 
 =head2 val ($section, $parameter)
 
-Returns the value of the specified parameter in section $section,
-returns undef if no section or no parameter for the given section
-exists.
+Returns the value of the specified parameter (C<$parameter>) in section 
+C<$section>, returns undef if no section or no parameter for the given section
+section exists.
 
 If you want a multi-line/value field returned as an array, just
 specify an array as the receiver:
@@ -237,9 +239,9 @@ sub val {
 
 =head2 setval ($section, $parameter, $value, [ $value2, ... ])
 
-Sets the value of parameter $parameter in section $section to $value (or
-to a set of values).  See below for methods to write the new
-configuration back out to a file.
+Sets the value of parameter C<$parameter> in section C<$section> to 
+C<$value> (or to a set of values).  See below for methods to write 
+the new configuration back out to a file.
 
 You may not set a parameter that didn't exist in the original
 configuration file.  B<setval> will return I<undef> if this is
@@ -268,7 +270,9 @@ sub setval {
 
 =head2 newval($setion, $parameter, $value [, $value2, ...])
 
-Adds a new value to the configuration file.
+Assignes a new value, C<$value> (or set of values) to the 
+parameter C<$parameter> in section C<$section> in the configuration 
+file.
 
 =cut
 
@@ -280,6 +284,7 @@ sub newval {
 
     push(@{$self->{sects}}, $sect) unless (grep /^\Q$sect\E$/, @{$self->{sects}});
     $self->{v}{$sect} = {} unless ref $self->{v}{$sect} eq 'HASH';
+    $self->{parms}{$sect} = [] unless ref($self->{parms}{$sect}) eq 'ARRAY';
 
     push(@{$self->{parms}{$sect}}, $parm) 
       unless (grep /^\Q$parm\E$/,@{$self->{parms}{$sect}} );
@@ -296,7 +301,7 @@ sub newval {
 
 =head2 delval($section, $parameter)
 
-Deletes the specified value from the configuration file
+Deletes the specified parameter from the configuration file
 
 =cut
 
@@ -312,8 +317,14 @@ sub delval {
 
 =head2 ReadConfig
 
-Forces the config file to be re-read. Returns undef if the file can not be 
-opened.
+Forces the configuration file to be re-read. Returns undef if the 
+file can not be opened, no filename was defined (with the C<-file>
+option) when the object was constructed, or an error occurred while 
+reading.
+
+If an error occurs while parsinf the INI file the @Config::IniFiles::errors
+array will contain messages that might help you figure out where the 
+problem is in the file.
 
 =cut
 
@@ -485,8 +496,6 @@ sub ReadConfig {
     unless( defined $self->{v}{$parms{-default}} ) {
       $self->{v}{$parms{-default}} = {};
       push(@{$self->{sects}}, $parms{-default}) unless (grep /^\Q$parms{-default}\E$/, @{$self->{sects}});
-      $self->{sCMT}{$parms{-default}} = [];
-      $self->{pCMT}{$parms{-default}} = {};
       $self->{parms}{$parms{-default}} = [];
     } # end unless
     $parms{-default} = $self->{v}{$parms{-default}};
@@ -517,7 +526,7 @@ sub Sections {
   return ();
 }
 
-=head2 Parameters ($sectionname)
+=head2 Parameters ($section_name)
 
 Returns an array containing the parameters contained in the specified
 section.
@@ -681,7 +690,7 @@ sub OutputConfig {
       my $val = $self->{v}{$sect}{$parm};
       next if ! defined ($val);	# No parameter exists !!
       if (ref($val) eq 'ARRAY') {
-	my $eotmark = $self->{EOT}{$sect}{$parm};
+        my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
 	print "$parm= <<$eotmark$ors";
 	foreach (@{$val}) {
 	  print "$_$ors";
@@ -909,6 +918,10 @@ sub SetParameterEOT
 
 =head2 DeleteParameterEOT ($section, $parameter)
 
+Removes the EOT marker for the given section and parameter.
+When writing a configuration file, if no EOT marker is defined 
+then "EOT" is used.
+
 =cut
 
 sub DeleteParameterEOT
@@ -955,7 +968,7 @@ sub DeleteSection {
 
 =item Delete
 
-Deletes the entire configuration file.
+Deletes the entire configuration file in memory.
 
 =cut
 
@@ -980,10 +993,11 @@ sub Delete {
 
 =head2 tie $ini, 'Config::IniFiles', (-file=>$filename, [-option=>value ...] )
 
-Using C<tie>, you can tie a hash to a Config::IniFiles object. This creates a new
+Using C<tie>, you can tie a hash to a B<Config::IniFiles> object. This creates a new
 object which you can access through your hash, so you use this instead of the 
 B<new> method. This actually creates a hash of hashes to access the values in 
-the .ini-file.
+the INI file. The options you provide through C<tie> are the same as given for 
+the B<new> method, above.
 
 Here's an example:
 
@@ -992,11 +1006,10 @@ Here's an example:
   my %ini
   tie %ini, 'Config::IniFiles', ( -file => "/path/configfile.ini" );
 
-  print "We have parm %ini{Section}{Parameter}." if %ini{'Section'}{'Parameter'};
+  print "We have $ini{Section}{Parameter}." if $ini{Section}{Parameter};
 
-Accessing and using the hash works just like accessing and using an object, 
-except in the way you reference it. More information about using the hash 
-interface is descibed below under the corresponding object methods.
+Accessing and using the hash works just like accessing a regular hash and 
+many of the object methods are made available through the hash interface.
 
 For those methods that do not coincide with the hash paradigm, you can use 
 the Perl C<tied> function to get at the underlying object tied to the hash 
@@ -1008,11 +1021,10 @@ ini file, you would do something like this:
 
 =head2 $val = $ini{$section}{$parameter}
 
-Returns the value of $parameter in $section, through the hash 
-tie interface. 
+Returns the value of $parameter in $section. 
 
 Because of limitations in Perl's tie implementation,
-multiline values accessed through a hash will always be returned 
+multiline values accessed through a hash will I<always> be returned 
 as a single value with each line joined by the default line 
 separator ($\). To break them apart you can simple do this:
 
@@ -1020,17 +1032,16 @@ separator ($\). To break them apart you can simple do this:
 
 =head2 $ini{$section}{$parameter} = $value;
 
-Sets the value of $parameter in $section to value given.
-through the hash interface. If the parameter did not 
-exist in the original file, it will be created. 
+Sets the value of C<$parameter> in C<$section> to C<$value>. 
 
-To set a multiline or multivalue parameter use something
-like this:
+To set a multiline or multiv-alue parameter just assign an 
+array reference to the hash entry, like this:
 
  $ini{$section}{$parameter} = [$value1, $value2, ...];
 
-However, Perl does not seem to extend autovivification to 
-tied hashes. That means that if you try to say
+If the parameter did not exist in the original file, it will 
+be created. However, Perl does not seem to extend autovivification 
+to tied hashes. That means that if you try to say
 
   $ini{new_section}{new_paramters} = $val;
 
@@ -1070,7 +1081,7 @@ to completely remove a parameter from a section.
 The tied interface also allows you to delete an entire 
 section from the ini file using the Perl C<delete> function.
 
-=head2 $ini = ();
+=head2 %ini = ();
 
 If you really want to delete B<all> the items in the ini file, this 
 will do it. Of course, the changes won't be written to the actual
@@ -1097,7 +1108,7 @@ parameter is defined in a given section.
 
 Note that none of these will return parameter names that 
 are part if the default section (if set), although accessing
-and unknown parameter in the specified section will return a 
+an unknown parameter in the specified section will return a 
 value from the default section if there is one.
 
 
@@ -1105,7 +1116,7 @@ value from the default section if there is one.
 
 =over 4
 
-=item keys %ini, $section
+=item foreach( keys %ini ) {...}
 
 =item while (($k, $v) = each %ini) {...}
 
