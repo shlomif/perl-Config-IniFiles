@@ -6,9 +6,12 @@ BEGIN { plan tests => 9 }
 
 my ($en, $ini, $success);
 
+# Get files from the 't' directory, portably
+chdir('t') if ( -d 't' );
+
 # test 1
 # print "Empty list when no groups ........ ";
-$en = new Config::IniFiles( -file => 't/en.ini' );
+$en = new Config::IniFiles( -file => 'en.ini' );
 ok( scalar($en->Groups) == 0 );
 
 # test 2
@@ -17,12 +20,12 @@ ok($ini = new Config::IniFiles);
 
 # test 3
 # print "Setting new file name .............";
-ok($ini->SetFileName("t/newfile.ini"));
+ok($ini->SetFileName("newfile.ini"));
 
 # test 4
 # print "Saving under new file name ........";
 if ($ini->RewriteConfig()) {
-	if ( -f "t/newfile.ini" ) {
+	if ( -f "newfile.ini" ) {
 		$success = 1;
 	} else {
 		$success = 0;

@@ -1,11 +1,14 @@
 use strict;
 use Test;
 use Config::IniFiles;
-# $Id: 08group.t,v 1.3 2001-08-03 15:37:58 grail Exp $
+# $Id: 08group.t,v 1.4 2002-08-15 21:34:00 wadg Exp $
 
 BEGIN { plan tests => 1 }
 
-my $ini = new Config::IniFiles( -file => 't/test.ini' );
+# Get files from the 't' directory, portably
+chdir('t') if ( -d 't' );
+
+my $ini = new Config::IniFiles( -file => 'test.ini' );
 my $members;
 
 # Test 1

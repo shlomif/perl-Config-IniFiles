@@ -2,10 +2,13 @@ use strict;
 use Test;
 use Config::IniFiles;
 
-BEGIN { plan tests => 3 }
+BEGIN { plan tests => 4 }
 
 my $ors = $\ || "\n";
 my ($ini,$value);
+
+# Get files from the 't' directory, portably
+chdir('t') if ( -d 't' );
 
 #
 # Import tests added by JW/WADG
@@ -13,13 +16,16 @@ my ($ini,$value);
 
 # test 1
 # print "Import a file .................... ";
-my $en = new Config::IniFiles( -file => 't/en.ini' );
-my $es;
-ok( $es = new Config::IniFiles( -file => 't/es.ini', -import => $en ) );
-
+my $en = new Config::IniFiles( -file => 'en.ini' );
+ok( $en );
 
 # test 2
-# print "Imported values are good ......... ";
+my $es;
+ok( $es = new Config::IniFiles( -file => 'es.ini', -import => $en ) );
+
+
+# test 3
+# Imported values are good
 my $en_sn = $en->val( 'x', 'ShortName' );
 my $es_sn = $es->val( 'x', 'ShortName' );
 my $en_ln = $en->val( 'x', 'LongName' );
@@ -36,9 +42,9 @@ ok(
 	1#
   );
 
-# test 3
-# print "Import another level ............. ";
-my $ca = new Config::IniFiles( -file => 't/ca.ini', -import => $es );
+# test 4
+# Import another level
+my $ca = new Config::IniFiles( -file => 'ca.ini', -import => $es );
 ok( 
 	($en_sn eq $ca->val( 'x', 'ShortName' )) &&
 	($es_sn eq $ca->val( 'x', 'ShortName' )) &&

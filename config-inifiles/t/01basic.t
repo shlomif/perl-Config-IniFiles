@@ -6,10 +6,13 @@ BEGIN { plan tests => 8 }
 
 my ($value, @value);
 
+# Get files from the 't' directory, portably
+chdir('t') if ( -d 't' );
+
 # Test 1
 # Loading from a file
-my $ini = new Config::IniFiles -file => "t/test.ini";
-$ini->SetFileName("t/test01.ini");
+my $ini = new Config::IniFiles -file => "test.ini";
+$ini->SetFileName("test01.ini");
 ok($ini);
 
 # Test 2

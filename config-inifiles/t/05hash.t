@@ -2,16 +2,20 @@ use strict;
 use Test;
 use Config::IniFiles;
 
-BEGIN { plan tests => 22 }
+BEGIN { plan tests => 19 }
 
 my %ini;
 my ($ini, $value);
 my (@value);
 
+# Get files from the 't' directory, portably
+chdir('t') if ( -d 't' );
+
+
 # Test 1
 # Tying a hash.
-ok( tie %ini, 'Config::IniFiles', ( -file => "t/test.ini", -default => 'test1', -nocase => 1 ) );
-tied(%ini)->SetFileName("t/test05.ini");
+ok( tie %ini, 'Config::IniFiles', ( -file => "test.ini", -default => 'test1', -nocase => 1 ) );
+tied(%ini)->SetFileName("test05.ini");
 
 # Test 2
 # Retrieve scalar value
@@ -55,8 +59,8 @@ ok( $ini{TEST2}{four} eq 'value4' );
 # Test 9
 # Listing section names using keys
 $value = 1;
-$ini = new Config::IniFiles( -file => "t/test.ini" );
-$ini->SetFileName("t/test05b.ini");
+$ini = new Config::IniFiles( -file => "test.ini" );
+$ini->SetFileName("test05b.ini");
 my @S1 = $ini->Sections;
 my @S2 = keys %ini;
 foreach (@S1) {
@@ -112,38 +116,8 @@ tied(%ini)->RewriteConfig;
 tied(%ini)->ReadConfig;
 $value = $ini{newsect}{four} || '';
 ok( $value eq 'value4' );
- 
+
 # Test 16
-# my %foo;
-# print "Checking failure for missing ini (a failure message is normal here)\n";
-# # if(!tie(%foo, 'Config::IniFiles', -file => "doesnotexist.ini") ) {
-#	print "ok $t\n";
-ok(1);
-# } else {
-#	print "not ok $t\n";
-# }
-
-# Test 17
-my ($n1, $n2, $n3);
-# print "Sections/Parms for undef value ... ";
-$n1 = tied(%ini)->Parameters( 'newsect' );
-$ini{newsect}{four} = undef;
-$n2 = tied(%ini)->Parameters( 'newsect' );
-$ini{newsect}{four} = 'value4';
-$n3 = tied(%ini)->Parameters( 'newsect' );
-ok( $n1 == $n1 && $n2 == $n3 );
-
-# Test 18
-# print "Sections/Parms for undef value ... ";
-$n1 = tied(%ini)->Parameters( 'newsect' );
-$ini{newsect}{four} = undef;
-$n2 = tied(%ini)->Parameters( 'newsect' );
-$ini{newsect}{four} = 'value4';
-$n3 = tied(%ini)->Parameters( 'newsect' );
-ok( $n1 == $n1 && $n2 == $n3 );
-
-
-# Test 19
 # Writing 2 line multilvalue and returing it
 $ini{newsect} = {};
 $ini{test1}{multi_2} = ['line 1', 'line 2'];
@@ -155,21 +129,21 @@ ok( (@value == 2)
     && ($value[1] eq 'line 2')
   );
 
-# Test 20
+# Test 17
 # Getting a default value not in the file
-tie %ini, 'Config::IniFiles', ( -file => "t/test.ini", -default => 'default', -nocase => 1 );
+tie %ini, 'Config::IniFiles', ( -file => "test.ini", -default => 'default', -nocase => 1 );
 $ini{default}{cassius} = 'clay';
 $value = $ini{test1}{cassius};
 ok( $value eq 'clay' );
 
-# Test 21
+# Test 18
 # Setting value to number of elements in array
 my @thing = ("one", "two", "three");
 $ini{newsect}{five} = @thing;
 $value = $ini{newsect}{five};
 ok($value == 3);
 
-# Test 22
+# Test 19
 # Setting value to number of elements in array
 @thing = ("one");
 $ini{newsect}{five} = @thing;

@@ -1,13 +1,16 @@
 use strict;
 use Test;
 use Config::IniFiles;
-# $Id: 09case.t,v 1.2 2001-12-20 16:05:32 wadg Exp $
+# $Id: 09case.t,v 1.3 2002-08-15 21:34:00 wadg Exp $
 
 BEGIN { plan tests => 10 }
 
 my $ini;
 my @members;
 my $string;
+
+# Get files from the 't' directory, portably
+chdir('t') if ( -d 't' );
 
 # CASE SENSITIVE CHECKS
 
@@ -99,12 +102,12 @@ ok((scalar(@values) == 1) and ($values[0] eq "Title Case"));
 
 # Test 7
 # Case insensitive handling of groups
-$ini = new Config::IniFiles( -file =>'t/test.ini', -nocase => 1 );
+$ini = new Config::IniFiles( -file =>'test.ini', -nocase => 1 );
 $string = join " ", $ini->GroupMembers("GrOuP");
 ok($string eq "group member one group member two group member three");
 
-$ini = new Config::IniFiles( -file => "t/test.ini", -default => 'test1', -nocase => 1 );
-$ini->SetFileName("t/test09.ini");
+$ini = new Config::IniFiles( -file => "test.ini", -default => 'test1', -nocase => 1 );
+$ini->SetFileName("test09.ini");
 
 # test 8
 # Case insensitivity in parameters

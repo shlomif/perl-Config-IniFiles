@@ -1,6 +1,5 @@
-#[JW for editor]:mode=perl:tabSize=8:indentSize=2:noTabs=true:indentOnEnter=true:
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.28 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.29 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -8,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.28 2002-07-04 03:56:05 grail Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.29 2002-08-15 21:33:58 wadg Exp $
 
 =head1 NAME
 
@@ -45,6 +44,7 @@ the section, but must be unique within a section.
   Parameter=Value
 
 Both the hash mark (#) and the semicolon (;) are comment characters.
+by default (this can be changed by configuration)
 Lines that begin with either of these characters will be ignored.  Any
 amount of whitespace may preceed the comment character.
 
@@ -59,6 +59,15 @@ Multiline or multi-valued parameters may also be defined ala UNIX
 You may use any string you want in place of "EOT".  Note that what
 follows the "<<" and what appears at the end of the text MUST match
 exactly, including any trailing whitespace.
+
+As a configuration option (default is off), continuation lines can
+be allowed:
+
+  [Section]
+  Parameter=this paramater \
+    spreads across \
+    a few lines
+
 
 =head1 USAGE -- Object Interface
 
@@ -128,6 +137,17 @@ files are case-sensitive (i.e., a section named 'Test' is not the same
 as a section named 'test').  Note that there is an added overhead for
 turning off case sensitivity.
 
+=item I<-allowcontinue> 0|1
+
+Set -allowcontinue => 1 to enable continuation lines in the config file.
+i.e. if a line ends with a backslash C<\>, then the following line is
+appended to the parameter value, dropping the backslash and the newline
+character(s).
+
+Default behavior is to keep a trailing backslash C<\> as a parameter
+value. Note that continuation cannot be mixed with the "here" value
+syntax.
+
 =item I<-import> object
 
 This allows you to import or inherit existing setting from another 
@@ -140,6 +160,21 @@ If a I<-default> section is also given on this call, and it does not
 coincide with the default of the imported object, the new default 
 section will be used instead. If no I<-default> section is given, 
 then the default of the imported object will be used.
+
+=item I<-commentchar> 'char'
+
+The default comment character is C<#>. You may change this by specifying
+this option to an arbitrary character, except alphanumeric characters
+and square brackets and the "equal" sign.
+
+=item I<-allowedcommentchars> 'chars'
+
+Allowed default comment characters are C<#> and C<;>. By specifying this
+option you may enlarge or narrow this range to a set of characters
+(concatenating them to a string). Note that the character specified by
+B<-commentchar> (see above) is always part of the allowed comment
+characters. Note: The given string is evaluated as a character class
+(ie: like C</[chars]/>).
 
 =back
 
@@ -169,37 +204,71 @@ sub new {
     } # end if
   } # end if
 
+  # Copy the original parameters so we 
+  # can use them when we build new sections 
+  %{$self->{startup_settings}} = %parms;
+
   # Parse options
   my($k, $v);
   local $_;
   $self->{nocase} = 0;
-  while (($k, $v) = each %parms) {
-    if( $k eq '-import' ) {
-    	# Store the imported object's file parameter for reload
-    	push( @{$self->{imported}}, $self->{cf} ) if $self->{cf};
-    }
-    elsif ($k eq '-file') {
-      # Should we be pedantic and check that the file exists?
-      $self->{cf} = $v;
-    }
-    elsif ($k eq '-default') {
-      $self->{default} = $v;
-    }
-    elsif ($k eq '-nocase') {
-      $self->{nocase} = $v ? 1 : 0;
-    }
-    elsif ($k eq '-reloadwarn') {
-      $self->{reloadwarn} = $v ? 1 : 0;
-    }
-    else {
-      carp "Unknown named parameter $k=>$v";
+
+  # Handle known parameters first in this order, 
+  # because each() could return parameters in any order
+  if (defined ($v = delete $parms{'-import'})) {
+    # Store the imported object's file parameter for reload
+    push( @{$self->{imported}}, $self->{cf} ) if $self->{cf};
+  }
+  if (defined ($v = delete $parms{'-file'})) {
+    # Should we be pedantic and check that the file exists?
+    $self->{cf} = $v;
+  }
+  if (defined ($v = delete $parms{'-default'})) {
+    $self->{default} = $v;
+  }
+  if (defined ($v = delete $parms{'-nocase'})) {
+    $self->{nocase} = $v ? 1 : 0;
+  }
+  if (defined ($v = delete $parms{'-reloadwarn'})) {
+    $self->{reloadwarn} = $v ? 1 : 0;
+  }
+  if (defined ($v = delete $parms{'-allowcontinue'})) {
+    $self->{allowcontinue} = $v ? 1 : 0;
+  }
+  if (defined ($v = delete $parms{'-commentchar'})) {
+    if(!defined $v || length($v) != 1) {
+      carp "Comment character must be unique.";
       $errs++;
     }
+    elsif($v =~ /[\[\]=\w]/) {
+      # must not be square bracket, equal sign or alphanumeric
+      carp "Illegal comment character.";
+      $errs++;
+    } 
+    else {
+      $self->{comment_char} = $v;
+    }
   }
+  if (defined ($v = delete $parms{'-allowedcommentchars'})) {
+    # must not be square bracket, equal sign or alphanumeric
+    if(!defined $v || $v =~ /[\[\]=\w]/) {
+      carp "Illegal value for -allowedcommentchars.";
+      $errs++;
+    }
+    else {
+      $self->{comment_char} = $v;
+    }
+  }
+  $self->{comment_char} = '#' unless exists $self->{comment_char};
+  $self->{allowed_comment_char} = ';' unless exists $self->{allowed_comment_char};
+  # make sure that comment character is always allowed
+  $self->{allowed_comment_char} .= $self->{comment_char};
 
-  # Copy the original parameters so we 
-  # can use them when we build new sections 
-  %{$self->{startup_settings}} = %parms;
+  # Any other parameters are unkown
+  while (($k, $v) = each %parms) {
+    carp "Unknown named parameter $k=>$v";
+    $errs++;
+  }
 
   return undef if $errs;
 
@@ -441,14 +510,20 @@ sub ReadConfig {
   
   # Get the entire file into memory (let's hope it's small!)
   local $_;
-  my @lines = split /\015\012?|\012/, join( '', <$fh>);
+  my @lines = split /\015\012?|\012|\025|\n/, join( '', <$fh>);
   close($fh);
 
+  # If there's a UTF BOM (Byte-Order-Mark) in the first character of the first line
+  # then remove it before processing (http://www.unicode.org/unicode/faq/utf_bom.html#22)
+  ($lines[0] =~ s/^\x{FEFF}//) || ($lines[0] =~ s/^ï»¿//);
+  
+  
   # The first lines of the file must be blank, comments or start with [
   my $first = '';
+  my $allCmt = $self->{allowed_comment_char};
   foreach ( @lines ) {
     next if /^\s*$/;	# ignore blank lines
-    next if /^\s*[\#\;]/;	# ignore comments
+    next if /^\s*[$allCmt]/;	# ignore comments
     $first = $_;
     last;
   }
@@ -457,16 +532,16 @@ sub ReadConfig {
   }
   
   # Store what our line ending char was for output
-  ($self->{line_ends}) = $lines[0] =~ /([\015\012]+)/;
+  ($self->{line_ends}) = $lines[0] =~ /([\015\012\025\n]+)/;
   while ( @lines ) {
     $_ = shift @lines;
 
-    s/(\015\012?|\012)$//;				# remove line ending char(s)
+    s/(\015\012?|\012|\025|\n)$//;				# remove line ending char(s)
     $lineno++;
     if (/^\s*$/) {				# ignore blank lines
       next;
     }
-    elsif (/^\s*[\#\;]/) {			# collect comments
+    elsif (/^\s*[$allCmt]/) {			# collect comments
       push(@cmts, $_);
       next;
     }
@@ -490,7 +565,7 @@ sub ReadConfig {
 	my @val = ( );
 	while ( @lines ) {
 	  $_ = shift @lines;
-	  s/(\015\012?|\012)$//;				# remove line ending char(s)
+	  s/(\015\012?|\012|\025|\n)$//;				# remove line ending char(s)
 	  $lineno++;
 	  if ($_ eq $eotmark) {
 	    $foundeot = 1;
@@ -522,7 +597,17 @@ sub ReadConfig {
 	  push(@Config::IniFiles::errors, sprintf('%d: %s', $startline,
 			      qq#no end marker ("$eotmark") found#));
 	}
-      } else {
+      } else { # no here value
+
+        # process continuation lines, if any
+        while($self->{allowcontinue} && $val =~ s/\\$//) {
+          $_ = shift @lines;
+	  s/(\015\012?|\012|\025|\n)$//; # remove line ending char(s)
+	  $lineno++;
+          $val .= $_;
+        }
+
+        # Now load value
 	if (exists $self->{v}{$sect}{$parm} &&
 	    exists $loaded_params{$sect} && 
 	    grep( /^\Q$parm\E$/, @{$loaded_params{$sect}}) ) {
@@ -735,7 +820,7 @@ sub SetGroupMember {
 	
 	return undef if not defined $sect;
 	
-	return(1) unless $sect =~ /^(\S+)\s*\S+/;
+	return(1) unless $sect =~ /^(\S+)\s+\S+/;
 	
 	my $group = $1;
 	if (not exists($self->{group}{$group})) {
@@ -759,7 +844,7 @@ sub RemoveGroupMember {
 	
 	return undef if not defined $sect;
 	
-	return(1) unless $sect =~ /^(\S+)\s*\S+/;
+	return(1) unless $sect =~ /^(\S+)\s+\S+/;
 	
 	my $group = $1;
 	return unless exists $self->{group}{$group};
@@ -809,17 +894,18 @@ sub WriteConfig {
   
   return undef if not defined $file;
 
+  my $new_file = "$file.new";
   local(*F);
-  open(F, "> $file.new") || do {
-    carp "Unable to write temp config file $file: $!";
+  open(F, "> $new_file") || do {
+    carp "Unable to write temp config file $new_file: $!";
     return undef;
   };
   my $oldfh = select(F);
   $self->OutputConfig;
   close(F);
   select($oldfh);
-  rename "$file.new", $file || do {
-    carp "Unable to rename temp config file to $file: $!";
+  rename( $new_file, $file ) || do {
+    carp "Unable to rename temp config file ($new_file) to $file: $!";
     return undef;
   };
   if (exists $self->{file_mode}) {
@@ -937,8 +1023,11 @@ sub OutputConfig {
 =head2 SetSectionComment($section, @comment)
 
 Sets the comment for section $section to the lines contained in @comment.
-Each comment line will be prepended with "#" if it doesn't already have
-a comment character (ie: if $line !~ m/^\s*[#;]/)
+
+Each comment line will be prepended with the comment charcter (default
+is C<#>) if it doesn't already have a comment character (ie: if the
+line does not start with whitespace followed by an allowed comment
+character, default is C<#> and C<;>).
 
 To clear a section comment, use DeleteSectionComment ($section)
 
@@ -961,12 +1050,28 @@ sub SetSectionComment
 	# At this point it's possible to have a comment for a section that
 	# doesn't exist. This comment will not get written to the INI file.
 	
-	foreach my $comment_line (@comment) {
-		($comment_line =~ m/^\s*[#;]/) or ($comment_line = "# $comment_line");
-		push @{$self->{sCMT}{$sect}}, $comment_line;
-	}
+	push @{$self->{sCMT}{$sect}}, $self->_markup_comments(@comment);
 	return scalar @comment;
 }
+
+
+
+# this helper makes sure that each line is preceded with the correct comment
+# character
+sub _markup_comments 
+{
+  my $self = shift;
+  my @comment = @_;
+
+  my $allCmt = $self->{allowed_comment_char};
+  my $cmtChr = $self->{comment_char};
+  foreach (@comment) {
+    m/^\s*[$allCmt]/ or ($_ = "$cmtChr $_");
+  }
+  @comment;
+}
+
+
 
 =head2 GetSectionComment ($section)
 
@@ -1022,7 +1127,7 @@ sub DeleteSectionComment
 Sets the comment attached to a particular parameter.
 
 Any line of @comment that does not have a comment character will be
-prepended with "#".
+prepended with one. See L</SetSectionComment($section, @comment)> above
 
 =cut
 
@@ -1049,11 +1154,7 @@ sub SetParameterComment
 	$self->{pCMT}{$sect}{$parm} = [];
 	# Note that at this point, it's possible to have a comment for a parameter,
 	# without that parameter actually existing in the INI file.
-	
-	foreach my $comment_line (@comment) {
-		($comment_line =~ m/^\s*[#;]/) or ($comment_line = "# $comment_line");
-		push @{$self->{pCMT}{$sect}{$parm}}, $comment_line;
-	}
+	push @{$self->{pCMT}{$sect}{$parm}}, $self->_markup_comments(@comment);
 	return scalar @comment;
 }
 
@@ -1892,7 +1993,9 @@ In particular, special thanks go to (in roughly chronological order):
 
 Bernie Cosell, Alan Young, Alex Satrapa, Mike Blazer, Wilbert van de Pieterman,
 Steve Campbell, Robert Konigsberg, Scott Dellinger, R. Bernstein,
-Jeremy Wadsack, Daniel Winkelmann, Pires Claudio, and Adrian Phillips.
+Daniel Winkelmann, Pires Claudio, Adrian Phillips, 
+Marek Rouchal, Luc St Louis, Adam Fischler, Kay Röpke, Matt Wilson, 
+Raviraj Murdeshwar and Slaven Rezic.
 
 Geez, that's a lot of people. And apologies to the folks who were missed.
 
@@ -1916,6 +2019,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.28  2002/07/04 03:56:05  grail
+     Changes for resolving bug 447532 - _section::FETCH should return array ref for multiline values.
+
      Revision 2.27  2001/12/20 16:03:49  wadg
      - Fixed bug introduced in new valid file check where ';' comments in first lines were not considered valid
      - Rearranged some tests to put them in the proper files (case and -default)
@@ -2104,3 +2210,5 @@ modify it under the same terms as Perl itself.
      various people to join it.
 
 =cut
+#[JW for editor]:mode=perl:tabSize=8:indentSize=2:noTabs=true:indentOnEnter=true:
+
