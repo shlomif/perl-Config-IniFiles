@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.18 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.10 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.18 2000-12-08 00:45:35 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.10 2000-12-13 17:40:18 rbowen Exp $
 
 =head1 SYNOPSIS
 
@@ -1522,6 +1522,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 1.18  2000/12/08 00:45:35  grail
+     Change as requested by Jeremy Wadsack, for Bug 123146
+
      Revision 1.17  2000/12/07 15:32:36  grail
      Further patch to duplicate sections bug, and replacement of repeated values handling code.
 
