@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.17 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.18 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.17 2000-12-07 15:32:36 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.18 2000-12-08 00:45:35 grail Exp $
 
 =head1 SYNOPSIS
 
@@ -1272,6 +1272,7 @@ sub TIEHASH {
 # Date      Modification                              Author
 # ----------------------------------------------------------
 # 2000Jun15 Fixed bugs in -default handler                JW
+# 2000Dec07 Fixed another bug in -deault handler          JW
 # ----------------------------------------------------------
 sub FETCH {
   my $self = shift;
@@ -1282,7 +1283,7 @@ sub FETCH {
   my $val = $self->{v}{$key};
   
   unless( defined $self->{v}{$key} ) {
-    $val = $self->{default}{$key} if defined $self->{default};
+    $val = $self->{default}{$key} if ref $self->{default} eq 'HASH';
   } # end unless
 
   if( ref($val) eq 'ARRAY' ) {
@@ -1521,6 +1522,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 1.17  2000/12/07 15:32:36  grail
+     Further patch to duplicate sections bug, and replacement of repeated values handling code.
+
      Revision 1.14  2000/11/29 11:26:03  grail
      Updates for task 22401 (no more reloadsig) and 22402 (Group and GroupMember doco)
 
