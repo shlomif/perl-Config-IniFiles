@@ -1,9 +1,9 @@
 use strict;
 use Test;
 use Config::IniFiles;
-# $Id: 09case.t,v 1.1 2001-06-07 02:51:24 grail Exp $
+# $Id: 09case.t,v 1.2 2001-12-20 16:05:32 wadg Exp $
 
-BEGIN { plan tests => 7 }
+BEGIN { plan tests => 10 }
 
 my $ini;
 my @members;
@@ -102,4 +102,21 @@ ok((scalar(@values) == 1) and ($values[0] eq "Title Case"));
 $ini = new Config::IniFiles( -file =>'t/test.ini', -nocase => 1 );
 $string = join " ", $ini->GroupMembers("GrOuP");
 ok($string eq "group member one group member two group member three");
+
+$ini = new Config::IniFiles( -file => "t/test.ini", -default => 'test1', -nocase => 1 );
+$ini->SetFileName("t/test09.ini");
+
+# test 8
+# Case insensitivity in parameters
+ok( (defined $ini) && ($ini->val('test2', 'FOUR') eq 'value4') );
+
+# test 9
+# Case insensitivity in sections
+ok( (defined $ini) && ($ini->val('TEST2', 'four') eq 'value4') );
+my $v;
+
+# test 10
+ok( (defined $ini) && ($v = $ini->val('mixedcasesect', 'mixedcaseparam')) && ($v eq 'MixedCaseVal'));
+
+
 

@@ -1,7 +1,7 @@
 use strict;
 use Test;
 
-BEGIN { $| = 1; plan tests => 6 }
+BEGIN { $| = 1; plan tests => 7 }
 use Config::IniFiles;
 my $loaded = 1;
 ok($loaded);
@@ -55,6 +55,19 @@ local $@ = '';
 my $ERRORS = '';
 local $SIG{__WARN__} = sub { $ERRORS .= $_[0] };
 eval { $ini = new Config::IniFiles -file => "IniFiles.pm" };
-ok(!$@ && !$ERRORS &&!defined($ini));
+ok(!$@ && !$ERRORS && !defined($ini));
+
+
+# Read in the DATA file without errors
+eval { $ini = new Config::IniFiles -file => \*DATA };
+ok(!$@ && !$ERRORS && defined($ini));
+
+
+__END__
+; File that has comments in the first line
+; Comments are marked with ';'. 
+; This should not fail when checking if the file is valid
+[section]
+parameter=value
 
 
