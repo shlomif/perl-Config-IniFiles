@@ -1,13 +1,14 @@
 #[JW for editor]:mode=perl:tabSize=8:indentSize=2:noTabs=true:indentOnEnter=true:
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.22 $))[1];
-use Carp;
-use strict;
+$Config::IniFiles::VERSION = (qw($Revision: 2.23 $))[1];
 require 5.004;
+use strict;
+use Carp;
+use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.22 2001-12-06 16:52:39 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.23 2001-12-12 20:42:24 wadg Exp $
 
 =head1 NAME
 
@@ -90,9 +91,17 @@ file.  The following named parameters are available:
 
 =item I<-file>  filename
 
-Specifies a file to load the parameters from. If this option is not specified, (ie:
-you are creating a config file from scratch) you must specify a target file
-using SetFileName in order to save the parameters.
+Specifies a file to load the parameters from. This 'file' may actually be 
+any of the following things:
+
+  1) a simple filehandle, such as STDIN
+  2) a filehandle glob, such as *CONFIG
+  3) a reference to a glob, such as \*CONFIG
+  4) an IO::File object
+  5) the pathname of a file
+
+If this option is not specified, (i.e. you are creating a config file from scratch) 
+you must specify a target file using SetFileName in order to save the parameters.
 
 =item I<-default> section
 
@@ -362,7 +371,6 @@ problem is in the file.
 sub ReadConfig {
   my $self = shift;
 
-  local *CF;
   my($lineno, $sect);
   my($group, $groupmem);
   my($parm, $val);
@@ -398,23 +406,33 @@ sub ReadConfig {
   
   my $nocase = $self->{nocase};
 
-  my ($ss, $mm, $hh, $DD, $MM, $YY) = (localtime(time))[0..5];
-  printf STDERR
-    "PID %d reloading config file %s at %d.%02d.%02d %02d:%02d:%02d\n",
-    $$, $self->{cf}, $YY+1900, $MM+1, $DD, $hh, $mm, $ss
-    unless $self->{firstload} || !$self->{reloadwarn};
-
+  # If this is a reload and we want warnings then send one to the STDERR log
+  unless( $self->{firstload} || !$self->{reloadwarn} ) {
+    my ($ss, $mm, $hh, $DD, $MM, $YY) = (localtime(time))[0..5];
+    printf STDERR
+      "PID %d reloading config file %s at %d.%02d.%02d %02d:%02d:%02d\n",
+      $$, $self->{cf}, $YY+1900, $MM+1, $DD, $hh, $mm, $ss;
+  }
+  
+  # Turn off. Future loads are reloads
   $self->{firstload} = 0;
 
-  if (!open(CF, $self->{cf})) {
+  # Get a filehandle, allowing almost any type of 'file' parameter
+  my $fh = $self->_make_filehandle( $self->{cf} );
+  if (!$fh) {
     carp "Failed to open $self->{cf}: $!";
     return undef;
   }
-  my @stats = stat CF;
-  $self->{file_mode} = sprintf "%04o", $stats[2];
+  
+  # Get mod time of file so we can retain it (if not from STDIN)
+  my @stats = stat $fh;
+  $self->{file_mode} = sprintf "%04o", $stats[2] if defined $stats[2];
+  
+  # Get the entire file into memory (let's hope it's small!)
   local $_;
-  my @lines = split /\015\012?|\012/, join( '', <CF>);
-  close(CF);
+  my @lines = split /\015\012?|\012/, join( '', <$fh>);
+  close($fh);
+  
   # Store what our line ending char was for output
   ($self->{line_ends}) = $lines[0] =~ /([\015\012]+)/;
   while ( @lines ) {
@@ -1496,6 +1514,45 @@ sub DESTROY {
 } # end if
 
 
+# ----------------------------------------------------------
+# Sub: _make_filehandle
+#
+# Args: $thing
+#	$thing	An input source
+#
+# Description: Takes an input source of a filehandle, 
+# filehandle glob, reference to a filehandle glob, IO::File
+# object or scalar filename and returns a file handle to 
+# read from it with.
+# ----------------------------------------------------------
+# Date      Modification                              Author
+# ----------------------------------------------------------
+# 06Dec2001 Added to support input from any source        JW
+# ----------------------------------------------------------
+sub _make_filehandle {
+  my $self = shift;
+  
+  #
+  # This code is 'borrowed' from Lincoln D. Stein's GD.pm module
+  # with modification for this module. Thanks Lincoln!
+  #
+  
+  no strict 'refs';
+  my $thing = shift;
+  return $thing if defined(fileno $thing);
+#  return $thing if defined($thing) && ref($thing) && defined(fileno $thing);
+  
+  # otherwise try qualifying it into caller's package
+  my $fh = qualify_to_ref($thing,caller(1));
+  return $fh if defined(fileno $fh);
+#  return $fh if defined($thing) && ref($thing) && defined(fileno $fh);
+  
+  # otherwise treat it as a file to open
+  $fh = gensym;
+  open($fh,$thing) || return;
+  
+  return $fh;
+} # end _make_filehandle
 
 
 
@@ -1843,6 +1900,15 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.24  2001/12/07 10:03:06  wadg
+     222444 Abilite to load from arbitrary source
+
+     Revision 2.23  2001/12/07 09:35:06  wadg
+     Forgot to include updates t/test.ini
+
+     Revision 2.22  2001/12/06 16:52:39  wadg
+     Fixed bugs 482353,233372. Updated doc for new mgr.
+
      Revision 2.21  2001/08/14 01:49:06  wadg
      Bug fix: multiple blank lines counted as one
      Patched README change log to include recent updates

@@ -71,10 +71,18 @@ METHODS
     file. The following named parameters are available:
 
     *-file* filename
-              Specifies a file to load the parameters from. If this option
-              is not specified, (ie: you are creating a config file from
-              scratch) you must specify a target file using SetFileName in
-              order to save the parameters.
+              Specifies a file to load the parameters from. This 'file' may
+              actually be any of the following things:
+
+                1) a simple filehandle, such as STDIN
+                2) a filehandle glob, such as *CONFIG
+                3) a reference to a glob, such as \*CONFIG
+                4) an IO::File object
+                5) the pathname of a file
+
+              If this option is not specified, (i.e. you are creating a
+              config file from scratch) you must specify a target file using
+              SetFileName in order to save the parameters.
 
     *-default* section
               Specifies a section to be used for default values. For
@@ -491,6 +499,15 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.24  2001/12/07 10:03:06  wadg
+         222444 Abilite to load from arbitrary source
+
+         Revision 2.23  2001/12/07 09:35:06  wadg
+         Forgot to include updates t/test.ini
+
+         Revision 2.22  2001/12/06 16:52:39  wadg
+         Fixed bugs 482353,233372. Updated doc for new mgr.
+
          Revision 2.21  2001/08/14 01:49:06  wadg
          Bug fix: multiple blank lines counted as one
          Patched README change log to include recent updates
