@@ -1,7 +1,7 @@
 use strict;
 use Test;
 
-BEGIN { $| = 1; plan tests => 14 }
+BEGIN { $| = 1; plan tests => 15 }
 use Config::IniFiles;
 my $loaded = 1;
 ok($loaded);
@@ -133,6 +133,13 @@ eval { $ini = new Config::IniFiles -file => 'blank.ini' };
 ok(!$@ && !defined($ini));
 
 # Test 14
+# Empty files should cause no rejection when appropriate switch set
+$@ = '';
+eval { $ini = new Config::IniFiles -file => 'blank.ini', -allowempty=>1 };
+ok(!$@ && defined($ini));
+
+
+# Test 15
 # A malformed file should throw an error message
 $@ = '';
 eval { $ini = new Config::IniFiles -file => 'bad.ini' };

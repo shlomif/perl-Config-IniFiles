@@ -78,4 +78,3 @@ ok(
 	($b->val('m', 'LongName') eq 'Resum mensual')
   );
 
-

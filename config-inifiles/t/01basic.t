@@ -13,6 +13,7 @@ chdir('t') if ( -d 't' );
 # Test 1
 # Loading from a file
 my $ini = new Config::IniFiles -file => "test.ini";
+$ini->_assert_invariants();
 unlink "test01.ini";
 $ini->SetFileName("test01.ini");
 $ini->SetWriteMode("0666");
@@ -21,17 +22,19 @@ ok($ini);
 # Test 2
 # Reading a single value in scalar context
 $value = $ini->val('test1', 'one');
+$ini->_assert_invariants();
 ok (defined $value and $value eq 'value1');
 
 # Test 3
 # Reading a single value in list context
 @value = $ini->val('test1', 'one');
+$ini->_assert_invariants();
 ok ($value[0] eq 'value1');
 
 # Test 4
 # Reading a multiple value in scalar context
 $value = $ini->val('test1', 'mult');
-ok (defined $value and $value eq "one$/two$/three");
+ok (defined $value and $value eq "one$/two$/three") || warn $value;
 
 # Test 5
 # Reading a multiple value in list context
@@ -43,23 +46,29 @@ ok ($value eq "one|two|three");
 # Creating a new multiple value
 @value = ("one", "two", "three");
 $ini->newval('test1', 'eight', @value);
+$ini->_assert_invariants();
 $value = $ini->val('test1', 'eight');
 ok($value eq "one$/two$/three");
 
 # Test 7
 # Creating a new value
 $ini->newval('test1', 'seven', 'value7');
+$ini->_assert_invariants();
 $ini->RewriteConfig;
 $ini->ReadConfig;
+$ini->_assert_invariants();
 $value='';
 $value = $ini->val('test1', 'seven');
+$ini->_assert_invariants();
 ok ($value eq 'value7');
 
 # Test 8
 # Deleting a value
 $ini->delval('test1', 'seven');
+$ini->_assert_invariants();
 $ini->RewriteConfig;
 $ini->ReadConfig;
+$ini->_assert_invariants();
 $value='';
 $value = $ini->val('test1', 'seven');
 ok (! defined ($value));

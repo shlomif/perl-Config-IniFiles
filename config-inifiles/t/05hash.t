@@ -22,7 +22,7 @@ tied(%ini)->SetWriteMode("0666");
 # Test 2
 # Retrieve scalar value
 $value = $ini{test1}{one};
-ok($value eq 'value1');
+ok($value eq 'value1') || warn $value;
 
 # Test 3
 # Retrieve array reference
@@ -61,13 +61,13 @@ ok( $ini{TEST2}{four} eq 'value4' );
 # Test 9
 # Listing section names using keys
 $value = 1;
-$ini = new Config::IniFiles( -file => "test.ini" );
+$ini = new Config::IniFiles( -file => "test.ini", -default => 'test1', -nocase => 1 );
 $ini->SetFileName("test05b.ini");
 my @S1 = $ini->Sections;
 my @S2 = keys %ini;
-foreach (@S1) {
-	unless( (grep "$_", @S2) &&
-	        (grep "$_", qw( test1 test2 [w]eird characters ) ) ) {
+for( my $i = 0; $i < scalar @S1; $i++ ) {
+	if( $S1[$i] ne $S2[$i] ) {
+	warn "$S1[$i] ne $S2[$i]\n";
 		$value = 0;
 		last;
 	}
@@ -82,6 +82,7 @@ $value = 1;
 foreach (@S1) {
 	unless( (grep "$_", @S2) &&
 	        (grep "$_", qw( three two one ) ) ) {
+		warn "Failed at $_";
 		$value = 0;
 		last;
 	}
