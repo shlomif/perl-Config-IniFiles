@@ -1,6 +1,6 @@
 #[JW for editor]:mode=perl:tabSize=8:indentSize=2:noTabs=true:indentOnEnter=true:
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.27 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.28 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -8,7 +8,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.27 2001-12-20 16:03:49 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.28 2002-07-04 03:56:05 grail Exp $
 
 =head1 NAME
 
@@ -228,6 +228,10 @@ specify an array as the receiver:
 
   @values = $cfg->val('Section', 'Parameter');
 
+A multi-line/value field that is returned in a scalar context will be
+joined using $/ (input record separator, default is \n) if defined,
+otherwise the values will be joined using \n.
+
 =cut
 
 sub val {
@@ -243,8 +247,15 @@ sub val {
   my $val = defined($self->{v}{$sect}{$parm}) ?
     $self->{v}{$sect}{$parm} :
     $self->{v}{$self->{default}}{$parm};
-  if( defined ($/) && defined ($val) && $val =~ m#$/#) {
-    return wantarray ? split( $/, $val ) : $val;
+  # Return the value in the desired context
+  if (wantarray and ref($val) eq "ARRAY") {
+    return @$val;
+  } elsif (ref($val) eq "ARRAY") {
+  	if (defined ($/)) {
+	    return join "$/", @$val;
+	} else {
+		return join "\n", @$val;
+	}
   } else {
     return $val;
   }
@@ -1645,14 +1656,15 @@ sub TIEHASH {
 # Args: $key
 #	$key	The name of the key whose value to get
 #
-# Description: Returns the value associated with $key. If the
-# value is an array and the context is scalar concatenates the 
-# array with the default line separator character.
+# Description: Returns the value associated with $key. If
+# the value is a hash, returns a hashref, just like normal
+# Perl hashes.
 # ----------------------------------------------------------
 # Date      Modification                              Author
 # ----------------------------------------------------------
 # 2000Jun15 Fixed bugs in -default handler                JW
 # 2000Dec07 Fixed another bug in -deault handler          JW
+# 2002Jul04 Returning scalar values (Bug:447532)          AS
 # ----------------------------------------------------------
 sub FETCH {
   my $self = shift;
@@ -1666,15 +1678,7 @@ sub FETCH {
     $val = $self->{default}{$key} if ref($self->{default}) eq 'HASH';
   } # end unless
 
-  if( ref($val) eq 'ARRAY' ) {
-    # [ The FETCH method is never called in an array context, So 
-    # this will always join. This seems like a bug in Perl to me.
-    # Nonetheless maintain the wantarray in case this is fixed. -JW]
-
-    return wantarray ? @$val : join($/, @$val);
-  } else {
-    return $val;
-  } # end if
+  return $val;
 } # end FETCH
 
 
@@ -1702,7 +1706,7 @@ sub STORE {
   push(@{$self->{parms}}, $key) unless (grep /^\Q$key\E$/, @{$self->{parms}});
 
   if (@val > 1) {
-    $self->{v}{$key} = \@val;
+    $self->{v}{$key} = @val;
   } else {
     $self->{v}{$key} = shift @val;
   }
@@ -1912,6 +1916,12 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.27  2001/12/20 16:03:49  wadg
+     - Fixed bug introduced in new valid file check where ';' comments in first lines were not considered valid
+     - Rearranged some tests to put them in the proper files (case and -default)
+     - Added more comment test to cover more cases
+     - Fixed first two comments tests which weren't doing anything
+
      Revision 2.26  2001/12/19 22:20:50  wadg
      #481513 Recognize badly formatted files
 
