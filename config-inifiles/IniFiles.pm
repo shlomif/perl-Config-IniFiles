@@ -1,12 +1,12 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.15 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.16 $))[1];
 use Carp;
 use strict;
 require 5.004;
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.15 2001-01-30 11:46:48 rbowen Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.16 2001-03-21 19:59:09 wadg Exp $
 
 =head1 NAME
 
@@ -390,7 +390,7 @@ sub ReadConfig {
     elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {		# New Section
       $sect = $1;
       $sect = lc($sect) if $nocase;
-      push(@{$self->{sects}}, $sect) unless grep(/\Q$sect\E/, @{$self->{sects}});
+      push(@{$self->{sects}}, $sect) unless grep(/^\Q$sect\E$/, @{$self->{sects}});
       if ($sect =~ /(\S+)\s+\S+/) {		# New Group Member
 	$group = $1;
 	if (!defined($self->{group}{$group})) {
@@ -468,7 +468,7 @@ sub ReadConfig {
 	    push @{$loaded_params{$sect}}, $parm;
 	}
       }
-      push(@{$self->{parms}{$sect}}, $parm) unless grep(/\Q$parm\E/, @{$self->{parms}{$sect}});
+      push(@{$self->{parms}{$sect}}, $parm) unless grep(/^\Q$parm\E$/, @{$self->{parms}{$sect}});
     }
     else {
       push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno, $_));
@@ -480,10 +480,20 @@ sub ReadConfig {
   # This is in all uses, because it must be part of ReadConfig.
   #
   my %parms = %{$self->{startup_settings}};
+  if( defined $parms{-default} ) {
+    # If the default section doesn't exists, create it.
+    unless( defined $self->{v}{$parms{-default}} ) {
+      $self->{v}{$parms{-default}} = {};
+      push(@{$self->{sects}}, $parms{-default}) unless (grep /^\Q$parms{-default}\E$/, @{$self->{sects}});
+      $self->{sCMT}{$parms{-default}} = [];
+      $self->{pCMT}{$parms{-default}} = {};
+      $self->{parms}{$parms{-default}} = [];
+    } # end unless
+    $parms{-default} = $self->{v}{$parms{-default}};
+  } # end if
   foreach( keys %{$self->{v}} ) {
     $parms{-_current_value} = $self->{v}{$_};
     $parms{-parms} = $self->{parms}{$_};
-    $parms{-default} = $self->{v}{$parms{-default}} if defined $parms{-default} && defined $self->{v}{$parms{-default}};
     $self->{v}{$_} = {};
     # Add a reference to our {parms} hash for each section
     tie %{$self->{v}{$_}}, 'Config::IniFiles::_section', %parms
@@ -1307,7 +1317,7 @@ use strict;
 use Carp;
 use vars qw( $VERSION );
 
-$Config::IniFiles::_section::VERSION = 0.04;
+$Config::IniFiles::_section::VERSION = 2.16;
 
 # ----------------------------------------------------------
 # Sub: Config::IniFiles::_section::TIEHASH
@@ -1340,7 +1350,10 @@ sub TIEHASH {
   
   # Get all other the parms, removing leading '-', if any
   # Option checking is already handled in the Config::IniFiles contructor
-  map { s/^-//g; $self->{$_} = $parms{-$_} } keys %parms;
+  foreach( keys %parms ) {
+    s/^-//g;
+    $self->{$_} = $parms{-$_};
+  } # end foreach
 
   return bless( $self, $class );
 } # end TIEHASH
@@ -1370,7 +1383,7 @@ sub FETCH {
   my $val = $self->{v}{$key};
   
   unless( defined $self->{v}{$key} ) {
-    $val = $self->{default}{$key} if ref $self->{default} eq 'HASH';
+    $val = $self->{default}{$key} if ref($self->{default}) eq 'HASH';
   } # end unless
 
   if( ref($val) eq 'ARRAY' ) {
@@ -1609,6 +1622,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.15  2001/01/30 11:46:48  rbowen
+     Very minor documentation bug fixed.
+
      Revision 2.14  2001/01/08 18:02:32  wadg
      [Bug #127325] Fixed proken import; changelog; moved
 

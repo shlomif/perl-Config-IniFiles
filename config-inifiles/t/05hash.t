@@ -2,11 +2,7 @@ use strict;
 use Test;
 use Config::IniFiles;
 
-BEGIN { plan tests => 17 }
-
-#
-# Hash tying tests added by JW/WADG
-#
+BEGIN { plan tests => 18 }
 
 my %ini;
 my ($ini, $value);
@@ -147,4 +143,11 @@ ok( (@value == 2)
     && ($value[0] eq 'line 1')
     && ($value[1] eq 'line 2')
   );
+
+# test 18
+# Getting a default value not in the file
+tie %ini, 'Config::IniFiles', ( -file => "t/test.ini", -default => 'default', -nocase => 1 );
+$ini{default}{cassius} = 'clay';
+$value = $ini{test1}{cassius};
+ok( $value eq 'clay' );
 
