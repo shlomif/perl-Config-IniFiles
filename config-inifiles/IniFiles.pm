@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.16 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.17 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.16 2000-12-07 14:48:38 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.17 2000-12-07 15:32:36 grail Exp $
 
 =head1 SYNOPSIS
 
@@ -382,13 +382,13 @@ sub ReadConfig {
     elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {		# New Section
       $sect = $1;
       $sect = lc($sect) if $nocase;
-      push(@{$self->{sects}}, $sect) unless grep(/$sect/, @{$self->{sects}});
+      push(@{$self->{sects}}, $sect) unless grep(/\Q$sect\E/, @{$self->{sects}});
       if ($sect =~ /(\S+)\s+\S+/) {		# New Group Member
 	$group = $1;
 	if (!defined($self->{group}{$group})) {
 	  $self->{group}{$group} = [];
 	}
-	push(@{$self->{group}{$group}}, $sect) unless grep(/$sect/, @{$self->{group}{$group}});
+	push(@{$self->{group}{$group}}, $sect) unless grep(/\Q$sect\E/, @{$self->{group}{$group}});
       }
       if (!defined($self->{v}{$sect})) {
 	$self->{sCMT}{$sect} = [@cmts] if @cmts > 0;
@@ -418,16 +418,40 @@ sub ReadConfig {
 	  }
 	}
 	if ($foundeot) {
-	  $self->{v}{$sect}{$parm} = \@val;
-	  $self->{EOT}{$sect}{$parm} = $eotmark;
+	    if (exists $self->{v}{$sect}{$parm}) {
+	      if (ref($self->{v}{$sect}{$parm}) eq "ARRAY") {
+	        # Add to the array
+	        push @{$self->{v}{$sect}{$parm}}, @val;
+	      } else {
+	        # Create array
+	        my $old_value = $self->{v}{$sect}{$parm};
+	        my @new_value = ($old_value, @val);
+	        $self->{v}{$sect}{$parm} = \@new_value;
+	      }
+	    } else {
+		  $self->{v}{$sect}{$parm} = \@val;
+		}
+		$self->{EOT}{$sect}{$parm} = $eotmark;
 	} else {
 	  push(@Config::IniFiles::errors, sprintf('%d: %s', $startline,
 			      qq#no end marker ("$eotmark") found#));
 	}
       } else {
-	$self->{v}{$sect}{$parm} = $val;
+    if (exists $self->{v}{$sect}{$parm}) {
+      if (ref($self->{v}{$sect}{$parm}) eq "ARRAY") {
+        # Add to the array
+        push @{$self->{v}{$sect}{$parm}}, $val;
+      } else {
+        # Create array
+        my $old_value = $self->{v}{$sect}{$parm};
+        my @new_value = ($old_value, $val);
+        $self->{v}{$sect}{$parm} = \@new_value;
       }
-      push(@{$self->{parms}{$sect}}, $parm) unless grep(/$parm/, @{$self->{parms}{$sect}});
+    } else {
+	$self->{v}{$sect}{$parm} = $val;
+	}
+      }
+      push(@{$self->{parms}{$sect}}, $parm) unless grep(/\Q$parm\E/, @{$self->{parms}{$sect}});
     }
     else {
       push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno, $_));
