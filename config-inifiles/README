@@ -1,7 +1,7 @@
 NAME
     Config::IniFiles - A module for reading .ini-style configuration files.
 
-         $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/README,v 1.2 2000-11-24 20:40:58 rbowen Exp $
+         $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/README,v 1.3 2000-12-18 17:53:05 rbowen Exp $
 
 SYNOPSIS
       use Config::IniFiles;
@@ -10,8 +10,7 @@ SYNOPSIS
 
 DESCRIPTION
     Config::IniFiles provides a way to have readable configuration files
-    outside your Perl script. The configuration can be safely reloaded upon
-    receipt of a signal. Configurations can be imported (inherited,
+    outside your Perl script. Configurations can be imported (inherited,
     stacked,...), sections can be grouped, and settings can be accessed from
     a tied hash.
 
@@ -28,8 +27,8 @@ USAGE -- Object Interface
     section name in square brackets. The first nonblank character of the
     line indicating a section must be a left bracket and the last nonblank
     character of a line indicating a section must be a right bracket. The
-    characters making up the section name can be any symbols at all. The
-    section may even be be empty. However section names must be unique.
+    characters making up the section name can be any symbols at all. However
+    section names must be unique.
 
     Parameters are specified in each section as Name=Value. Any spaces
     around the equals sign will be ignored, and the value extends to the end
@@ -93,9 +92,6 @@ METHODS
 
                 PID <PID> reloading config file <file> at YYYY.MM.DD HH:MM:SS
 
-              See your system documentation for information on valid
-              signals.
-
     *-nocase* 0|1
               Set -nocase => 1 to handle the config file in a
               case-insensitive manner (case in values is preserved,
@@ -148,9 +144,8 @@ METHODS
 
   ReadConfig
 
-    Forces the config file to be re-read. Also see the *-reloadsig* option
-    to the new method for a way to connect this method to a signal (such as
-    SIGHUP). Returns undef if the file can not be opened.
+    Forces the config file to be re-read. Returns undef if the file can not
+    be opened.
 
   Sections
 
@@ -173,11 +168,21 @@ METHODS
 
     This is useful for building up lists. Note that parameters within a
     "member" section are referenced normally (i.e., the section name is
-    still "Groupname Membername", including the space).
+    still "Groupname Membername", including the space) - the concept of
+    Groups is to aid people building more complex configuration files.
 
   GroupMembers ($group)
 
-    Returns an array containing the members of specified $group.
+    Returns an array containing the members of specified $group. Each
+    element of the array is a section name. For example, given the sections
+
+      [Group Element 1]
+      ...
+
+      [Group Element 2]
+      ...
+
+    GroupMembers would return ("Group Element 1", "Group Element 2").
 
   WriteConfig ($filename)
 
@@ -226,6 +231,14 @@ METHODS
     Any line of @comment that does not have a comment character will be
     prepended with "#".
 
+  GetParameterComment ($section, $parameter)
+
+    Gets the comment attached to a parameter.
+
+  DeleteParameterComment ($section, $parameter)
+
+    Deletes the comment attached to a parameter.
+
   GetParameterEOT ($section, $parameter)
 
     Accessor method for the EOT text (in fact, style) of the specified
@@ -242,6 +255,12 @@ METHODS
     To un-set the EOT text, use DeleteParameterEOT ($section, $parameter).
 
   DeleteParameterEOT ($section, $parameter)
+
+    DeleteSection ( $section_name )
+    Completely removes the entire section from the configuration.
+
+    Delete
+    Deletes the entire configuration file.
 
 USAGE -- Tied Hash
   tie $ini, 'Config::Inifiles', (-file=>$filename, [-option=>value ...] )
@@ -433,6 +452,35 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.13  2000/12/18 07:14:41  wadg
+         [Bugs# 122441,122437] Alien EOLs and OO delete method
+
+         Revision 2.11  2000/12/16 12:53:13  grail
+         [BUG #122455] Problem with File Permissions
+
+         Revision 2.10  2000/12/13 17:40:18  rbowen
+         Updated version number so that CPAN will stop being angry with us.
+
+         Revision 1.18  2000/12/08 00:45:35  grail
+         Change as requested by Jeremy Wadsack, for Bug 123146
+
+         Revision 1.17  2000/12/07 15:32:36  grail
+         Further patch to duplicate sections bug, and replacement of repeated values handling code.
+
+         Revision 1.14  2000/11/29 11:26:03  grail
+         Updates for task 22401 (no more reloadsig) and 22402 (Group and GroupMember doco)
+
+         Revision 1.13  2000/11/28 12:41:42  grail
+         Added test for being able to add sections with wierd names like section|version2
+
+         Revision 1.11  2000/11/24 21:20:11  rbowen
+         Resolved SourceForge bug #122445 - a parameter should be split from its value on the first = sign encountered, not on the last one. Added test suite to test this, and put test case in test.ini
+
+         Revision 1.10  2000/11/24 20:40:58  rbowen
+         Updated MANIFEST to have file list of new files in t/
+         Updated IniFiles.pm to have mention of sourceforge addresses, rather than rcbowen.com addresses
+         Regenerated README from IniFiles.pm
+
          Revision 1.9  2000/11/23 05:08:08  grail
          Fixed documentation for bug 122443 - Check that INI files can be created from scratch.
 
