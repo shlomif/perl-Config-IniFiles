@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.40 $))[1];;
+$Config::IniFiles::VERSION = (qw($Revision: 2.41 $))[1];;
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.40 2003-12-08 10:33:13 domq Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.41 2003-12-08 10:50:56 domq Exp $
 
 =head1 NAME
 
@@ -484,7 +484,7 @@ sub push {
   $self->{v}{$sect}{$parm} = [$self->{v}{$sect}{$parm}] unless
      (ref($self->{v}{$sect}{$parm}) eq "ARRAY");
 
-  push @{$self->{v}{$sect}{$parm}}, @vals;
+  CORE::push @{$self->{v}{$sect}{$parm}}, @vals;
   return 1;
 }
 
@@ -552,7 +552,7 @@ sub newval {
 
   $self->AddSection($sect);
 
-  push(@{$self->{parms}{$sect}}, $parm) 
+  CORE::push(@{$self->{parms}{$sect}}, $parm) 
       unless (grep {/^\Q$parm\E$/} @{$self->{parms}{$sect}} );
 
   $self->_touch_parameter($sect, $parm);
@@ -756,7 +756,7 @@ sub ReadConfig {
 				$self->delval($sect, $todelete);
 			}
 		} else {
-			push(@cmts, $_);
+			CORE::push(@cmts, $_);
 		}
 		next;
     }
@@ -771,7 +771,7 @@ sub ReadConfig {
     }
     elsif (($parm, $val) = /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {	# new parameter
 		if (!defined $sect) {
-			push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno,
+			CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno,
 				qq#parameter found outside a section#));
 			$self->_rollback($fh);
 			return undef;
@@ -791,11 +791,11 @@ sub ReadConfig {
 	    $foundeot = 1;
 	    last;
 	  } else {
-	    push(@val, $_);
+	    CORE::push(@val, $_);
 	  }
 	}
 	if (! $foundeot) {
-	  push(@Config::IniFiles::errors, sprintf('%d: %s', $startline,
+	  CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $startline,
 			      qq#no end marker ("$eotmark") found#));
       $self->_rollback();
 	  return undef;
@@ -826,14 +826,14 @@ sub ReadConfig {
 		$self->SetParameterEOT($sect,$parm,$eotmark) if (defined $eotmark);
 
     } else {
-      push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $lineno, $_));
+      CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $lineno, $_));
     }
   } # End main parsing loop
 
   # Special case: return undef if file is empty. (suppress this line to
   # restore the more intuitive behaviour of accepting empty files)
   if (! keys %{$self->{v}} && ! $self->{allowempty}) {
-	  push @Config::IniFiles::errors, "Empty file treated as error";
+	  CORE::push @Config::IniFiles::errors, "Empty file treated as error";
 	  $self->_rollback($fh);
 	  return undef;
   }
@@ -904,7 +904,7 @@ sub AddSection {
 	}
 	
 	return if $self->SectionExists($sect);
-	push @{$self->{sects}}, $sect unless
+	CORE::push @{$self->{sects}}, $sect unless
 	  grep /^\Q$sect\E$/, @{$self->{sects}};
 	$self->_touch_section($sect);
 
@@ -925,7 +925,7 @@ sub _touch_section {
 	my ($self, $sect)=@_;
 
 	$self->{mysects} ||= [];
-	push @{$self->{mysects}}, $sect unless
+	CORE::push @{$self->{mysects}}, $sect unless
 	  grep /^\Q$sect\E$/, @{$self->{mysects}};
 }
 
@@ -936,7 +936,7 @@ sub _touch_parameter {
 	$self->_touch_section($sect);
 	return if (!exists $self->{v}{$sect});
 	$self->{myparms}{$sect} ||= [];
-	push @{$self->{myparms}{$sect}}, $parm unless
+	CORE::push @{$self->{myparms}{$sect}}, $parm unless
 	  grep /^\Q$parm\E$/, @{$self->{myparms}{$sect}};
 }
 
@@ -1041,7 +1041,7 @@ sub SetGroupMember {
 		$self->{group}{$group} = [];
 	}
 	if (not grep {/^\Q$sect\E$/} @{$self->{group}{$group}}) {
-		push @{$self->{group}{$group}}, $sect;
+		CORE::push @{$self->{group}{$group}}, $sect;
 	}
 }
 
@@ -1148,7 +1148,7 @@ Returns true on success, C<undef> on failure.
 
 sub WriteConfig {
   my ($self, $file, %parms)=@_;
-  %parms = () unless defined %parms;
+  %parms = () unless %parms;
   
   return undef unless defined $file;
   
@@ -1391,7 +1391,7 @@ sub SetSectionComment
 	# At this point it's possible to have a comment for a section that
 	# doesn't exist. This comment will not get written to the INI file.
 	
-	push @{$self->{sCMT}{$sect}}, $self->_markup_comments(@comment);
+	CORE::push @{$self->{sCMT}{$sect}}, $self->_markup_comments(@comment);
 	return scalar @comment;
 }
 
@@ -1497,7 +1497,7 @@ sub SetParameterComment
 	$self->{pCMT}{$sect}{$parm} = [];
 	# Note that at this point, it's possible to have a comment for a parameter,
 	# without that parameter actually existing in the INI file.
-	push @{$self->{pCMT}{$sect}{$parm}}, $self->_markup_comments(@comment);
+	CORE::push @{$self->{pCMT}{$sect}{$parm}}, $self->_markup_comments(@comment);
 	return scalar @comment;
 }
 
@@ -2411,6 +2411,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.40  2003/12/08 10:33:13  domq
+     Documentation tidyup
+
      Revision 2.39  2003/12/06 07:54:21  wadg
      [By Proxy for domq]
      * Encapsulation of internal data structures even for use within the

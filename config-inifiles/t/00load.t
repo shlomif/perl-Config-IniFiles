@@ -72,7 +72,7 @@ if( open( CONFIG, "test.ini" ) ) {
   $ini->RewriteConfig();
   close CONFIG;
   # Now test opening and re-write to the same handle
-  if( open( CONFIG, "test01.ini" ) ) {
+  if( open( CONFIG, "<+test01.ini" ) ) {
     $ini = new Config::IniFiles -file => \*CONFIG;
     my $badname = scalar(\*CONFIG);
                                        # Have to use open/close because -e seems to be always true!
