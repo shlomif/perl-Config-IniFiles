@@ -4,7 +4,8 @@ NAME
 SYNOPSIS
       use Config::IniFiles;
       my $cfg = new Config::IniFiles( -file => "/path/configfile.ini" );
-      print "We have parm $cfg->val( 'Section', 'Parameter' )." if $cfg->val( 'Section', 'Parameter' );
+      print "We have parm " . $cfg->val( 'Section', 'Parameter' ) . "."
+            if $cfg->val( 'Section', 'Parameter' );
 
 DESCRIPTION
     Config::IniFiles provides a way to have readable configuration files
@@ -12,17 +13,9 @@ DESCRIPTION
     stacked,...), sections can be grouped, and settings can be accessed from
     a tied hash.
 
-USAGE -- Object Interface
-    Get a new Config::IniFiles object with the *new* method:
-
-      $cfg = Config::IniFiles->new( -file => "/path/configfile.ini" );
-      $cfg = new Config::IniFiles -file => "/path/configfile.ini";
-
-    Optional named parameters may be specified after the configuration file
-    name. See the *new* in the METHODS section, below.
-
-    INI files consist of a number of sections, each preceeded with the
-    section name in square brackets. The first nonblank character of the
+FILE FORMAT
+    INI files consist of a number of sections, each preceded with the
+    section name in square brackets. The first non-blank character of the
     line indicating a section must be a left bracket and the last nonblank
     character of a line indicating a section must be a right bracket. The
     characters making up the section name can be any symbols at all. However
@@ -40,7 +33,7 @@ USAGE -- Object Interface
     Lines that begin with either of these characters will be ignored. Any
     amount of whitespace may preceed the comment character.
 
-    Multiline or multivalued fields may also be defined ala UNIX "here
+    Multiline or multi-valued parameters may also be defined ala UNIX "here
     document" syntax:
 
       Parameter=<<EOT
@@ -52,7 +45,14 @@ USAGE -- Object Interface
     follows the "<<" and what appears at the end of the text MUST match
     exactly, including any trailing whitespace.
 
-    See the METHODS section, below, for settable options.
+USAGE -- Object Interface
+    Get a new Config::IniFiles object with the *new* method:
+
+      $cfg = Config::IniFiles->new( -file => "/path/configfile.ini" );
+      $cfg = new Config::IniFiles -file => "/path/configfile.ini";
+
+    Optional named parameters may be specified after the configuration file
+    name. See the *new* in the METHODS section, below.
 
     Values from the config file are fetched with the val method:
 
@@ -77,11 +77,11 @@ METHODS
               order to save the parameters.
 
     *-default* section
-              Specifies a section is used for default values. For example,
-              if you look up the "permissions" parameter in the "users"
-              section, but there is none, Config::IniFiles will look to your
-              default section for a "permissions" value before returning
-              undef.
+              Specifies a section to be used for default values. For
+              example, if you look up the "permissions" parameter in the
+              "users" section, but there is none, Config::IniFiles will look
+              to your default section for a "permissions" value before
+              returning undef.
 
     *-reloadwarn* 0|1
               Set -reloadwarn => 1 to enable a warning message (output to
@@ -89,6 +89,8 @@ METHODS
               message is of the form:
 
                 PID <PID> reloading config file <file> at YYYY.MM.DD HH:MM:SS
+
+              Default behavior is to not warn (i.e. -reloadwarn => 0).
 
     *-nocase* 0|1
               Set -nocase => 1 to handle the config file in a
@@ -113,9 +115,9 @@ METHODS
 
   val ($section, $parameter)
 
-    Returns the value of the specified parameter in section $section,
-    returns undef if no section or no parameter for the given section
-    exists.
+    Returns the value of the specified parameter ("$parameter") in section
+    "$section", returns undef if no section or no parameter for the given
+    section section exists.
 
     If you want a multi-line/value field returned as an array, just specify
     an array as the receiver:
@@ -124,8 +126,8 @@ METHODS
 
   setval ($section, $parameter, $value, [ $value2, ... ])
 
-    Sets the value of parameter $parameter in section $section to $value (or
-    to a set of values). See below for methods to write the new
+    Sets the value of parameter "$parameter" in section "$section" to
+    "$value" (or to a set of values). See below for methods to write the new
     configuration back out to a file.
 
     You may not set a parameter that didn't exist in the original
@@ -134,16 +136,22 @@ METHODS
 
   newval($setion, $parameter, $value [, $value2, ...])
 
-    Adds a new value to the configuration file.
+    Assignes a new value, "$value" (or set of values) to the parameter
+    "$parameter" in section "$section" in the configuration file.
 
   delval($section, $parameter)
 
-    Deletes the specified value from the configuration file
+    Deletes the specified parameter from the configuration file
 
   ReadConfig
 
-    Forces the config file to be re-read. Returns undef if the file can not
-    be opened.
+    Forces the configuration file to be re-read. Returns undef if the file
+    can not be opened, no filename was defined (with the "-file" option)
+    when the object was constructed, or an error occurred while reading.
+
+    If an error occurs while parsinf the INI file the
+    @Config::IniFiles::errors array will contain messages that might help
+    you figure out where the problem is in the file.
 
   Sections
 
@@ -151,7 +159,7 @@ METHODS
     the *nocase* option was turned on when the config object was created,
     the section names will be returned in lowercase.
 
-  Parameters ($sectionname)
+  Parameters ($section_name)
 
     Returns an array containing the parameters contained in the specified
     section.
@@ -254,19 +262,25 @@ METHODS
 
   DeleteParameterEOT ($section, $parameter)
 
-    DeleteSection ( $section_name )
+    Removes the EOT marker for the given section and parameter. When writing
+    a configuration file, if no EOT marker is defined then "EOT" is used.
+
+  DeleteSection ( $section_name )
+
     Completely removes the entire section from the configuration.
 
-    Delete
-    Deletes the entire configuration file.
+  Delete
+
+    Deletes the entire configuration file in memory.
 
 USAGE -- Tied Hash
-  tie $ini, 'Config::Inifiles', (-file=>$filename, [-option=>value ...] )
+  tie $ini, 'Config::IniFiles', (-file=>$filename, [-option=>value ...] )
 
-    Using 'tie', you can tie a hash to a Config::IniFiles object. This
+    Using "tie", you can tie a hash to a Config::IniFiles object. This
     creates a new object which you can access through your hash, so you use
     this instead of the new method. This actually creates a hash of hashes
-    to access the values in the .ini-file.
+    to access the values in the INI file. The options you provide through
+    "tie" are the same as given for the new method, above.
 
     Here's an example:
 
@@ -275,15 +289,14 @@ USAGE -- Tied Hash
       my %ini
       tie %ini, 'Config::IniFiles', ( -file => "/path/configfile.ini" );
 
-      print "We have parm %ini{Section}{Parameter}." if %ini{'Section'}{'Parameter'};
+      print "We have $ini{Section}{Parameter}." if $ini{Section}{Parameter};
 
-    Accessing and using the hash works just like accessing and using an
-    object, except in the way you reference it. More information about using
-    the hash interface is descibed below under the corresponding object
-    methods.
+    Accessing and using the hash works just like accessing a regular hash
+    and many of the object methods are made available through the hash
+    interface.
 
     For those methods that do not coincide with the hash paradigm, you can
-    use the Perl 'tied' function to get at the underlying object tied to the
+    use the Perl "tied" function to get at the underlying object tied to the
     hash and call methods on that object. For example, to write the hash out
     to a new ini file, you would do something like this:
 
@@ -292,11 +305,10 @@ USAGE -- Tied Hash
 
   $val = $ini{$section}{$parameter}
 
-    Returns the value of $parameter in $section, through the hash tie
-    interface.
+    Returns the value of $parameter in $section.
 
     Because of limitations in Perl's tie implementation, multiline values
-    accessed through a hash will always be returned as a single value with
+    accessed through a hash will *always* be returned as a single value with
     each line joined by the default line separator ($\). To break them apart
     you can simple do this:
 
@@ -304,14 +316,14 @@ USAGE -- Tied Hash
 
   $ini{$section}{$parameter} = $value;
 
-    Sets the value of $parameter in $section to value given. through the
-    hash interface. If the parameter did not exist in the original file, it
-    will be created.
+    Sets the value of "$parameter" in "$section" to "$value".
 
-    To set a multiline or multivalue parameter use something like this:
+    To set a multiline or multiv-alue parameter just assign an array
+    reference to the hash entry, like this:
 
      $ini{$section}{$parameter} = [$value1, $value2, ...];
 
+    If the parameter did not exist in the original file, it will be created.
     However, Perl does not seem to extend autovivification to tied hashes.
     That means that if you try to say
 
@@ -330,7 +342,7 @@ USAGE -- Tied Hash
     Using the tie interface, you can copy whole sections of the ini file
     into another hash. Note that this makes a copy of the entire section.
     The new hash in no longer tied to the ini file, In particular, this
-    means -default and -nocase settings will not apply to '%hash'.
+    means -default and -nocase settings will not apply to "%hash".
 
   $ini{$section} = {}; %{$ini{$section}} = %parameters;
 
@@ -338,19 +350,19 @@ USAGE -- Tied Hash
     section with a new set of parameters. This call will fail, however, if
     the argument passed in NOT a hash reference. You must use both lines, as
     shown above so that Perl recognizes the section as a hash reference
-    context before COPYing over the values from your '%parameters' hash.
+    context before COPYing over the values from your "%parameters" hash.
 
   delete $ini{$section}{$parameter}
 
-    When tied to a hash, you can use the Perl 'delete' function to
+    When tied to a hash, you can use the Perl "delete" function to
     completely remove a parameter from a section.
 
   delete $ini{$section}
 
     The tied interface also allows you to delete an entire section from the
-    ini file using the Perl 'delete' function.
+    ini file using the Perl "delete" function.
 
-  $ini = ();
+  %ini = ();
 
     If you really want to delete all the items in the ini file, this will do
     it. Of course, the changes won't be written to the actual file unless
@@ -361,27 +373,27 @@ USAGE -- Tied Hash
     my @keys = keys %{$ini{$section}}
     while (($k, $v) = each %{$ini{$section}}) {...}
     if( exists %{$ini{$section}}, $parameter ) {...}
-    When tied to a hash, you use the Perl 'keys' and 'each' functions to
-    iteratively list the parameters ('keys') or parameters and their values
-    ('each') in a given section.
+    When tied to a hash, you use the Perl "keys" and "each" functions to
+    iteratively list the parameters ("keys") or parameters and their values
+    ("each") in a given section.
 
-    You can also use the Perl 'exists' function to see if a parameter is
+    You can also use the Perl "exists" function to see if a parameter is
     defined in a given section.
 
     Note that none of these will return parameter names that are part if the
-    default section (if set), although accessing and unknown parameter in
-    the specified section will return a value from the default section if
-    there is one.
+    default section (if set), although accessing an unknown parameter in the
+    specified section will return a value from the default section if there
+    is one.
 
   Section names
 
-    keys %ini, $section
+    foreach( keys %ini ) {...}
     while (($k, $v) = each %ini) {...}
     if( exists %ini, $section ) {...}
-    When tied to a hash, you use the Perl 'keys' and 'each' functions to
+    When tied to a hash, you use the Perl "keys" and "each" functions to
     iteratively list the sections in the ini file.
 
-    You can also use the Perl 'exists' function to see if a section is
+    You can also use the Perl "exists" function to see if a section is
     defined in the file.
 
 DIAGNOSTICS
@@ -450,6 +462,12 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.17  2001/03/21 21:05:12  wadg
+         Documentation edits
+
+         Revision 2.15  2001/01/30 11:46:48  rbowen
+         Very minor documentation bug fixed.
+
          Revision 2.14  2001/01/08 18:02:32  wadg
          [Bug #127325] Fixed proken import; changelog; moved
 
