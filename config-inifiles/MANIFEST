@@ -1,0 +1,11 @@
+MANIFEST
+Makefile.PL
+README
+
+IniFiles.pm
+
+test.pl
+ca.ini
+en.ini
+es.ini
+test.ini
