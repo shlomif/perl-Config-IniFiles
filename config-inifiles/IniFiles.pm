@@ -1,12 +1,12 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.19 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.20 $))[1];
 use Carp;
 use strict;
 require 5.004;
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.19 2001-04-04 23:33:40 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.20 2001-06-07 02:49:52 grail Exp $
 
 =head1 NAME
 
@@ -162,6 +162,7 @@ sub new {
   # Parse options
   my($k, $v);
   local $_;
+  $self->{nocase} = 0;
   while (($k, $v) = each %parms) {
     if( $k eq '-import' ) {
     	# Store the imported object's file parameter for reload
@@ -222,10 +223,13 @@ specify an array as the receiver:
 sub val {
   my ($self, $sect, $parm) = @_;
 
+  return undef if not defined $sect;
+  return undef if not defined $parm;
   if ($self->{nocase}) {
     $sect = lc($sect);
     $parm = lc($parm);
   }
+  
   my $val = defined($self->{v}{$sect}{$parm}) ?
     $self->{v}{$sect}{$parm} :
     $self->{v}{$self->{default}}{$parm};
@@ -254,6 +258,9 @@ sub setval {
   my $parm = shift;
   my @val  = @_;
 
+  return undef if not defined $sect;
+  return undef if not defined $parm;
+
 # tom@ytram.com +
   if ($self->{nocase}) {
     $sect = lc($sect);
@@ -274,7 +281,7 @@ sub setval {
   }
 }
 
-=head2 newval($setion, $parameter, $value [, $value2, ...])
+=head2 newval($section, $parameter, $value [, $value2, ...])
 
 Assignes a new value, C<$value> (or set of values) to the 
 parameter C<$parameter> in section C<$section> in the configuration 
@@ -287,6 +294,9 @@ sub newval {
   my $sect = shift;
   my $parm = shift;
   my @val  = @_;
+  
+  return undef if not defined $sect;
+  return undef if not defined $parm;
 
 # tom@ytram.com +
   if ($self->{nocase}) {
@@ -294,13 +304,10 @@ sub newval {
     $parm = lc($parm);
   }
 # tom@ytram.com -
-
-    push(@{$self->{sects}}, $sect) unless (grep /^\Q$sect\E$/, @{$self->{sects}});
-    $self->{v}{$sect} = {} unless ref $self->{v}{$sect} eq 'HASH';
-    $self->{parms}{$sect} = [] unless ref($self->{parms}{$sect}) eq 'ARRAY';
+	$self->AddSection($sect);
 
     push(@{$self->{parms}{$sect}}, $parm) 
-      unless (grep /^\Q$parm\E$/,@{$self->{parms}{$sect}} );
+      unless (grep {/^\Q$parm\E$/} @{$self->{parms}{$sect}} );
 
   if (@val > 1) {
     $self->{v}{$sect}{$parm} = \@val;
@@ -322,6 +329,9 @@ sub delval {
   my $self = shift;
   my $sect = shift;
   my $parm = shift;
+  
+  return undef if not defined $sect;
+  return undef if not defined $parm;
 
 # tom@ytram.com +
   if ($self->{nocase}) {
@@ -420,28 +430,15 @@ sub ReadConfig {
     }
     elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {		# New Section
       $sect = $1;
-      $sect = lc($sect) if $nocase;
-      push(@{$self->{sects}}, $sect) unless grep(/^\Q$sect\E$/, @{$self->{sects}});
-      if ($sect =~ /(\S+)\s+\S+/) {		# New Group Member
-	$group = $1;
-	if (!defined($self->{group}{$group})) {
-	  $self->{group}{$group} = [];
-	}
-	push(@{$self->{group}{$group}}, $sect) unless grep(/\Q$sect\E/, @{$self->{group}{$group}});
-      }
-      if (!defined($self->{v}{$sect})) {
-	$self->{sCMT}{$sect} = [@cmts] if @cmts > 0;
-	$self->{pCMT}{$sect} = {};		# Comments above parameters
-	$self->{parms}{$sect} = [];
-	@cmts = ( );
-	$self->{v}{$sect} = {};
-      }
+      $self->AddSection($sect);
+      $self->SetSectionComment($sect, @cmts);
+      @cmts = ();
     }
-    elsif (($parm, $val) = /\s*([^=]+?)\s*=\s*(.*)/) {	# new parameter
+    elsif (($parm, $val) = /^\s*([^=]+?)\s*=\s*(.*)$/) {	# new parameter
       $parm = lc($parm) if $nocase;
       $self->{pCMT}{$sect}{$parm} = [@cmts];
       @cmts = ( );
-      if ($val =~ /^<<(.*)/) {			# "here" value
+      if ($val =~ /^<<(.*)$/) {			# "here" value
 	my $eotmark  = $1;
 	my $foundeot = 0;
 	my $startline = $lineno;
@@ -460,7 +457,7 @@ sub ReadConfig {
 	if ($foundeot) {
 	    if (exists $self->{v}{$sect}{$parm} && 
 	        exists $loaded_params{$sect} && 
-	        grep( /^$parm$/, @{$loaded_params{$sect}}) ) {
+	        grep( /^\Q$parm\E$/, @{$loaded_params{$sect}}) ) {
 	      if (ref($self->{v}{$sect}{$parm}) eq "ARRAY") {
 	        # Add to the array
 	        push @{$self->{v}{$sect}{$parm}}, @val;
@@ -483,7 +480,7 @@ sub ReadConfig {
       } else {
 	if (exists $self->{v}{$sect}{$parm} &&
 	    exists $loaded_params{$sect} && 
-	    grep( /^$parm$/, @{$loaded_params{$sect}}) ) {
+	    grep( /^\Q$parm\E$/, @{$loaded_params{$sect}}) ) {
 	    if (ref($self->{v}{$sect}{$parm}) eq "ARRAY") {
 		# Add to the array
 		push @{$self->{v}{$sect}{$parm}}, $val;
@@ -546,7 +543,98 @@ sub Sections {
   return ();
 }
 
-=head2 Parameters ($section_name)
+=head2 SectionExists ( $sect_name )
+
+Returns 1 if the specified section exists in the INI file, 0 otherwise (undefined if section_name is not defined).
+
+=cut
+
+sub SectionExists {
+	my $self = shift;
+	my $sect = shift;
+	
+	return undef if not defined $sect;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+	}
+	
+	return undef() if not defined $sect;
+	return 1 if (grep {/^\Q$sect\E$/} @{$self->{sects}});
+	return 0;
+}
+
+=head2 AddSection ( $sect_name )
+
+Ensures that the named section exists in the INI file. If the section already
+exists, nothing is done. In this case, the "new" section will possibly contain
+data already.
+
+If you really need to have a new section with no parameters in it, check that
+the name that you're adding isn't in the list of sections already.
+
+=cut
+
+sub AddSection {
+	my $self = shift;
+	my $sect = shift;
+	
+	return undef if not defined $sect;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+	}
+	
+	return if $self->SectionExists($sect);
+	push @{$self->{sects}}, $sect;
+	$self->SetGroupMember($sect);
+	
+	# Set up the parameter names and values lists
+    $self->{parms}{$sect} = [] unless ref $self->{parms}{$sect} eq 'ARRAY';
+	if (!defined($self->{v}{$sect})) {
+		$self->{sCMT}{$sect} = [];
+		$self->{pCMT}{$sect} = {};		# Comments above parameters
+		$self->{parms}{$sect} = [];
+		$self->{v}{$sect} = {};
+	}
+}
+
+=head2 DeleteSection ( $sect_name )
+
+Completely removes the entire section from the configuration.
+
+=cut
+
+sub DeleteSection {
+	my $self = shift;
+	my $sect = shift;
+	
+	return undef if not defined $sect;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+	}
+
+	# This is done, the fast way, change if delval changes!!
+	delete $self->{v}{$sect};
+	delete $self->{sCMT}{$sect};
+	delete $self->{pCMT}{$sect};
+	delete $self->{EOT}{$sect};
+	delete $self->{parms}{$sect};
+
+	@{$self->{sects}} = grep !/^\Q$sect\E$/, @{$self->{sects}};
+
+	if( $sect =~ /^(\S+)\s+\S+/ ) {
+		my $group = $1;
+		if( defined($self->{group}{$group}) ) {
+			@{$self->{group}{$group}} = grep !/^\Q$sect\E$/, @{$self->{group}{$group}};
+		} # end if
+	} # end if
+
+	return 1;
+} # end DeleteSection
+
+=head2 Parameters ($sect_name)
 
 Returns an array containing the parameters contained in the specified
 section.
@@ -556,6 +644,13 @@ section.
 sub Parameters {
   my $self = shift;
   my $sect = shift;
+  
+  return undef if not defined $sect;
+  
+  if ($self->{nocase}) {
+    $sect = lc($sect);
+  }
+  
   return @{$self->{parms}{$sect}} if ref $self->{parms}{$sect} eq 'ARRAY';
   return ();
 }
@@ -581,6 +676,51 @@ sub Groups	{
   return ();
 }
 
+=head2 SetGroupMember ( $sect )
+
+Makes sure that the specified section is a member of the appropriate group.
+
+Only intended for use in newval.
+
+=cut
+
+sub SetGroupMember {
+	my $self = shift;
+	my $sect = shift;
+	
+	return undef if not defined $sect;
+	
+	return(1) unless $sect =~ /^(\S+)\s*\S+/;
+	
+	my $group = $1;
+	if (not exists($self->{group}{$group})) {
+		$self->{group}{$group} = [];
+	}
+	if (not grep {/^\Q$sect\E$/} @{$self->{group}{$group}}) {
+		push @{$self->{group}{$group}}, $sect;
+	}
+}
+
+=head2 RemoveGroupMember ( $sect )
+
+Makes sure that the specified section is no longer a member of the
+appropriate group. Only intended for use in DeleteSection.
+
+=cut
+
+sub RemoveGroupMember {
+	my $self = shift;
+	my $sect = shift;
+	
+	return undef if not defined $sect;
+	
+	return(1) unless $sect =~ /^(\S+)\s*\S+/;
+	
+	my $group = $1;
+	return unless exists $self->{group}{$group};
+	@{$self->{group}{$group}} = grep {!/^\Q$sect\E$/} @{$self->{group}{$group}};
+}
+
 =head2 GroupMembers ($group)
 
 Returns an array containing the members of specified $group. Each element
@@ -599,6 +739,13 @@ GroupMembers would return ("Group Element 1", "Group Element 2").
 sub GroupMembers {
   my $self  = shift;
   my $group = shift;
+  
+  return undef if not defined $group;
+  
+  if ($self->{nocase}) {
+  	$group = lc($group);
+  }
+  
   return @{$self->{group}{$group}} if ref $self->{group}{$group} eq 'ARRAY';
   return ();
 }
@@ -614,6 +761,8 @@ filename.  Also see B<BUGS> below.
 sub WriteConfig {
   my $self = shift;
   my $file = shift;
+  
+  return undef if not defined $file;
 
   local(*F);
   open(F, "> $file.new") || do {
@@ -667,7 +816,10 @@ Returns $filename if that was a valid name, undef otherwise.
 sub SetFileName {
   my $self = shift;
   my $newfile = shift;
-  if ((defined $newfile) and ($newfile ne "")) {
+  
+  return undef if not defined $newfile;
+  
+  if ($newfile ne "") {
     $self->{cf} = $newfile;
     return $self->{cf};
   }
@@ -750,19 +902,23 @@ To clear a section comment, use DeleteSectionComment ($section)
 sub SetSectionComment
 {
 	my $self = shift;
-	my $section = shift;
+	my $sect = shift;
 	my @comment = @_;
 
-	defined($section) || return undef;
-	@comment || return undef;
+	return undef if not defined $sect;
+	return undef unless @comment;
 	
-	$self->{sCMT}{$section} = [];
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+	}
+	
+	$self->{sCMT}{$sect} = [];
 	# At this point it's possible to have a comment for a section that
 	# doesn't exist. This comment will not get written to the INI file.
 	
 	foreach my $comment_line (@comment) {
 		($comment_line =~ m/^\s*[#;]/) or ($comment_line = "# $comment_line");
-		push @{$self->{sCMT}{$section}}, $comment_line;
+		push @{$self->{sCMT}{$sect}}, $comment_line;
 	}
 	return scalar @comment;
 }
@@ -781,10 +937,16 @@ used on that line.
 sub GetSectionComment
 {
 	my $self = shift;
-	my $section = shift;
+	my $sect = shift;
 
-	if (exists $self->{sCMT}{$section}) {
-		return @{$self->{sCMT}{$section}};
+	return undef if not defined $sect;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+	}
+	
+	if (exists $self->{sCMT}{$sect}) {
+		return @{$self->{sCMT}{$sect}};
 	} else {
 		return undef;
 	}
@@ -799,9 +961,15 @@ Removes the comment for the specified section.
 sub DeleteSectionComment
 {
 	my $self = shift;
-	my $section = shift;
+	my $sect = shift;
 	
-	delete $self->{sCMT}{$section};
+	return undef if not defined $sect;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+	}
+	
+	delete $self->{sCMT}{$sect};
 }
 
 =head2 SetParameterComment ($section, $parameter, @comment)
@@ -816,30 +984,35 @@ prepended with "#".
 sub SetParameterComment
 {
 	my $self = shift;
-	my $section = shift;
-	my $parameter = shift;
+	my $sect = shift;
+	my $parm = shift;
 	my @comment = @_;
 
-	defined($section) || return undef;
-	defined($parameter) || return undef;
+	defined($sect) || return undef;
+	defined($parm) || return undef;
 	@comment || return undef;
 	
-	if (not exists $self->{pCMT}{$section}) {
-		$self->{pCMT}{$section} = {};
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+		$parm = lc($parm);
 	}
 	
-	$self->{pCMT}{$section}{$parameter} = [];
+	if (not exists $self->{pCMT}{$sect}) {
+		$self->{pCMT}{$sect} = {};
+	}
+	
+	$self->{pCMT}{$sect}{$parm} = [];
 	# Note that at this point, it's possible to have a comment for a parameter,
 	# without that parameter actually existing in the INI file.
 	
 	foreach my $comment_line (@comment) {
 		($comment_line =~ m/^\s*[#;]/) or ($comment_line = "# $comment_line");
-		push @{$self->{pCMT}{$section}{$parameter}}, $comment_line;
+		push @{$self->{pCMT}{$sect}{$parm}}, $comment_line;
 	}
 	return scalar @comment;
 }
 
-=head2 GetParameterComment ($section, $parameter)
+=head2 GetParameterComment ($sect, $parm)
 
 Gets the comment attached to a parameter.
 
@@ -848,20 +1021,25 @@ Gets the comment attached to a parameter.
 sub GetParameterComment
 {
 	my $self = shift;
-	my $section = shift;
-	my $parameter = shift;
+	my $sect = shift;
+	my $parm = shift;
 	
-	defined($section) || return undef;
-	defined($parameter) || return undef;
+	defined($sect) || return undef;
+	defined($parm) || return undef;
 	
-	exists($self->{pCMT}{$section}) || return undef;
-	exists($self->{pCMT}{$section}{$parameter}) || return undef;
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+		$parm = lc($parm);
+	};
 	
-	my @comment = @{$self->{pCMT}{$section}{$parameter}};
+	exists($self->{pCMT}{$sect}) || return undef;
+	exists($self->{pCMT}{$sect}{$parm}) || return undef;
+	
+	my @comment = @{$self->{pCMT}{$sect}{$parm}};
 	return (wantarray)?@comment:join " ", @comment;
 }
 
-=head2 DeleteParameterComment ($section, $parameter)
+=head2 DeleteParameterComment ($sect, $parm)
 
 Deletes the comment attached to a parameter.
 
@@ -870,17 +1048,22 @@ Deletes the comment attached to a parameter.
 sub DeleteParameterComment
 {
 	my $self = shift;
-	my $section = shift;
-	my $parameter = shift;
+	my $sect = shift;
+	my $parm = shift;
 	
-	defined($section) || return undef;
-	defined($parameter) || return undef;
+	defined($sect) || return undef;
+	defined($parm) || return undef;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+		$parm = lc($parm);
+	};
 	
 	# If the parameter doesn't exist, our goal has already been achieved
-	exists($self->{pCMT}{$section}) || return 1;
-	exists($self->{pCMT}{$section}{$parameter}) || return 1;
+	exists($self->{pCMT}{$sect}) || return 1;
+	exists($self->{pCMT}{$sect}{$parm}) || return 1;
 	
-	delete $self->{pCMT}{$section}{$parameter};
+	delete $self->{pCMT}{$sect}{$parm};
 	return 1;
 }
 
@@ -893,20 +1076,25 @@ Accessor method for the EOT text (in fact, style) of the specified parameter. If
 sub GetParameterEOT
 {
 	my $self = shift;
-	my $section = shift;
-	my $parameter = shift;
+	my $sect = shift;
+	my $parm = shift;
 
-	defined($section) || return undef;
-	defined($parameter) || return undef;
+	defined($sect) || return undef;
+	defined($parm) || return undef;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+		$parm = lc($parm);
+	};
 
-	if (not exists $self->{EOT}{$section}) {
-		$self->{EOT}{$section} = {};
+	if (not exists $self->{EOT}{$sect}) {
+		$self->{EOT}{$sect} = {};
 	}
 
-	if (not exists $self->{EOT}{$section}{$parameter}) {
+	if (not exists $self->{EOT}{$sect}{$parm}) {
 		return undef;
 	}
-	return $self->{EOT}{$section}{$parameter};
+	return $self->{EOT}{$sect}{$parm};
 }
 
 =head2 SetParameterEOT ($section, $EOT)
@@ -920,22 +1108,27 @@ To un-set the EOT text, use DeleteParameterEOT ($section, $parameter).
 sub SetParameterEOT
 {
 	my $self = shift;
-	my $section = shift;
-	my $parameter = shift;
+	my $sect = shift;
+	my $parm = shift;
 	my $EOT = shift;
 
-	defined($section) || return undef;
-	defined($parameter) || return undef;
+	defined($sect) || return undef;
+	defined($parm) || return undef;
 	defined($EOT) || return undef;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+		$parm = lc($parm);
+	};
 
-    if (not exists $self->{EOT}{$section}) {
-        $self->{EOT}{$section} = {};
+    if (not exists $self->{EOT}{$sect}) {
+        $self->{EOT}{$sect} = {};
     }
 
-    $self->{EOT}{$section}{$parameter} = $EOT;
+    $self->{EOT}{$sect}{$parm} = $EOT;
 }
 
-=head2 DeleteParameterEOT ($section, $parameter)
+=head2 DeleteParameterEOT ($sect, $parm)
 
 Removes the EOT marker for the given section and parameter.
 When writing a configuration file, if no EOT marker is defined 
@@ -946,43 +1139,19 @@ then "EOT" is used.
 sub DeleteParameterEOT
 {
 	my $self = shift;
-	my $section = shift;
-	my $parameter = shift;
+	my $sect = shift;
+	my $parm = shift;
 	
-	defined($section) || return undef;
-	defined($parameter) || return undef;
+	defined($sect) || return undef;
+	defined($parm) || return undef;
+	
+	if ($self->{nocase}) {
+		$sect = lc($sect);
+		$parm = lc($parm);
+	}
 
-	delete $self->{EOT}{$section}{$parameter};
+	delete $self->{EOT}{$sect}{$parm};
 }
-
-=head2 DeleteSection ( $section_name )
-
-Completely removes the entire section from the configuration.
-
-=cut
-
-sub DeleteSection {
-	my $self = shift;
-	my( $section_name ) = @_;
-
-	# This is done, the fast way, change if delval changes!!
-	delete $self->{v}{$section_name};
-	delete $self->{sCMT}{$section_name};
-	delete $self->{pCMT}{$section_name};
-	delete $self->{EOT}{$section_name};
-	delete $self->{parms}{$section_name};
-
-	@{$self->{sects}} = grep !/\Q$section_name\E$/, @{$self->{sects}};
-
-	if( $section_name =~ /(\S+)\s+\S+/ ) {
-		my $group = $1;
-		if( defined($self->{group}{$group}) ) {
-			@{$self->{group}{$group}} = grep !/\Q$section_name\E/, @{$self->{group}{$group}};
-		} # end if
-	} # end if
-
-	return 1;
-	} # end DeleteSection
 
 
 =head2 Delete
@@ -1214,7 +1383,7 @@ sub STORE {
   $self->{v}{$key} = {};
 
   # Store the section name in the list
-  push(@{$self->{sects}}, $key) unless (grep /^\Q$key\E$/, @{$self->{sects}});
+  push(@{$self->{sects}}, $key) unless (grep {/^\Q$key\E$/} @{$self->{sects}});
 
   my %parms = %{$self->{startup_settings}};
   $self->{parms}{$key} = [];
@@ -1628,12 +1797,12 @@ data structure.
           ->{nocase} = 0
           ->{reloadwarn} = 0
           ->{sects} = \@sections
-          ->{sCMT}{$section} = \@comment_lines
+          ->{sCMT}{$sect} = \@comment_lines
           ->{group}{$group} = \@group_members
-          ->{parms}{$section} = \@section_parms
+          ->{parms}{$sect} = \@section_parms
           ->{EOT}{$sect}{$parm} = "end of text string"
-          ->{pCMT}{$section}{$parm} = \@comment_lines
-          ->{v}{$section}{$parm} = $value   OR  \@values
+          ->{pCMT}{$sect}{$parm} = \@comment_lines
+          ->{v}{$sect}{$parm} = $value   OR  \@values
 
 =head1 AUTHOR and ACKNOWLEDGEMENTS
 
@@ -1669,6 +1838,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.19  2001/04/04 23:33:40  wadg
+     Fixed case sensitivity bug
+
      Revision 2.18  2001/03/30 04:41:08  rbowen
      Small documentation change in IniFiles.pm - pod2* was choking on misplaces
      =item tags. And I regenerated the README
