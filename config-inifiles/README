@@ -450,6 +450,9 @@ AUTHOR and ACKNOWLEDGEMENTS
 
 Change log
          $Log: not supported by cvs2svn $
+         Revision 2.14  2001/01/08 18:02:32  wadg
+         [Bug #127325] Fixed proken import; changelog; moved
+
          Revision 2.13  2000/12/18 07:14:41  wadg
          [Bugs# 122441,122437] Alien EOLs and OO delete method
 
@@ -503,9 +506,6 @@ Change log
          * Changed version number to the CVS version number, so that I won't
          have to think about changing it ever again. Big version change
          should not be taken as a huge leap forward.
-
-         Revision 1.3  2000/12/18 17:53:05  rbowen
-         Update readme to reflect latest release
 
          0.12 September 13, 2000 by JW/WADG
          * Added documentation to clarify autovivification issues when 
