@@ -11,4 +11,13 @@ if ($value eq "This\nis a multi-line\nvalue") {
 	print "not ok $t\n";
 }
 
-BEGIN { $t=1 }
+$t++;
+$ini->newval("test7|anything", "exists", "yes");
+$value = $ini->val("test7|anything", "exists");
+if ($value eq "yes") {
+	print "ok $t\n";
+} else {
+	print "not ok $t\n";
+}
+
+BEGIN { $t=2 }

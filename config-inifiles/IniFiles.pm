@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.12 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.13 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.12 2000-11-28 11:31:02 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.13 2000-11-28 12:41:42 grail Exp $
 
 =head1 SYNOPSIS
 
@@ -282,11 +282,11 @@ sub newval {
   my $parm = shift;
   my @val  = @_;
 
-    push(@{$self->{sects}}, $sect) unless (grep /^$sect$/, @{$self->{sects}});
+    push(@{$self->{sects}}, $sect) unless (grep /^\Q$sect\E$/, @{$self->{sects}});
     $self->{v}{$sect} = {} unless ref $self->{v}{$sect} eq 'HASH';
 
     push(@{$self->{parms}{$sect}}, $parm) 
-      unless (grep /^$parm$/,@{$self->{parms}{$sect}} );
+      unless (grep /^\Q$parm\E$/,@{$self->{parms}{$sect}} );
 
   if (@val > 1) {
     $self->{v}{$sect}{$parm} = \@val;
@@ -309,7 +309,7 @@ sub delval {
   my $sect = shift;
   my $parm = shift;
 
-	@{$self->{parms}{$sect}} = grep !/^$parm$/, @{$self->{parms}{$sect}};
+	@{$self->{parms}{$sect}} = grep !/^\Q$parm\E$/, @{$self->{parms}{$sect}};
 	delete $self->{v}{$sect}{$parm};
 	return 1
 }
@@ -1029,7 +1029,7 @@ sub STORE {
   $self->{v}{$key} = {};
 
   # Store the section name in the list
-  push(@{$self->{sects}}, $key) unless (grep /^$key$/, @{$self->{sects}});
+  push(@{$self->{sects}}, $key) unless (grep /^\Q$key\E$/, @{$self->{sects}});
 
   my %parms = %{$self->{startup_settings}};
   $self->{parms}{$key} = [];
@@ -1050,7 +1050,7 @@ sub DELETE {
   my $self = shift;
   my( $key ) = @_;
 
-  @{$self->{sects}} = grep !/^$key$/, @{$self->{sects}};
+  @{$self->{sects}} = grep !/^\Q$key\E$/, @{$self->{sects}};
   return delete( $self->{v}{$key} );
 } # end DELETE
 
@@ -1246,7 +1246,7 @@ sub STORE {
   my @val = @_;
 
   # Add the parameter the the parent's list if it isn't there yet
-  push(@{$self->{parms}}, $key) unless (grep /^$key$/, @{$self->{parms}});
+  push(@{$self->{parms}}, $key) unless (grep /^\Q$key\E$/, @{$self->{parms}});
 
   if (@val > 1) {
     $self->{v}{$key} = \@val;
