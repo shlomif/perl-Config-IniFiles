@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 1.1.1.1 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 1.9 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.1.1.1 2000-11-10 03:04:01 rbowen Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 1.9 2000-11-23 05:08:08 grail Exp $
 
 =head1 SYNOPSIS
 
@@ -82,13 +82,19 @@ specify an array as the receiver:
 
 =head1 METHODS
 
-=head2 new (-file=>$filename, [-option=>value ...] )
+=head2 new ( [-option=>value ...] )
 
 Returns a new configuration object (or "undef" if the configuration
 file has an error).  One Config::IniFiles object is required per configuration
 file.  The following named parameters are available:
 
 =over 10
+
+=item I<-file>  filename
+
+Specifies a file to load the parameters from. If this option is not specified, (ie:
+you are creating a config file from scratch) you must specify a target file
+using SetFileName in order to save the parameters.
 
 =item I<-default> section
 
@@ -1442,6 +1448,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 1.1.1.1  2000/11/10 03:04:01  rbowen
+     Initial checkin of the Config::IniFiles source
+
      Revision 1.8  2000/10/17 01:52:55  rbowen
      Patch from Jeremy. Fixed "defined" warnings.
 
