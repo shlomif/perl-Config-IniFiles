@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.11 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.12 $))[1];
 use Carp;
 use strict;
 require 5.004;
@@ -10,7 +10,7 @@ require 5.004;
 
 Config::IniFiles - A module for reading .ini-style configuration files.
 
-     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.11 2000-12-16 12:53:13 grail Exp $
+     $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.12 2000-12-18 04:59:37 wadg Exp $
 
 =head1 SYNOPSIS
 
@@ -668,7 +668,7 @@ sub OutputConfig {
         # entry if the entry looks to be multiline
 
         my @val = split /[$ors]/, $val;
-        if( @val > 2 ) {
+        if( @val > 1 ) {
           my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
           print "$parm= <<$eotmark\n";
           print map "$_\n", @val;
@@ -1527,6 +1527,9 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.11  2000/12/16 12:53:13  grail
+     [BUG #122455] Problem with File Permissions
+
      Revision 2.10  2000/12/13 17:40:18  rbowen
      Updated version number so that CPAN will stop being angry with us.
 
@@ -1648,4 +1651,3 @@ modify it under the same terms as Perl itself.
      various people to join it.
 
 =cut
-

@@ -2,7 +2,7 @@ use strict;
 use Test;
 use Config::IniFiles;
 
-BEGIN { plan tests => 16 }
+BEGIN { plan tests => 17 }
 
 #
 # Hash tying tests added by JW/WADG
@@ -133,3 +133,15 @@ $n2 = tied(%ini)->Parameters( 'newsect' );
 $ini{newsect}{four} = 'value4';
 $n3 = tied(%ini)->Parameters( 'newsect' );
 ok( $n1 == $n1 && $n2 == $n3 );
+
+
+# test 17
+# Writing 2 line multilvalue and returing it
+$t++;
+$ini{'test2'}{'multi_2'} = ['line 1', 'line 2'];
+tied(%ini)->RewriteConfig;
+tied(%ini)->ReadConfig;
+@value = split( /[\$\n]/, $ini{'test2'}{'seven'} );;
+ok(@value == 2 && $value[0] eq 'line1' && $value[1] eq 'line 2');
+
+
