@@ -1,5 +1,5 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.39 $))[1];;
+$Config::IniFiles::VERSION = (qw($Revision: 2.40 $))[1];;
 require 5.004;
 use strict;
 use Carp;
@@ -7,7 +7,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.39 2003-12-06 07:54:21 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.40 2003-12-08 10:33:13 domq Exp $
 
 =head1 NAME
 
@@ -238,8 +238,8 @@ like ordinary ones.
 The L</WriteConfig|WriteConfig(-delta=>1)> form will output such
 comments to indicate deleted sections or parameters. This way,
 reloading a delta file using the same imported object produces the
-same results in memory again.
-
+same results in memory again. See L<IMPORT / DELTA FEATURES> for more
+details.
 
 =item I<-commentchar> 'char'
 
@@ -2191,7 +2191,8 @@ sub NEXTKEY  {
   my( $last ) = @_;
 
   my $i=$self->{tied_enumerator}++;
-  my $key=$self->{config}->{parms}{$self->{section}}[$i];
+  my @keys = $self->{config}->Parameters($self->{section});
+  my $key=$keys[$i];
   return if (! defined $key);
   return wantarray ? ($key, $self->FETCH($key)) : $key;
 } # end NEXTKEY
@@ -2219,6 +2220,109 @@ if ($^W)	{
 
 
 1;
+
+=head1 IMPORT / DELTA FEATURES
+
+The I<-import> option to L</new> allows one to stack one
+I<Config::IniFiles> object on top of another (which might be itself
+stacked in turn and so on recursively, but this is beyond the
+point). The effect, as briefly explained in L</new>, is that the
+fields appearing in the composite object will be a superposition of
+those coming from the ``original'' one and the lines coming from the
+file, the latter taking precedence. For example, let's say that
+C<$master> and C<overlay> were created like this:
+
+   my $master  = new Config::IniFiles(-file => "master.ini");
+   my $overlay = new Config::IniFiles(-file => "overlay.ini",
+			-import => $master);
+
+If the contents of C<master.ini> and C<overlay.ini> are respectively
+
+   ; master.ini
+   [section1]
+   arg0=unchanged from master.ini
+   arg1=val1
+
+   [section2]
+   arg2=val2
+
+and
+
+   ; overlay.ini
+   [section1]
+   arg1=overriden
+
+Then C<< $overlay->val("section1", "arg1") >> is "overriden", while
+C<< $overlay->val("section1", "arg0") >> is "unchanged from
+master.ini".
+
+This feature may be used to ship a ``global defaults'' configuration
+file for a Perl application, that can be overridden piecewise by a
+much shorter, per-site configuration file. Assuming UNIX-style path
+names, this would be done like this:
+
+   my $defaultconfig=new Config::IniFiles
+       (-file => "/usr/share/myapp/myapp.ini.default");
+   my $config=new Config::IniFiles
+       (-file => "/etc/myapp.ini", -import => $defaultconfig);
+   # Now use $config and forget about $defaultconfig in the rest of
+   # the program
+
+Starting with version 2.39, I<Config::IniFiles> also provides features
+to keep the importing / per-site configuration file small, by only
+saving those options that were modified by the running program. That
+is, if one calls
+
+   $overlay->setval("section1", "arg1", "anotherval");
+   $overlay->newval("section3", "arg3", "val3");
+   $overlay->WriteConfig(-delta=>1);
+
+C<overlay.ini> would now contain
+
+   ; overlay.ini
+   [section1]
+   arg1=anotherval
+
+   [section3]
+   arg3=val3
+
+This is called a I<delta file> (see L</WriteConfig>). The untouched
+[section2] and arg0 do not appear, and the config file is therefore
+shorter; while of course, reloading the configuration into C<$master>
+and C<$overlay>, either through C<$overlay->ReadConfig()> or through
+the same code as above (e.g. when application restarts), would yield
+exactly the same result had the overlay object been saved in whole to
+the file system.
+
+The only problem with this delta technique is one cannot delete the
+default values in the overlay configuration file, only change
+them. This is solved by a file format extension, enabled by the
+I<-negativedeltas> option to L</new>: if, say, one would delete
+parameters like this,
+
+   $overlay->DeleteSection("section2");
+   $overlay->delval("section1", "arg0");
+   $overlay->WriteConfig(-delta=>1);
+
+The I<overlay.ini> file would now read:
+
+   ; overlay.ini
+   [section1]
+   ; arg0 is deleted
+   arg1=anotherval
+
+   ; [section2] is deleted
+
+   [section3]
+   arg3=val3
+
+Assuming C<$overlay> was later re-read with C<< -negativedeltas => 1 >>,
+the parser would interpret the deletion comments to yield the correct
+result, that is, [section2] and arg0 would cease to exist in the
+C<$overlay> object.
+
+=cut
+
 
 =head1 DIAGNOSTICS
 
@@ -2307,6 +2411,30 @@ modify it under the same terms as Perl itself.
 =head1 Change log
 
      $Log: not supported by cvs2svn $
+     Revision 2.39  2003/12/06 07:54:21  wadg
+     [By Proxy for domq]
+     * Encapsulation of internal data structures even for use within the
+       class: e.g. ReadConfig() and the TIEHASH interface operate using accessor
+       methods on $self. Causes massive simplification of the code.
+
+     * TIEHASH interface made load-on-demand. Order of each() in TIEHASH
+       same as configuration file's order (i.e. $self->Sections() and
+       $self->Parameters()).
+
+     * push() and exists() methods
+
+     * -allowempty and -deltas parameters to new()
+
+     * support for loading config from a SCALAR reference. Unfortunately
+       this also requires a small patch to IO::Scalar, whose author has yet
+       to respond to my email
+
+     * ->{myparms} and ->{mysects} fields, supporting -delta=>1 option to
+       WriteConfig()
+
+     * _assert_invariants() method (used only in t/01basic.t and
+       t/02weird.t, maybe should be packaged otherwise)
+
      Revision 2.39  2003/11/10 15:37:48  dom
      * Encapsulation of internal data structures even for use within the
        class: e.g. ReadConfig() and the TIEHASH interface operate using accessor
