@@ -76,7 +76,7 @@ if( open( CONFIG, "test.ini" ) ) {
     $ini = new Config::IniFiles -file => \*CONFIG;
     my $badname = scalar(\*CONFIG);
                                        # Have to use open/close because -e seems to be always true!
-    ok( $ini && $ini->RewriteConfig() && (open( I, $badname )&&close(I)) );
+    ok( $ini && $ini->RewriteConfig() && !(open( I, $badname )&&close(I)) );
     close CONFIG;
     # In case it failed, remove the file
     # (old behavior was to write to a file whose filename is the scalar value of the handle!)
