@@ -1,6 +1,6 @@
 #[JW for editor]:mode=perl:tabSize=8:indentSize=2:noTabs=true:indentOnEnter=true:
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.24 $))[1];
+$Config::IniFiles::VERSION = (qw($Revision: 2.25 $))[1];
 require 5.004;
 use strict;
 use Carp;
@@ -8,7 +8,7 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 @Config::IniFiles::errors = ( );
 
-#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.24 2001-12-12 20:44:09 wadg Exp $
+#	$Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.25 2001-12-12 20:44:48 wadg Exp $
 
 =head1 NAME
 
@@ -1540,6 +1540,7 @@ sub _make_filehandle {
   no strict 'refs';
   my $thing = shift;
   return $thing if defined(fileno $thing);
+#  return $thing if defined($thing) && ref($thing) && defined(fileno $thing);
   
   # otherwise try qualifying it into caller's package
   my $fh = qualify_to_ref($thing,caller(1));
