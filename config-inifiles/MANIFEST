@@ -1,8 +1,9 @@
+Build.PL
 MANIFEST
 Makefile.PL
 README
 
-IniFiles.pm
+lib/Config/IniFiles.pm
 
 t/00load.t
 t/01basic.t
