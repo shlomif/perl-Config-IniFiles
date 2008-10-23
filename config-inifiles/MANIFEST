@@ -3,6 +3,8 @@ MANIFEST
 Makefile.PL
 README
 
+inc/Test/Run/Builder.pm
+
 lib/Config/IniFiles.pm
 
 t/00load.t
@@ -24,3 +26,4 @@ t/test.ini
 t/cmt.ini
 t/bad.ini
 t/blank.ini
+META.yml
