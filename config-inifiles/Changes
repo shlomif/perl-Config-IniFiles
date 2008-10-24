@@ -4,6 +4,8 @@
 
 * Moved the ChangeLog to its own file - Changes.
 
+* Made the README contain the useful information and nothing else - previously
+it was a copy of the module's entire POD.
 
 Revision 2.40  2003/12/08 10:33:13  domq
 Documentation tidyup
