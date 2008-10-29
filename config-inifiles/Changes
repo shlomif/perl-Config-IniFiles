@@ -15,6 +15,10 @@ When copying tied-hashes representing sections with multiline values as
 keys, one used to get a reference instead of a copy. This was fixed in SVN
 but not in CPAN.
 
+* Added a test for opening an empty file, inspired by:
+
+https://sourceforge.net/tracker/index.php?func=detail&aid=927111&group_id=6926&atid=106926
+
 Revision 2.40  2003/12/08 10:33:13  domq
 Documentation tidyup
 

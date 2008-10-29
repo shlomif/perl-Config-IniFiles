@@ -20,6 +20,7 @@ t/08group.t
 t/09case.t
 t/10delta.t
 t/11copy-ties-with-array-vals.t
+t/12open-empty-file.t
 
 t/array.ini
 t/ca.ini
