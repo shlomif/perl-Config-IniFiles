@@ -404,8 +404,8 @@ sub val {
   my ($self, $sect, $parm, $def) = @_;
 
   # Always return undef on bad parameters
-  return undef if not defined $sect;
-  return undef if not defined $parm;
+  return if not defined $sect;
+  return if not defined $parm;
   
   if ($self->{nocase}) {
     $sect = lc($sect);
@@ -420,8 +420,14 @@ sub val {
   $val = $def unless defined $val;
   
   # Return the value in the desired context
-  if (wantarray and ref($val) eq "ARRAY") {
-    return @$val;
+  if (wantarray) {
+    if (ref($val) eq "ARRAY") {
+      return @$val;
+    } elsif (defined($val)) {
+      return $val;
+    } else {
+      return;
+    }
   } elsif (ref($val) eq "ARRAY") {
   	if (defined ($/)) {
 	    return join "$/", @$val;
