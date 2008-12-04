@@ -12,7 +12,7 @@ my $builder = Test::Run::Builder->new(
     'build_requires' =>
     {
         'File::Spec' => 0,
-    }
+    },
     'requires' =>
     {
         'strict' => 0,
