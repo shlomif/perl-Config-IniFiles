@@ -27,6 +27,12 @@ With a test that I wrote myself: in list context, ->val() returned the list
 containing (undef()) if there was no such key. Now returning the empty
 list which evaluates to false.
 
+* Added a test for bug
+
+    "[ 2030786 ] Brackets within values are treated as section headers"
+
+It seems to be fixed on SVN.
+
 Revision 2.40  2003/12/08 10:33:13  domq
 Documentation tidyup
 
