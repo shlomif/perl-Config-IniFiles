@@ -9,6 +9,10 @@ use Test::Run::Builder;
 
 my $builder = Test::Run::Builder->new(
     'module_name' => "Config::IniFiles",
+    'build_requires' =>
+    {
+        'File::Spec' => 0,
+    }
     'requires' =>
     {
         'strict' => 0,
