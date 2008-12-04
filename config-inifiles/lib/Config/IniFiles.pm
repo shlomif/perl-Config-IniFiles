@@ -1,5 +1,9 @@
 package Config::IniFiles;
-$Config::IniFiles::VERSION = (qw($Revision: 2.41 $))[1];;
+
+use vars qw($VERSION);
+
+$VERSION = "2.43";
+
 require 5.004;
 use strict;
 use Carp;
