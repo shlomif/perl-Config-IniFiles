@@ -1,5 +1,8 @@
-* Eliminated an assignment of $VERSION into itself to "get rid of warnings"
-- only caused warnings at Build.PL, and is unnecessary now that we
+Version 2.44:  ( Thu Dec 25 11:44:07 IST 2008 )
+-----------------------------------------------
+
+* Eliminated an assignment of $VERSION into itself to "get rid of warnings".
+Only caused warnings at Build.PL, and is unnecessary now that we
 "use vars".
 
 Version 2.43:  ( Thu Dec  4 18:56:02 IST 2008 )
