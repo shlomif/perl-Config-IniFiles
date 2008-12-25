@@ -2222,13 +2222,6 @@ sub DESTROY  {
   # my $self = shift
 } # end DESTROY
 
-# Eliminate annoying warnings
-if ($^W)	{
-	$Config::IniFiles::VERSION = $Config::IniFiles::VERSION;
-}
-
-
-
 1;
 
 =head1 IMPORT / DELTA FEATURES
