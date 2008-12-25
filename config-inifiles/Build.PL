@@ -22,4 +22,5 @@ my $builder = Test::Run::Builder->new(
     },
     'license' => "perl",
 );
+
 $builder->create_build_script;
