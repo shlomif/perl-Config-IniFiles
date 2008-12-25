@@ -1353,9 +1353,17 @@ sub OutputConfig {
         # The FETCH of a tied hash is never called in 
         # an array context, so generate a EOT multiline
         # entry if the entry looks to be multiline
-        my @val = split /[$ors]/, $val;
+        my @val = split /[$ors]/, $val, -1;
         if( @val > 1 ) {
           my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
+
+          # Make sure the $eotmark does not occur inside the string.
+          my @letters = ('A' .. 'Z');
+          while (index($val, $eotmark) >= 0)
+          {
+              $eotmark .= $letters[rand(@letters)];
+          }
+
           print "$parm= <<$eotmark$ors";
           print map "$_$ors", @val;
           print "$eotmark$ors";

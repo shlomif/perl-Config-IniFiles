@@ -22,6 +22,7 @@ t/11copy-ties-with-array-vals.t
 t/12open-empty-file.t
 t/13val-in-list-context.t
 t/14brackets-within-values.t
+t/15store-and-retrieve-here-doc-terminator.t
 t/array.ini
 t/bad.ini
 t/blank.ini
