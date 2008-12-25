@@ -323,11 +323,11 @@ sub new {
     # .. no, because now it could be a handle, IO:: object or something else
     $self->{cf} = $v;
   }
-  if (defined ($v = delete $parms{'-default'})) {
-    $self->{default} = $v;
-  }
   if (defined ($v = delete $parms{'-nocase'})) {
     $self->{nocase} = $v ? 1 : 0;
+  }  
+  if (defined ($v = delete $parms{'-default'})) {
+    $self->{default} = $self->{nocase} ? lc($v) : $v;
   }
   if (defined ($v = delete $parms{'-reloadwarn'})) {
     $self->{reloadwarn} = $v ? 1 : 0;

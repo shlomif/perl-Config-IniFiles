@@ -23,11 +23,13 @@ t/12open-empty-file.t
 t/13val-in-list-context.t
 t/14brackets-within-values.t
 t/15store-and-retrieve-here-doc-terminator.t
+t/16case-sensitive-default.t
 t/array.ini
 t/bad.ini
 t/blank.ini
 t/brackets-in-values.ini
 t/ca.ini
+t/case-sensitive-default.ini
 t/cmt.ini
 t/en.ini
 t/es.ini
