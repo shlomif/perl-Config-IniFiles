@@ -24,6 +24,7 @@ t/13val-in-list-context.t
 t/14brackets-within-values.t
 t/15store-and-retrieve-here-doc-terminator.t
 t/16case-sensitive-default.t
+t/17untainted-multiline-values.t
 t/array.ini
 t/bad.ini
 t/blank.ini

@@ -12,6 +12,7 @@ my $builder = Test::Run::Builder->new(
     'build_requires' =>
     {
         'File::Spec' => 0,
+        'Scalar::Util' => 0,
     },
     'requires' =>
     {

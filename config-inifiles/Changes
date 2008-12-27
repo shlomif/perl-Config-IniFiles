@@ -11,6 +11,11 @@ string, and if so appending more characters.
 - If a default-values section is specified, then -nocase did not look it up
 if it's not lowercase.
 
+* Fixed bug #1831654
+- https://sourceforge.net/tracker/index.php?func=detail&aid=1831654&group_id=6926&atid=106926
+- multiline-values are tainted.
+- Added a test as t/17untainted-multiline-values.t
+
 Version 2.44:  ( Thu Dec 25 11:44:07 IST 2008 )
 -----------------------------------------------
 

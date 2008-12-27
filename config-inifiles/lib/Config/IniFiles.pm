@@ -801,7 +801,9 @@ sub ReadConfig {
 	    $foundeot = 1;
 	    last;
 	  } else {
-	    CORE::push(@val, $_);
+		# Untaint
+		/(.*)/ms; 
+        CORE::push(@val, $1);
 	  }
 	}
 	if (! $foundeot) {
@@ -2421,7 +2423,9 @@ modify it under the same terms as Perl itself.
 
 =cut
 
-eval <<'DEBUGGING_CODE' || die $@ if $ENV{HARNESS_ACTIVE}; 1;
+1;
+
+eval <<'DEBUGGING_CODE' || die $@ if $ENV{HARNESS_ACTIVE} && ! ${^TAINT}; 1;
 
 # Checks that the following relationships hold set-wise (e.g. ignoring order):
 #
@@ -2467,6 +2471,11 @@ sub Config::IniFiles::_assert_invariants {
 
 1;
 DEBUGGING_CODE
+
+=cut
+
+1;
+
 # Please keep the following within the last four lines of the file
 #[JW for editor]:mode=perl:tabSize=8:indentSize=2:noTabs=true:indentOnEnter=true:
 
