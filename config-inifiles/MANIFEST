@@ -25,6 +25,7 @@ t/14brackets-within-values.t
 t/15store-and-retrieve-here-doc-terminator.t
 t/16case-sensitive-default.t
 t/17untainted-multiline-values.t
+t/18non-contiguous-groups.t
 t/array.ini
 t/bad.ini
 t/blank.ini
@@ -34,4 +35,5 @@ t/case-sensitive-default.ini
 t/cmt.ini
 t/en.ini
 t/es.ini
+t/non-contiguous-groups.ini
 t/test.ini
