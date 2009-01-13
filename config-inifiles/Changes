@@ -2,6 +2,10 @@
 - https://sourceforge.net/tracker/index.php?func=detail&aid=1720915&group_id=6926&atid=106926
 - the bug seems to be fixed in trunk.
 
+* Added a regression test for RT #36584
+- https://rt.cpan.org/Ticket/Display.html?id=36584
+- the bug seems to be fixed in trunk.
+
 Version 2.45:  ( Sat Dec 27 17:21:45 IST 2008 )
 -----------------------------------------------
 
