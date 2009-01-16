@@ -6,6 +6,11 @@
 - https://rt.cpan.org/Ticket/Display.html?id=36584
 - the bug seems to be fixed in trunk.
 
+* Added a regression test for RT #36309
+- https://rt.cpan.org/Ticket/Display.html?id=36309
+- Testing for allowedcommentchars.
+- the bug seems to be fixed in trunk.
+
 Version 2.45:  ( Sat Dec 27 17:21:45 IST 2008 )
 -----------------------------------------------
 

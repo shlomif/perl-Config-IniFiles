@@ -27,6 +27,8 @@ t/16case-sensitive-default.t
 t/17untainted-multiline-values.t
 t/18non-contiguous-groups.t
 t/19param-found-outside-section.t
+t/20allowedcommentchars.t
+t/allowed-comment-chars.ini
 t/array.ini
 t/bad.ini
 t/blank.ini
