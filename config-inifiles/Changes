@@ -18,6 +18,10 @@ of solving a few bugs.
 returns the string joined by newlines:
 - https://rt.cpan.org/Ticket/Display.html?id=8612
 
+* Now GetParameterComment returns the right thing in scalar context (joined
+by newlines). It was documented and tested.
+- https://rt.cpan.org/Ticket/Display.html?id=8612
+
 Version 2.45:  ( Sat Dec 27 17:21:45 IST 2008 )
 -----------------------------------------------
 

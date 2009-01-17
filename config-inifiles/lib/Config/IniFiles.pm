@@ -1533,7 +1533,8 @@ sub SetParameterComment
 
 =head2 GetParameterComment ($section, $parameter)
 
-Gets the comment attached to a parameter.
+Gets the comment attached to a parameter. In list context returns all
+comments - in scalar context returns them joined by newlines.
 
 =cut
 
@@ -1555,7 +1556,7 @@ sub GetParameterComment
 	exists($self->{pCMT}{$sect}{$parm}) || return undef;
 	
 	my @comment = @{$self->{pCMT}{$sect}{$parm}};
-	return (wantarray)?@comment:join " ", @comment;
+	return wantarray() ? @comment : join((defined $/ ? $/ : "\n"), @comment);
 }
 
 =head2 DeleteParameterComment ($section, $parmeter)

@@ -7,7 +7,7 @@ use warnings;
 
 # Good - use Test::More tests => 15;
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 use Config::IniFiles;
 use File::Spec;
 
@@ -111,6 +111,13 @@ is_deeply(
     \@comment,
     ['# This is a parameter comment', '# This comment takes two lines!'],
     "GetParameterComment returns the correct result.",
+);
+
+# TEST
+is(
+    scalar($ini->GetParameterComment('foo', 'bar')),
+    "# This is a parameter comment$irs# This comment takes two lines!",
+    "GetParameterComment returns comments separated by newlines",
 );
 
 # Deleting Parameter Comment
