@@ -1,3 +1,6 @@
+Version 2.46:  ( Sat Jan 17 16:31:52 IST 2009 )
+-----------------------------------------------
+
 * Added regression tests for bug #1720915
 - https://sourceforge.net/tracker/index.php?func=detail&aid=1720915&group_id=6926&atid=106926
 - the bug seems to be fixed in trunk.
