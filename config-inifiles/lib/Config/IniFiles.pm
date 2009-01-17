@@ -1457,7 +1457,17 @@ sub GetSectionComment
 	}
 	
 	if (exists $self->{sCMT}{$sect}) {
-		return @{$self->{sCMT}{$sect}};
+		my @ret = @{$self->{sCMT}{$sect}};
+        if (wantarray()) {
+            return @ret;
+        }
+        else {
+            if (defined ($/)) {
+                return join "$/", @ret;
+            } else {
+                return join "\n", @ret;
+            }
+        }
 	} else {
 		return undef;
 	}

@@ -7,11 +7,12 @@ use warnings;
 
 # Good - use Test::More tests => 15;
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Config::IniFiles;
 use File::Spec;
 
 my $ors = $\ || "\n";
+my $irs = $/ || "\n";
 my ($ini, $value);
 
 sub t_file
@@ -74,6 +75,14 @@ is_deeply(
     \@comment,
     ['# This is a section comment', '# This comment takes two lines!',],
     "Section comments are OK.",
+);
+
+# This is a test for: https://rt.cpan.org/Ticket/Display.html?id=8612
+# TEST
+is(
+    scalar($ini->GetSectionComment('foo')),
+    "# This is a section comment$irs# This comment takes two lines!",
+    "GetSectionComment in scalar context returns a joined one.",
 );
 
 # Deleting Section Comment

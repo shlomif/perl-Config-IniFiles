@@ -14,6 +14,10 @@
 * Converted t/03comments.t to Test::More and did other cleanups in preparation 
 of solving a few bugs.
 
+* Now GetSectionComment does the documented behaviour in scalar context and
+returns the string joined by newlines:
+- https://rt.cpan.org/Ticket/Display.html?id=8612
+
 Version 2.45:  ( Sat Dec 27 17:21:45 IST 2008 )
 -----------------------------------------------
 
