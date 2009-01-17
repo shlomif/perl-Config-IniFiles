@@ -3,110 +3,172 @@
 #
 
 use strict;
-use Test;
-use Config::IniFiles;
+use warnings;
 
-BEGIN { plan tests => 15 }
+# Good - use Test::More tests => 15;
+
+use Test::More tests => 15;
+use Config::IniFiles;
+use File::Spec;
 
 my $ors = $\ || "\n";
 my ($ini, $value);
 
-# Get files from the 't' directory, portably
-chdir('t') if ( -d 't' );
+sub t_file
+{
+    return File::Spec->catfile(File::Spec->curdir(), "t", @_);
+}
 
-# test 1
 # Load ini file and write as new file
-$ini = new Config::IniFiles -file => "test.ini";
-$ini->SetFileName("test03.ini");
+$ini = Config::IniFiles->new( -file => t_file("test.ini"));
+$ini->SetFileName(t_file("test03.ini"));
 $ini->SetWriteMode("0666");
-unlink "test03.ini";
+unlink t_file("test03.ini");
 $ini->RewriteConfig;
 $ini->ReadConfig;
-ok($ini);
+# TEST
+ok($ini, "ini is still initialised");
 
-# test 2
-# Section comments preserved
-$value = 0;
-if( open FILE, "<test03.ini" ) {
-	$_ = join( '', <FILE> );
-	$value = /\# This is a section comment[$ors]\[test1\]/;
-	close FILE;
+sub slurp
+{
+    my $fn = shift;
+    my $ret = "";
+    local $/;
+    open my $in, "<", $fn;
+    $ret = <$in>;
+    close($in);
+    return $ret;
 }
-ok($value);
 
+sub t_slurp
+{
+    return slurp(t_file(@_));
+}
 
-# test 3
+# Section comments preserved
+my $contents = t_slurp("test03.ini");
+# TEST
+ok (
+    scalar($contents =~ /\# This is a section comment[$ors]\[test1\]/),
+    "Found section comment."
+);
+
 # Parameter comments preserved
-$value = /\# This is a parm comment[$ors]five=value5/;
-ok($value);
+# TEST
+ok(
+    scalar($contents =~ /\# This is a parm comment[$ors]five=value5/),
+    "Contains Parm comment.",
+);
 
-
-# test 4
 # Setting Section Comment
 $ini->setval('foo','bar','qux');
-ok($ini->SetSectionComment('foo', 'This is a section comment', 'This comment takes two lines!'));
+# TEST
+ok ($ini->SetSectionComment('foo', 'This is a section comment', 'This comment takes two lines!'),
+    "SetSectionComment returns a true value.",
+);
 
-# test 5
 # Getting Section Comment
 my @comment = $ini->GetSectionComment('foo');
-ok( join('', @comment) eq '# This is a section comment# This comment takes two lines!');
+# TEST
+is_deeply(
+    \@comment,
+    ['# This is a section comment', '# This comment takes two lines!',],
+    "Section comments are OK.",
+);
 
-#test 6
 # Deleting Section Comment
 $ini->DeleteSectionComment('foo');
 # Should not exist!
-ok(not defined $ini->GetSectionComment('foo'));
+# TEST
+ok(
+    !defined($ini->GetSectionComment('foo')),
+    "foo section comment does not exist",
+);
 
-# test 7
 # Setting Parameter Comment
-ok($ini->SetParameterComment('foo', 'bar', 'This is a parameter comment', 'This comment takes two lines!'));
+# TEST
+ok (
+    $ini->SetParameterComment(
+        'foo', 'bar', 'This is a parameter comment', 
+        'This comment takes two lines!'
+    ),
+    "SetParameterCount was successful",
+);
 
-# test 8
 # Getting Parameter Comment
 @comment = $ini->GetParameterComment('foo', 'bar');
-ok(join('', @comment) eq '# This is a parameter comment# This comment takes two lines!');
+# TEST
+is_deeply(
+    \@comment,
+    ['# This is a parameter comment', '# This comment takes two lines!'],
+    "GetParameterComment returns the correct result.",
+);
 
-# test 9
 # Deleting Parameter Comment
 $ini->DeleteParameterComment('foo', 'bar');
 # Should not exist!
-ok(not defined $ini->GetSectionComment('foo', 'bar'));
+# TEST
+ok(
+    !defined($ini->GetSectionComment('foo','bar')),
+    "GetSectionComment for foo/bar should not exist"
+);
 
-
-# test 10
 # Reading a section comment from the file
 @comment = $ini->GetSectionComment('test1');
-ok(join('', @comment) eq '# This is a section comment');
+# TEST
+is_deeply(
+    \@comment,
+    ['# This is a section comment'],
+    "A single section comment for test1",
+);
 
-# test 11
 # Reading a parameter comment from the file
 @comment = $ini->GetParameterComment('test2', 'five');
-ok(join('', @comment) eq '# This is a parm comment');
+# TEST
+is_deeply(
+    \@comment,
+    [ '# This is a parm comment'],
+    "Reading a parameter comment from the file",
+);
 
-# test 12
 # Reading a comment that starts with ';'
 @comment = $ini->GetSectionComment('MixedCaseSect');
-ok(join('', @comment) eq '; This is a semi-colon comment');
-
+# TEST
+is_deeply(
+    \@comment,
+    [ '; This is a semi-colon comment' ],
+    "Singled Section Comment for MixedCaseSect. Reading a comment that starts with ;",
+);
 
 # Test 13
 # Loading from a file with alternate comment characters
 # and also test continuation characters (in one file)
 $ini = Config::IniFiles->new(
-  -file => "cmt.ini",
+  -file => t_file("cmt.ini"),
   -commentchar => '@',
   -allowcontinue => 1
 );
-ok($ini);
 
-# Test 14
+# TEST
+ok($ini, "cmt.ini instance was properly initialised.");
+
 $value = $ini->GetParameterComment('Library', 'addmultf_lib');
-ok ($value =~ /\@#\@CF Automatically created by 'config_project' at Thu Mar 21 08:46:54 2002/);
+
+# TEST
+ok (
+    scalar($value =~ /\@#\@CF Automatically created by 'config_project' at Thu Mar 21 08:46:54 2002/),
+    "Contains Parameter Comment starting with an at-sign.",
+);
 
 # Test 15
 $value = $ini->val('turbo_library', 'TurboLibPaths');
-ok ($value =~ m:\$WORKAREA/resources/c11_test_flow/vhdl_rtl\s+\$WORKAREA/resources/cstarlib_reg_1v5/vhdl_rtl:);
+
+# TEST
+ok (
+    scalar($value =~ m{\$WORKAREA/resources/c11_test_flow/vhdl_rtl\s+\$WORKAREA/resources/cstarlib_reg_1v5/vhdl_rtl}),
+    "value is OK."
+);
 
 # Clean up when we're done
-unlink "test03.ini";
+unlink t_file("test03.ini");
 

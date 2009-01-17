@@ -11,6 +11,9 @@
 - Testing for allowedcommentchars.
 - the bug seems to be fixed in trunk.
 
+* Converted t/03comments.t to Test::More and did other cleanups in preparation 
+of solving a few bugs.
+
 Version 2.45:  ( Sat Dec 27 17:21:45 IST 2008 )
 -----------------------------------------------
 
