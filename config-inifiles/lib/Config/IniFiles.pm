@@ -1732,9 +1732,9 @@ Returns the value of $parameter in $section.
 Because of limitations in Perl's tie implementation,
 multiline values accessed through a hash will I<always> be returned 
 as a single value with each line joined by the default line 
-separator ($\). To break them apart you can simple do this:
+separator ($/). To break them apart you can simple do this:
 
-  @lines = split( "$\", $ini{section}{multi_line_parameter} );
+  @lines = split( "$/", $ini{section}{multi_line_parameter} );
 
 =head2 $ini{$section}{$parameter} = $value;
 
@@ -2103,7 +2103,7 @@ sub TIEHASH {
 #	$key	The name of the key whose value to get
 #
 # Description: Returns the value associated with $key. If
-# the value is a list, returns a list reference.
+# the value is a list, returns the list joined by $/.
 # ----------------------------------------------------------
 # Date      Modification                              Author
 # ----------------------------------------------------------
@@ -2114,7 +2114,7 @@ sub TIEHASH {
 sub FETCH {
 	my ($self, $key)=@_;
 	my @retval=$self->{config}->val($self->{section}, $key);
-	return (@retval <= 1) ? $retval[0] : \@retval;
+	return (@retval <= 1) ? $retval[0] : join($/, @retval);
 } # end FETCH
 
 

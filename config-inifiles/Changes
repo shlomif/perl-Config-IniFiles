@@ -1,3 +1,8 @@
+* Fixed bug https://rt.cpan.org/Ticket/Display.html?id=34067 :
+- Multiline values returned as array references in tied hash interface
+- This was as opposed to the documentation.
+- added t/21multiline-values-in-tied.t and fixed some older tests.
+
 Version 2.46:  ( Sat Jan 17 16:31:52 IST 2009 )
 -----------------------------------------------
 
