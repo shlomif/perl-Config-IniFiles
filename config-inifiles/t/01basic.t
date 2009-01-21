@@ -1,6 +1,8 @@
 use strict;
 use Test;
 use Config::IniFiles;
+use lib "./t/lib";
+use Config::IniFiles::Debug;
 
 BEGIN { plan tests => 10 }
 

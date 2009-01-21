@@ -3,6 +3,11 @@
 - This was as opposed to the documentation.
 - added t/21multiline-values-in-tied.t and fixed some older tests.
 
+* Moved the eval'ed debugging code (_assert_invariants) to its own module, 
+without the eval so the perl-5.6.2 will be happy. Now explicitly use'ing it 
+from t/lib where appropriate. See for example:
+- http://www.nntp.perl.org/group/perl.cpan.testers/2009/01/msg3101788.html
+
 Version 2.46:  ( Sat Jan 17 16:31:52 IST 2009 )
 -----------------------------------------------
 

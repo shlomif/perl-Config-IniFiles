@@ -39,5 +39,6 @@ t/case-sensitive-default.ini
 t/cmt.ini
 t/en.ini
 t/es.ini
+t/lib/Config/IniFiles/Debug.pm
 t/non-contiguous-groups.ini
 t/test.ini
