@@ -29,6 +29,7 @@ t/18non-contiguous-groups.t
 t/19param-found-outside-section.t
 t/20allowedcommentchars.t
 t/21multiline-values-in-tied.t
+t/22trailing-comment-lines.t
 t/allowed-comment-chars.ini
 t/array.ini
 t/bad.ini
@@ -42,3 +43,4 @@ t/es.ini
 t/lib/Config/IniFiles/Debug.pm
 t/non-contiguous-groups.ini
 t/test.ini
+t/trailing-comments.ini
