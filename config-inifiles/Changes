@@ -7,6 +7,8 @@ references in tied hash interface"), as it could potentially break a lot
 of old code, and was not such a good idea, and was less preferable from
 interface-sanity reasons.
 
+* Documented the old API in regards to bug #34067 - see above.
+
 Version 2.47:   ( Wed Jan 21 11:32:24 IST 2009 )
 ------------------------------------------------
 

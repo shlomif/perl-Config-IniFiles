@@ -1754,12 +1754,9 @@ ini file, you would do something like this:
 
 Returns the value of $parameter in $section. 
 
-Because of limitations in Perl's tie implementation,
-multiline values accessed through a hash will I<always> be returned 
-as a single value with each line joined by the default line 
-separator ($\). To break them apart you can simple do this:
-
-  @lines = split( "$\", $ini{section}{multi_line_parameter} );
+Multiline values accessed through a hash will be returned 
+as a list in list context and a concatenated value in scalar
+context.
 
 =head2 $ini{$section}{$parameter} = $value;
 
