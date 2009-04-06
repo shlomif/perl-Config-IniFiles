@@ -2,6 +2,11 @@
 - Trailing comments at the end of the file are not written.
 - added a test (t/22trailing-comment-lines.t ) and a test file.
 
+* Reverted the fix to bug #34067 ( "Multiline values returned as array
+references in tied hash interface"), as it could potentially break a lot
+of old code, and was not such a good idea, and was less preferable from
+interface-sanity reasons.
+
 Version 2.47:   ( Wed Jan 21 11:32:24 IST 2009 )
 ------------------------------------------------
 

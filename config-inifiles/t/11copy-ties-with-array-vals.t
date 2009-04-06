@@ -18,8 +18,8 @@ use Config::IniFiles;
 
     %new_sect = %{$ini{Sect}};
 
-    $new_sect{Par} = [1,'A',3]; 
+    $new_sect{Par}[1] = 'A';
 
     # TEST
-    is_deeply ($ini{Sect}{Par}, (1 . $/ . 2 . $/ . 3), '%ini was not modified');
+    is_deeply ($ini{Sect}{Par}, [1,2,3], '%ini was not modified');
 }

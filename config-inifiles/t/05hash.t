@@ -27,7 +27,7 @@ ok($value eq 'value1') || warn $value;
 # Test 3
 # Retrieve array reference
 $value = $ini{test1}{mult};
-ok(ref $value ne 'ARRAY'); 
+ok(ref $value eq 'ARRAY'); 
 
 # Test 4
 # Creating a scalar value using tied hash
@@ -126,7 +126,7 @@ $ini{newsect} = {};
 $ini{test1}{multi_2} = ['line 1', 'line 2'];
 tied(%ini)->RewriteConfig;
 tied(%ini)->ReadConfig;
-@value = split($/, $ini{test1}{multi_2});
+@value = @{$ini{test1}{multi_2}};
 ok( (@value == 2) 
     && ($value[0] eq 'line 1')
     && ($value[1] eq 'line 2')
