@@ -1,3 +1,6 @@
+Version 2.48:   ( Tue Apr  7 15:24:55 IDT 2009 )
+------------------------------------------------
+
 * Fixed bug https://rt.cpan.org/Ticket/Display.html?id=30402 :
 - Trailing comments at the end of the file are not written.
 - added a test (t/22trailing-comment-lines.t ) and a test file.
