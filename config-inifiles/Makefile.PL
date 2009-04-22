@@ -4,4 +4,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	=> 'Config::IniFiles',
     'VERSION_FROM' => 'lib/Config/IniFiles.pm', # finds $VERSION
+    'PL_FILES' =>
+    {
+    },
 );
