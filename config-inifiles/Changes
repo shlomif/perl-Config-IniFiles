@@ -1,6 +1,10 @@
 * Fixed bug https://rt.cpan.org/Public/Bug/Display.html?id=45209 :
 - Makefile.PL lacked the empty "PL_FILES" directive.
 
+* Fixed bug https://rt.cpan.org/Ticket/Display.html?id=45588 :
+- Failure to read ini file contents from a scalar (via "IO::Scalar").
+- added t/23scalar-ref.t
+
 Version 2.48:   ( Tue Apr  7 15:24:55 IDT 2009 )
 ------------------------------------------------
 

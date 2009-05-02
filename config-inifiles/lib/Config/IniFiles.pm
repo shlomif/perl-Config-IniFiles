@@ -742,8 +742,11 @@ sub ReadConfig {
   }
   
   # Get mod time of file so we can retain it (if not from STDIN)
-  my @stats = stat $fh;
-  $self->{file_mode} = sprintf("%04o", $stats[2]) if defined $stats[2];
+  if (ref($fh) ne "IO::Scalar")
+  {
+    my @stats = stat $fh;
+    $self->{file_mode} = sprintf("%04o", $stats[2]) if defined $stats[2];
+  }
   
   
   # The first lines of the file must be blank, comments or start with [
@@ -2040,7 +2043,7 @@ sub _make_filehandle {
   my $thing = shift;
 
   if (ref($thing) eq "SCALAR") {
-	  if (eval { require IO::Scalar; $IO::Stringy::VERSION >= 2.109; }) {
+	  if (eval { require IO::Scalar; $IO::Scalar::VERSION >= 2.109; }) {
 		  return new IO::Scalar($thing);
 	  } else {
 		  warn "SCALAR reference as file descriptor requires IO::stringy ".
