@@ -1,3 +1,6 @@
+Version 2.49:   ( Sat May  2 17:16:28 IDT 2009 )
+------------------------------------------------
+
 * Fixed bug https://rt.cpan.org/Public/Bug/Display.html?id=45209 :
 - Makefile.PL lacked the empty "PL_FILES" directive.
 
