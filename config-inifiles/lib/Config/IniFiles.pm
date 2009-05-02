@@ -1646,7 +1646,7 @@ sub GetParameterEOT
 	return $self->{EOT}{$sect}{$parm};
 }
 
-=head2 SetParameterEOT ($section, $EOT)
+=head2 $cfg->SetParameterEOT ($section, $parameter, $EOT)
 
 Accessor method for the EOT text for the specified parameter. Sets the HERE style marker text to the value $EOT. Once the EOT text is set, that parameter will be saved in HERE style.
 

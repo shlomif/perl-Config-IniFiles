@@ -1,3 +1,6 @@
+* Fixed the POD for SetParameterEOT:   
+- https://rt.cpan.org/Ticket/Display.html?id=28375
+
 Version 2.49:   ( Sat May  2 17:16:28 IDT 2009 )
 ------------------------------------------------
 
