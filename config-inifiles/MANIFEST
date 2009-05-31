@@ -42,5 +42,7 @@ t/en.ini
 t/es.ini
 t/lib/Config/IniFiles/Debug.pm
 t/non-contiguous-groups.ini
+t/pod-coverage.t
+t/pod.t
 t/test.ini
 t/trailing-comments.ini

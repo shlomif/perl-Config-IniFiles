@@ -1299,11 +1299,13 @@ sub SetFileName {
   return undef;
 }
 
-# OutputConfig
-#
-# Writes OutputConfig to STDOUT. Use select() to redirect STDOUT to
-# the output target before calling this function. Optional argument
-# should be set to 1 if writing only delta.
+=head2 $ini->OutputConfig($delta)
+
+Writes OutputConfig to STDOUT. Use select() to redirect STDOUT to
+the output target before calling this function. Optional argument
+should be set to 1 if writing only delta.
+
+=cut
 
 sub OutputConfig {
     my ($self, $delta) = @_;
@@ -2456,10 +2458,6 @@ to by going to the project web site (link above).
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.
-
-=cut
-
-1;
 
 =cut
 
