@@ -1,3 +1,6 @@
+Version 2.50:   ( Sun May 31 14:54:14 IDT 2009 )
+------------------------------------------------
+
 * Fixed the POD for SetParameterEOT:
 - https://rt.cpan.org/Ticket/Display.html?id=28375
 * Added t/pod.t and t/pod-coverage.t and fixed the problems they pointed:
