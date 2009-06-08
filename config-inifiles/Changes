@@ -1,3 +1,6 @@
+* Fixed "#46721: $config->exists() does not pay attention to -nocase => 1"
+- https://rt.cpan.org/Ticket/Display.html?id=46721
+
 Version 2.50:   ( Sun May 31 14:54:14 IDT 2009 )
 ------------------------------------------------
 
