@@ -9,6 +9,8 @@ use Test::Run::Builder;
 
 my $builder = Test::Run::Builder->new(
     'module_name' => "Config::IniFiles",
+    'license' => "perl",
+    dist_author => 'Shlomi Fish <shlomif@iglu.org.il>',
     'build_requires' =>
     {
         'File::Spec' => 0,
@@ -21,7 +23,7 @@ my $builder = Test::Run::Builder->new(
         'Symbol' => 0,
         'warnings' => 0,
     },
-    'license' => "perl",
+    create_makefile_pl => 'traditional',
 );
 
 $builder->create_build_script;
