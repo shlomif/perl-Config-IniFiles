@@ -22,7 +22,7 @@ my $ini;
 #   But it's only good on platforms that support redirection.
 #	use strict;
 #	use Config::IniFiles;
-#	my $ini = new Config::IniFiles -file => STDIN;
+#	my $ini = Config::IniFiles->new(-file => STDIN);
 #	exit $ini ? 0; 1
 
 sub fn
