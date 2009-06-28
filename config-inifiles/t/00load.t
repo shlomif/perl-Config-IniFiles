@@ -1,10 +1,16 @@
 use strict;
-use Test;
+use warnings;
 
-BEGIN { $| = 1; plan tests => 15 }
-use Config::IniFiles;
-my $loaded = 1;
-ok($loaded);
+# Should be 15
+use Test::More tests => 15;
+
+use IO::File;
+
+BEGIN
+{
+    # TEST
+    use_ok ('Config::IniFiles');
+}
 
 my $ini;
 
@@ -22,52 +28,51 @@ chdir('t') if ( -d 't' );
 #	exit $ini ? 0; 1
 
 local *CONFIG;
-# Test 2
+# TEST
 # a filehandle glob, such as *CONFIG
 if( open( CONFIG, "test.ini" ) ) {
-  $ini = new Config::IniFiles -file => *CONFIG;
-  ok($ini);
+  $ini = Config::IniFiles->new(-file => *CONFIG);
+  ok ($ini, q{$ini was initialized});
   close CONFIG;
 } else {
- ok( 0 );
-}
-	
-# Test 3
-# a reference to a glob, such as \*CONFIG
-if( open( CONFIG, "test.ini" ) ) {
-  $ini = new Config::IniFiles -file => \*CONFIG;
-  ok($ini);
-  close CONFIG;
-} else {
-  ok( 0 );
+  ok (0, "Could not open file");
 }
 
-# Test 4
+# TEST
+# a reference to a glob, such as \*CONFIG
+if( open( CONFIG, "test.ini" ) ) {
+  $ini = Config::IniFiles->new(-file => \*CONFIG);
+  ok ($ini, q{$ini was initialized with a reference to a glob.});
+  close CONFIG;
+} else {
+  ok( 0, q{could not open test.ini});
+}
+
 # an IO::File object
-if( eval( "require IO::File" ) && (my $fh = new IO::File( "test.ini" )) ) {
-  $ini = new Config::IniFiles -file => $fh;
-  ok($ini);
+# TEST
+if( my $fh = IO::File->new( "test.ini" )) {
+  $ini = Config::IniFiles->new(-file => $fh);
+  ok ($ini, q{$ini was initialized with an IO::File reference.});
   $fh->close;
 } else {
-  ok( 0 );
+  ok ( 0, "Could not open file" );
 } # endif
 
 
-# Test 5
+# TEST 
 # Reread on an open handle
 if( open( CONFIG, "test.ini" ) ) {
-  $ini = new Config::IniFiles -file => \*CONFIG;
-  ok($ini && $ini->ReadConfig());
+  $ini = Config::IniFiles->new(-file => \*CONFIG);
+  ok (($ini && $ini->ReadConfig()), qq{ReadConfig() was successful});
   close CONFIG;
 } else {
-  ok( 0 );
+  ok (0, "Could not open file" );
 }
 
 
-# Test 6
-# Write to a new file name and write to it
+# TEST
 if( open( CONFIG, "test.ini" ) ) {
-  $ini = new Config::IniFiles -file => \*CONFIG;
+  $ini = Config::IniFiles->new(-file => \*CONFIG);
   $ini->SetFileName( 'test01.ini' );
   $ini->RewriteConfig();
   close CONFIG;
@@ -76,81 +81,91 @@ if( open( CONFIG, "test.ini" ) ) {
   if(! open( CONFIG, "+<test01.ini" ) ) {
     die "Could not open test01.ini read/write";
   }
-  $ini = new Config::IniFiles -file => \*CONFIG;
+  $ini = Config::IniFiles->new(-file => \*CONFIG);
   my $badname = scalar(\*CONFIG);
                                        # Have to use open/close because -e seems to be always true!
-  ok( $ini && $ini->RewriteConfig() && !(open( I, $badname )&&close(I)) );
+  ok( $ini && $ini->RewriteConfig() && !(open( I, $badname ) && close(I)) ,
+      qq{Write to a new file name and write to it},
+  );
   close CONFIG;
   # In case it failed, remove the file
   # (old behavior was to write to a file whose filename is the scalar value of the handle!)
   unlink $badname;
 } else {
-ok( 0 );
+    ok (0, "Could not open file");
 } # end if
-  
 
-
-
-# Test 7
 # the pathname of a file
-$ini = new Config::IniFiles -file => "test.ini";
-ok($ini);
+$ini = Config::IniFiles->new(-file => "test.ini");
+# TEST
+ok ($ini, q{Opening with -file works});
 
-# Test 8
 # A non-INI file should fail, but not throw warnings
 local $@ = '';
 my $ERRORS = '';
 local $SIG{__WARN__} = sub { $ERRORS .= $_[0] };
-eval { $ini = new Config::IniFiles -file => "00load.t" };
-ok(!$@ && !$ERRORS && !defined($ini));
+eval { $ini = Config::IniFiles->new(-file => "00load.t") };
+# TEST
+ok(
+    !$@ && !$ERRORS && !defined($ini),
+    "A non-INI file should fail, but not throw errors"
+);
 
-
-# Test 9
-# Read in the DATA file without errors
 $@ = '';
-eval { $ini = new Config::IniFiles -file => \*DATA };
-ok(!$@ && defined($ini));
+eval { $ini = Config::IniFiles->new(-file => \*DATA) };
+# TEST
+ok (!$@ && defined($ini),
+    "Read in the DATA file without errors"
+);
 
-# Test 10
 # Try a file with utf-8 encoding (has a Byte-Order-Mark at the start)
-$ini = new Config::IniFiles -file => "en.ini";
-ok($ini);
+# TEST 
+$ini = Config::IniFiles->new(-file => "en.ini");
+ok ($ini, 
+    "Try a file with utf-8 encoding (has a Byte-Order-Mark at the start)"
+);
 
-# Test 11
+
 # Create a new INI file, and set the name using SetFileName
-$ini = new Config::IniFiles;
+$ini = Config::IniFiles->new();
 my $filename = $ini->GetFileName;
-ok(not defined($filename));
+# TEST
+ok ((! defined($filename)),
+    "Not defined filename on fresh Config::IniFiles"
+);
 
-# Test 12
-# Check GetFileName method
+# TEST
 $ini->SetFileName("test9_name.ini");
 $filename = $ini->GetFileName;
-ok($filename eq "test9_name.ini");
+is(
+    $filename,
+    "test9_name.ini",
+    "Check GetFileName method",
+);
 
-# Test 13
-# Make sure that no warnings are thrown for an empty file
 $@ = '';
-eval { $ini = new Config::IniFiles -file => 'blank.ini' };
-ok(!$@ && !defined($ini));
+eval { $ini = Config::IniFiles->new(-file => 'blank.ini'); };
+# TEST
+ok ((!$@ && !defined($ini)),
+    "Make sure that no warnings are thrown for an empty file",
+);
 
-# Test 14
-# Empty files should cause no rejection when appropriate switch set
 $@ = '';
-eval { $ini = new Config::IniFiles -file => 'blank.ini', -allowempty=>1 };
-ok(!$@ && defined($ini));
+eval { $ini = Config::IniFiles->new(-file => 'blank.ini', -allowempty=>1); };
+# TEST
+ok((!$@ && defined($ini)),
+    "Empty files should cause no rejection when appropriate switch set",
+);
 
-
-# Test 15
-# A malformed file should throw an error message
 $@ = '';
-eval { $ini = new Config::IniFiles -file => 'bad.ini' };
-ok(!$@ && !defined($ini) && @Config::IniFiles::errors);
-
+eval { $ini = Config::IniFiles->new(-file => 'bad.ini'); };
+# TEST
+ok((!$@ && !defined($ini) && @Config::IniFiles::errors),
+    "A malformed file should throw an error message",
+);
 
 # Clean up when we're done
 unlink "test01.ini";
-
 
 __END__
 ; File that has comments in the first line
