@@ -14,7 +14,7 @@ chdir('t') if ( -d 't' );
 
 # Test 1
 # Loading from a file
-my $ini = new Config::IniFiles -file => "test.ini";
+my $ini = Config::IniFiles->new(-file => "test.ini");
 $ini->_assert_invariants();
 unlink "test01.ini";
 $ini->SetFileName("test01.ini");

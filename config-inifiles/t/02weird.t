@@ -11,7 +11,7 @@ my ($ini, $value);
 # Get files from the 't' directory, portably
 chdir('t') if ( -d 't' );
 
-$ini = new Config::IniFiles -file => "test.ini";
+$ini = Config::IniFiles->new(-file => "test.ini");
 $ini->_assert_invariants();
 $ini->SetFileName("test02.ini");
 $ini->SetWriteMode("0666");
