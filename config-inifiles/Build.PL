@@ -24,6 +24,26 @@ my $builder = Test::Run::Builder->new(
         'warnings' => 0,
     },
     create_makefile_pl => 'traditional',
+    meta_merge =>
+    {
+        resources =>
+        {
+            repository => "http://config-inifiles.svn.sourceforge.net/svnroot/config-inifiles/",
+            homepage => "https://sourceforge.net/projects/config-inifiles/",
+        },
+        keywords =>
+        [
+            "ini",
+            "files",
+            "config",
+            "configuration",
+            "ini files",
+            "windows",
+            "tie",
+            "pure-perl",
+            "tested",
+        ],
+    },
 );
 
 $builder->create_build_script;
