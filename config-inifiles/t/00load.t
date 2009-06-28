@@ -3,6 +3,7 @@ use warnings;
 
 # Should be 15
 use Test::More tests => 15;
+use File::Spec;
 
 use IO::File;
 
@@ -14,9 +15,6 @@ BEGIN
 
 my $ini;
 
-# Get files from the 't' directory, portably
-chdir('t') if ( -d 't' );
-
 # a simple filehandle, such as STDIN
 #** If anyone can come up with a test for STDIN that would be great
 #   The following could be run in a separate file with data piped
@@ -27,10 +25,17 @@ chdir('t') if ( -d 't' );
 #	my $ini = new Config::IniFiles -file => STDIN;
 #	exit $ini ? 0; 1
 
+sub fn
+{
+    my $filename = shift;
+
+    return File::Spec->catfile(File::Spec->curdir(), "t", $filename);
+}
+
 local *CONFIG;
 # TEST
 # a filehandle glob, such as *CONFIG
-if( open( CONFIG, "test.ini" ) ) {
+if( open( CONFIG, "<", fn("test.ini") ) ) {
   $ini = Config::IniFiles->new(-file => *CONFIG);
   ok ($ini, q{$ini was initialized});
   close CONFIG;
@@ -40,7 +45,7 @@ if( open( CONFIG, "test.ini" ) ) {
 
 # TEST
 # a reference to a glob, such as \*CONFIG
-if( open( CONFIG, "test.ini" ) ) {
+if( open( CONFIG, "<", fn("test.ini") ) ) {
   $ini = Config::IniFiles->new(-file => \*CONFIG);
   ok ($ini, q{$ini was initialized with a reference to a glob.});
   close CONFIG;
@@ -50,7 +55,7 @@ if( open( CONFIG, "test.ini" ) ) {
 
 # an IO::File object
 # TEST
-if( my $fh = IO::File->new( "test.ini" )) {
+if( my $fh = IO::File->new( fn("test.ini") )) {
   $ini = Config::IniFiles->new(-file => $fh);
   ok ($ini, q{$ini was initialized with an IO::File reference.});
   $fh->close;
@@ -61,7 +66,7 @@ if( my $fh = IO::File->new( "test.ini" )) {
 
 # TEST 
 # Reread on an open handle
-if( open( CONFIG, "test.ini" ) ) {
+if( open( CONFIG, "<", fn("test.ini") ) ) {
   $ini = Config::IniFiles->new(-file => \*CONFIG);
   ok (($ini && $ini->ReadConfig()), qq{ReadConfig() was successful});
   close CONFIG;
@@ -71,15 +76,15 @@ if( open( CONFIG, "test.ini" ) ) {
 
 
 # TEST
-if( open( CONFIG, "test.ini" ) ) {
+if( open( CONFIG, "<", fn("test.ini") ) ) {
   $ini = Config::IniFiles->new(-file => \*CONFIG);
-  $ini->SetFileName( 'test01.ini' );
+  $ini->SetFileName( fn('test01.ini') );
   $ini->RewriteConfig();
   close CONFIG;
   # Now test opening and re-write to the same handle
-  chmod(0644, "test01.ini");
-  if(! open( CONFIG, "+<test01.ini" ) ) {
-    die "Could not open test01.ini read/write";
+  chmod(0644, fn("test01.ini"));
+  if(! open( CONFIG, "+<", fn("test01.ini" ) )) {
+    die "Could not open " . fn("test01.ini") . "read/write";
   }
   $ini = Config::IniFiles->new(-file => \*CONFIG);
   my $badname = scalar(\*CONFIG);
@@ -96,7 +101,7 @@ if( open( CONFIG, "test.ini" ) ) {
 } # end if
 
 # the pathname of a file
-$ini = Config::IniFiles->new(-file => "test.ini");
+$ini = Config::IniFiles->new(-file => fn("test.ini"));
 # TEST
 ok ($ini, q{Opening with -file works});
 
@@ -104,7 +109,7 @@ ok ($ini, q{Opening with -file works});
 local $@ = '';
 my $ERRORS = '';
 local $SIG{__WARN__} = sub { $ERRORS .= $_[0] };
-eval { $ini = Config::IniFiles->new(-file => "00load.t") };
+eval { $ini = Config::IniFiles->new(-file => fn("00load.t")) };
 # TEST
 ok(
     !$@ && !$ERRORS && !defined($ini),
@@ -120,7 +125,7 @@ ok (!$@ && defined($ini),
 
 # Try a file with utf-8 encoding (has a Byte-Order-Mark at the start)
 # TEST 
-$ini = Config::IniFiles->new(-file => "en.ini");
+$ini = Config::IniFiles->new(-file => fn("en.ini"));
 ok ($ini, 
     "Try a file with utf-8 encoding (has a Byte-Order-Mark at the start)"
 );
@@ -135,37 +140,37 @@ ok ((! defined($filename)),
 );
 
 # TEST
-$ini->SetFileName("test9_name.ini");
+$ini->SetFileName(fn("test9_name.ini"));
 $filename = $ini->GetFileName;
 is(
     $filename,
-    "test9_name.ini",
+    fn("test9_name.ini"),
     "Check GetFileName method",
 );
 
 $@ = '';
-eval { $ini = Config::IniFiles->new(-file => 'blank.ini'); };
+eval { $ini = Config::IniFiles->new(-file => fn('blank.ini')); };
 # TEST
 ok ((!$@ && !defined($ini)),
     "Make sure that no warnings are thrown for an empty file",
 );
 
 $@ = '';
-eval { $ini = Config::IniFiles->new(-file => 'blank.ini', -allowempty=>1); };
+eval { $ini = Config::IniFiles->new(-file => fn('blank.ini'), -allowempty=>1); };
 # TEST
 ok((!$@ && defined($ini)),
     "Empty files should cause no rejection when appropriate switch set",
 );
 
 $@ = '';
-eval { $ini = Config::IniFiles->new(-file => 'bad.ini'); };
+eval { $ini = Config::IniFiles->new(-file => fn('bad.ini')); };
 # TEST
 ok((!$@ && !defined($ini) && @Config::IniFiles::errors),
     "A malformed file should throw an error message",
 );
 
 # Clean up when we're done
-unlink "test01.ini";
+unlink fn("test01.ini");
 
 __END__
 ; File that has comments in the first line
