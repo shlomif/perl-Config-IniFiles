@@ -61,7 +61,7 @@ ok( $ini{TEST2}{four} eq 'value4' );
 # Test 9
 # Listing section names using keys
 $value = 1;
-$ini = new Config::IniFiles( -file => "test.ini", -default => 'test1', -nocase => 1 );
+$ini = Config::IniFiles->new( -file => "test.ini", -default => 'test1', -nocase => 1 );
 $ini->SetFileName("test05b.ini");
 my @S1 = $ini->Sections;
 my @S2 = keys %ini;

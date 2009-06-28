@@ -8,7 +8,7 @@ BEGIN { plan tests => 1 }
 # Get files from the 't' directory, portably
 chdir('t') if ( -d 't' );
 
-my $ini = new Config::IniFiles( -file => 'test.ini' );
+my $ini = Config::IniFiles->new( -file => 'test.ini' );
 my $members;
 
 # Test 1

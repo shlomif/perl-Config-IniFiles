@@ -11,12 +11,12 @@ chdir('t') if ( -d 't' );
 
 # test 1
 # print "Empty list when no groups ........ ";
-$en = new Config::IniFiles( -file => 'en.ini' );
+$en = Config::IniFiles->new( -file => 'en.ini' );
 ok( scalar($en->Groups) == 0 );
 
 # test 2
 # print "Creating new object, no file ..... ";
-ok($ini = new Config::IniFiles);
+ok($ini = Config::IniFiles->new);
 
 # test 3
 # print "Setting new file name .............";

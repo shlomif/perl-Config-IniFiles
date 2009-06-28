@@ -24,12 +24,12 @@ chdir('t') if ( -d 't' );
 
 # test 1
 # print "Import a file .................... ";
-my $en = new Config::IniFiles( -file => 'en.ini' );
+my $en = Config::IniFiles->new( -file => 'en.ini' );
 ok( $en );
 
 # test 2
 my $es;
-ok( $es = new Config::IniFiles( -file => 'es.ini', -import => $en ) );
+ok( $es = Config::IniFiles->new( -file => 'es.ini', -import => $en ) );
 my $estext=slurp("es.ini"); $estext =~ s/\s*//g;
 
 # test 3
@@ -61,7 +61,7 @@ ok(($deltatext =~ m/^. \[m\] is deleted/m) &&
 # test 6
 ## Parsing back deletion marks
 
-$es=new Config::IniFiles( -file => 'delta.ini', -import => $en );
+$es=Config::IniFiles->new( -file => 'delta.ini', -import => $en );
 ok((!defined $es->val("x", "LongName")) &&
    (! $es->SectionExists("m")));
 unlink("delta.ini");

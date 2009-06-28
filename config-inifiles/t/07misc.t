@@ -12,7 +12,7 @@ unlink "test07.ini";
 
 # Test 1
 # Multiple equals in a parameter - should split on the first
-$ini = new Config::IniFiles( -file => 'test.ini' );
+$ini = Config::IniFiles->new( -file => 'test.ini' );
 $value = $ini->val('test7', 'criterion') || '';
 ok($value eq 'price <= maximum');
 
@@ -23,7 +23,7 @@ ok( $value eq 'smarty');
 
 # test 3 
 # See if default option works
-$ini = new Config::IniFiles( -file => "test.ini", -default => 'test1', -nocase => 1 );
+$ini = Config::IniFiles->new( -file => "test.ini", -default => 'test1', -nocase => 1 );
 $ini->SetFileName("test07.ini");
 $ini->SetWriteMode("0666");
 ok( (defined $ini) && ($ini->val('test2', 'three') eq 'value3') );

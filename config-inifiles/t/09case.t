@@ -16,7 +16,7 @@ chdir('t') if ( -d 't' );
 
 # Test 1
 # newval and val - Check that correct case brings back the correct value
-$ini = new Config::IniFiles;
+$ini = Config::IniFiles->new;
 $ini->newval("Section", "PaRaMeTeR", "Mixed Case");
 $ini->newval("Section", "Parameter", "Title Case");
 my $mixed_case = $ini->val("Section", "PaRaMeTeR");
@@ -26,7 +26,7 @@ ok(($mixed_case eq "Mixed Case") and ($title_case eq "Title Case"));
 # Test 2
 # Sections
 # Set up a controlled environment
-$ini = new Config::IniFiles;
+$ini = Config::IniFiles->new;
 $ini->newval("Section", "Parameter", "Value");
 $ini->newval("section", "parameter", "value");
 my $section_case_check_pass = 1;
@@ -36,7 +36,7 @@ ok($section_case_check_pass);
 # Test 3
 # Deleting values
 # Set up a controlled environment
-$ini = new Config::IniFiles;
+$ini = Config::IniFiles->new;
 $ini->newval("Section", "Parameter", "Title Case");
 $ini->newval("Section", "parameter", "lower case");
 $ini->newval("Section", "PARAMETER", "UPPER CASE");
@@ -52,7 +52,7 @@ ok($delete_case_check_pass);
 
 # Test 4
 # Parameters
-$ini = new Config::IniFiles;
+$ini = Config::IniFiles->new;
 $ini->newval("Section", "PaRaMeTeR", "Mixed Case");
 $ini->newval("Section", "Parameter", "Title Case");
 $ini->newval("SECTION", "Parameter", "N/A");
@@ -70,7 +70,7 @@ ok($parameters_case_check_pass);
 # Test 5
 # Case sensitive handling of groups
 # Set up a controlled environment
-$ini = new Config::IniFiles;
+$ini = Config::IniFiles->new;
 $ini->newval("interface foo", "parameter", "foo");
 $ini->newval("interface bar", "parameter", "bar");
 $ini->newval("INTERFACE blurgle", "parameter", "flurgle");
@@ -94,7 +94,7 @@ ok($group_case_check_pass);
 
 # Test 6
 # newval - Check that case-insensitive version returns one value
-$ini = new Config::IniFiles( -nocase => "1" );
+$ini = Config::IniFiles->new( -nocase => "1" );
 $ini->newval("Section", "PaRaMeTeR", "Mixed Case");
 $ini->newval("Section", "Parameter", "Title Case");
 my @values = $ini->val("Section", "parameter");
@@ -102,11 +102,11 @@ ok((scalar(@values) == 1) and ($values[0] eq "Title Case"));
 
 # Test 7
 # Case insensitive handling of groups
-$ini = new Config::IniFiles( -file =>'test.ini', -nocase => 1 );
+$ini = Config::IniFiles->new( -file =>'test.ini', -nocase => 1 );
 $string = join " ", $ini->GroupMembers("GrOuP");
 ok($string eq "group member one group member two group member three");
 
-$ini = new Config::IniFiles( -file => "test.ini", -default => 'test1', -nocase => 1 );
+$ini = Config::IniFiles->new( -file => "test.ini", -default => 'test1', -nocase => 1 );
 $ini->SetFileName("test09.ini");
 
 # test 8
