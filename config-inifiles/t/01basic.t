@@ -1,59 +1,72 @@
 use strict;
-use Test;
+use warnings;
+
+# Should be 10.
+use Test::More tests => 10;
+
 use Config::IniFiles;
 use lib "./t/lib";
 use Config::IniFiles::Debug;
+use File::Spec;
 
-BEGIN { plan tests => 10 }
+sub fn
+{
+    my $filename = shift;
+
+    return File::Spec->catfile(File::Spec->curdir(), "t", $filename);
+}
 
 my ($value, @value);
 umask 0000;
 
-# Get files from the 't' directory, portably
-chdir('t') if ( -d 't' );
-
-# Test 1
-# Loading from a file
-my $ini = Config::IniFiles->new(-file => "test.ini");
+my $ini = Config::IniFiles->new(-file => fn("test.ini"));
 $ini->_assert_invariants();
-unlink "test01.ini";
-$ini->SetFileName("test01.ini");
+unlink fn("test01.ini");
+$ini->SetFileName(fn("test01.ini"));
 $ini->SetWriteMode("0666");
-ok($ini);
 
-# Test 2
-# Reading a single value in scalar context
+# TEST
+ok($ini, "Loading from a file");
+
 $value = $ini->val('test1', 'one');
 $ini->_assert_invariants();
-ok (defined $value and $value eq 'value1');
+# TEST
+is (
+    $value, 'value1',
+    "Reading a single value in scalar context"
+);
 
-# Test 3
-# Reading a single value in list context
 @value = $ini->val('test1', 'one');
 $ini->_assert_invariants();
-ok ($value[0] eq 'value1');
+# TEST
+is ($value[0], 'value1', "Reading a single value in list context");
 
-# Test 4
-# Reading a multiple value in scalar context
 $value = $ini->val('test1', 'mult');
-ok (defined $value and $value eq "one$/two$/three") || warn $value;
+# TEST
+is ($value, "one$/two$/three", 
+    "Reading a multiple value in scalar context"
+);
 
-# Test 5
-# Reading a multiple value in list context
 @value = $ini->val('test1', 'mult');
 $value = join "|", @value;
-ok ($value eq "one|two|three");
+# TEST
+is_deeply(
+    \@value,
+    ["one", "two", "three"],
+    "Reading a multiple value in list context",
+);
 
-# Test 6
-# Creating a new multiple value
 @value = ("one", "two", "three");
 $ini->newval('test1', 'eight', @value);
 $ini->_assert_invariants();
 $value = $ini->val('test1', 'eight');
-ok($value eq "one$/two$/three");
+# TEST
+is (
+    $value,
+    "one$/two$/three",
+    "Creating a new multiple value",
+);
 
-# Test 7
-# Creating a new value
 $ini->newval('test1', 'seven', 'value7');
 $ini->_assert_invariants();
 $ini->RewriteConfig;
@@ -62,10 +75,9 @@ $ini->_assert_invariants();
 $value='';
 $value = $ini->val('test1', 'seven');
 $ini->_assert_invariants();
-ok ($value eq 'value7');
+# TEST
+is ($value, 'value7', "Creating a new value",);
 
-# Test 8
-# Deleting a value
 $ini->delval('test1', 'seven');
 $ini->_assert_invariants();
 $ini->RewriteConfig;
@@ -73,17 +85,16 @@ $ini->ReadConfig;
 $ini->_assert_invariants();
 $value='';
 $value = $ini->val('test1', 'seven');
-ok (! defined ($value));
+# TEST
+ok (! defined ($value), "Deleting a value");
 
-# Test 9
-# Reading a default values from existing section
 $value = $ini->val('test1', 'not a real parameter name', '12345');
-ok (defined($value) && ($value == '12345'));
+# TEST
+is ($value, '12345', "Reading a default values from existing section");
 
-# Test 10
-# Reading a default values from non-existent section
 $value = $ini->val('not a real section', 'no parameter by this name', '12345');
-ok (defined($value) && ($value == '12345'));
+# TEST
+is ($value, '12345', "Reading a default values from non-existent section");
 
 # Clean up when we're done
 unlink "test01.ini";
