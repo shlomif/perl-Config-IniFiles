@@ -97,5 +97,5 @@ $value = $ini->val('not a real section', 'no parameter by this name', '12345');
 is ($value, '12345', "Reading a default values from non-existent section");
 
 # Clean up when we're done
-unlink "test01.ini";
+unlink(fn("test01.ini"));
 
