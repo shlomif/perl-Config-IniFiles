@@ -1,46 +1,71 @@
 use strict;
-use Test;
+use warnings;
+
+# Should be 6.
+use Test::More tests => 6;
 use Config::IniFiles;
+
 use lib "./t/lib";
 use Config::IniFiles::Debug;
 
-BEGIN { plan tests => 6 }
+use File::Spec;
 
 my ($ini, $value);
 
-# Get files from the 't' directory, portably
-chdir('t') if ( -d 't' );
+sub fn
+{
+    my $filename = shift;
 
-$ini = Config::IniFiles->new(-file => "test.ini");
+    return File::Spec->catfile(File::Spec->curdir(), "t", $filename);
+}
+
+$ini = Config::IniFiles->new(-file => fn("test.ini"));
 $ini->_assert_invariants();
-$ini->SetFileName("test02.ini");
+$ini->SetFileName(fn("test02.ini"));
 $ini->SetWriteMode("0666");
 
-# Test 1
 # print "Weird characters in section name . ";
 $value = $ini->val('[w]eird characters', 'multiline');
 $ini->_assert_invariants();
-ok($value eq "This$/is a multi-line$/value");
+# TEST
+is(
+    $value,
+    "This$/is a multi-line$/value",
+    "Weird characters in section name",
+);
 
-# Test 2
 $ini->newval("test7|anything", "exists", "yes");
 $ini->_assert_invariants();
 $ini->RewriteConfig;
 $ini->ReadConfig;
 $ini->_assert_invariants();
 $value = $ini->val("test7|anything", "exists");
-ok($value eq "yes");
+# TEST
+is(
+    $value,
+    "yes",
+    "More weird chars.",
+);
 
 # Test 3/4
 # Make sure whitespace after parameter name is not included in name
-ok( $ini->val( 'test7', 'criterion' ) eq 'price <= maximum' );
-ok( ! defined $ini->val( 'test7', 'criterion ' ) );
+# TEST 
+is( $ini->val( 'test7', 'criterion' ),
+    'price <= maximum' ,
+    "Make sure whitespace after parameter name is not included in name",
+);
+# TEST
+ok( 
+    ! defined $ini->val( 'test7', 'criterion ' ),
+    "For criterion containing whitespace returns undef.",
+);
 
 # Test 5
 # Build a file from scratch with tied interface for testing
 my %test;
-ok( tie %test, 'Config::IniFiles' ); 
-tied(%test)->SetFileName('test02.ini'); 
+# TEST
+ok( (tie %test, 'Config::IniFiles'), "Tying is successful" ); 
+tied(%test)->SetFileName(fn('test02.ini')); 
 
 # Test 6
 # Also with pipes when using tied interface using vlaue of 0
@@ -55,9 +80,12 @@ $test{$sectionheader}{'vacation'}=0;
 tied(%test)->_assert_invariants();
 tied(%test)->RewriteConfig(); 
 tied(%test)->ReadConfig;
-ok($test{$sectionheader}{'vacation'} == 0);
-
+# TEST
+ok(
+    scalar($test{$sectionheader}{'vacation'} == 0),
+    "Returned 0",
+);
 
 # Clean up when we're done
-unlink "test02.ini";
+unlink fn("test02.ini");
 
