@@ -1,11 +1,10 @@
+#!/usr/bin/perl
 #
 # Comment preservation
 #
 
 use strict;
 use warnings;
-
-# Good - use Test::More tests => 15;
 
 use Test::More tests => 17;
 use Config::IniFiles;
