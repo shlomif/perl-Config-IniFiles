@@ -1,15 +1,21 @@
 #!/usr/bin/perl
+
 use strict;
-use Test;
+use warnings;
+
+use Test::More tests => 19;
+
+use File::Spec;
 use Config::IniFiles;
 
-BEGIN { plan tests => 6 }
+sub t_file
+{
+    return File::Spec->catfile(File::Spec->curdir(), "t", @_);
+}
 
 my $ors = $\ || "\n";
-my ($ini,$value);
 
-# Get files from the 't' directory, portably
-chdir('t') if ( -d 't' );
+my ($ini,$value);
 
 #
 # Import tests added by JW/WADG
@@ -17,12 +23,14 @@ chdir('t') if ( -d 't' );
 
 # test 1
 # print "Import a file .................... ";
-my $en = Config::IniFiles->new( -file => 'en.ini' );
-ok( $en );
+my $en = Config::IniFiles->new( -file => t_file('en.ini') );
+# TEST
+ok ($en, "IniEn was initialized." );
 
 # test 2
-my $es;
-ok( $es = Config::IniFiles->new( -file => 'es.ini', -import => $en ) );
+my $es = Config::IniFiles->new( -file => t_file('es.ini'), -import => $en );
+# TEST
+ok( $es, "Ini es was initialized." );
 
 
 # test 3
@@ -33,27 +41,37 @@ my $en_ln = $en->val( 'x', 'LongName' );
 my $es_ln = $es->val( 'x', 'LongName' );
 my $en_dn = $en->val( 'm', 'DataName' );
 my $es_dn = $es->val( 'm', 'DataName' );
-ok( 
-	($en_sn eq 'GENERAL') &&
-	($es_sn eq 'GENERAL') &&
-	($en_ln eq 'General Summary') &&
-	($es_ln eq 'Resumen general') &&
-	($en_dn eq 'Month') &&
-	($es_dn eq 'Mes') &&
-	1#
-  );
+
+# TEST
+is ($en_sn, 'GENERAL', "en_sn is GENERAL");
+
+# TEST
+is ($es_sn, 'GENERAL', "es_sn is GENERAL too");
+
+# TEST
+is ($en_ln, 'General Summary', "en_ln is OK.");
+
+# TEST
+is ($es_ln, 'Resumen general', "es_ln is in Spanish");
+
+# TEST
+is ($en_dn, 'Month', "dn is in English");
+
+# TEST
+is ($es_dn, 'Mes', "es_dn is in Spanish");
 
 # test 4
 # Import another level
-my $ca = Config::IniFiles->new( -file => 'ca.ini', -import => $es );
-ok( 
-	($en_sn eq $ca->val( 'x', 'ShortName' )) &&
-	($es_sn eq $ca->val( 'x', 'ShortName' )) &&
-	($ca->val( 'x', 'LongName' ) eq 'Resum general') &&
-	($ca->val( 'm', 'DataName' ) eq 'Mes') &&
-	1#
-  );
+my $ca = Config::IniFiles->new( -file => t_file('ca.ini'), -import => $es );
 
+# TEST
+is ($en_sn, $ca->val( 'x', 'ShortName' ), "en_sn is OK.");
+# TEST
+is ($es_sn, $ca->val( 'x', 'ShortName' ), "es_sn is OK.");
+# TEST
+is ($ca->val( 'x', 'LongName' ), 'Resum general', "LongName is OK.");
+# TEST
+is ($ca->val( 'm', 'DataName' ), 'Mes', "DateName is OK.");
 
 # test 5
 # Try creating a config file that imports from a hand-built object
@@ -63,19 +81,23 @@ $a -> AddSection('x');
 $a -> newval('x', 'x', 1);
 $a -> newval('x', 'LongName', 1);
 $a -> newval('m', 'z', 1);
-ok( 
-	($a->val('x', 'x') == 1) &&
-	($a->val('x', 'LongName') == 1) &&
-	($a->val('m', 'z') == 1)
-  );
+# TEST
+is ($a->val('x', 'x'), 1, "x/x");
+
+# TEST
+is ($a->val('x', 'LongName'), 1, "x/LongName");
+
+# TEST
+is ($a->val('m', 'z'), 1, "m/z");
 
 # test 6
 ## show that importing a file-less object into a file-based one works
-my $b = Config::IniFiles->new( -file=>'ca.ini', -import=>$a );
-ok( 
-	($b->val('x', 'LongName') eq 'Resum general') &&
-	($b->val('x', 'x', 0) == 1) &&
-	($b->val('m', 'z', 0) == 1) &&
-	($b->val('m', 'LongName') eq 'Resum mensual')
-  );
-
+my $b = Config::IniFiles->new( -file=>t_file('ca.ini'), -import=>$a );
+# TEST
+is ($b->val('x', 'LongName'), 'Resum general', "x/Longname");
+# TEST
+is ($b->val('x', 'x', 0), 1, "x/x");
+# TEST
+is ($b->val('m', 'z', 0), 1, "m/z");
+# TEST
+is ($b->val('m', 'LongName'), 'Resum mensual', "m/LongName");
