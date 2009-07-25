@@ -75,29 +75,29 @@ is ($ca->val( 'm', 'DataName' ), 'Mes', "DateName is OK.");
 
 # test 5
 # Try creating a config file that imports from a hand-built object
-my $a = Config::IniFiles->new();
-$a -> AddSection('alpha');
-$a -> AddSection('x');
-$a -> newval('x', 'x', 1);
-$a -> newval('x', 'LongName', 1);
-$a -> newval('m', 'z', 1);
+my $ini_a = Config::IniFiles->new();
+$ini_a -> AddSection('alpha');
+$ini_a -> AddSection('x');
+$ini_a -> newval('x', 'x', 1);
+$ini_a -> newval('x', 'LongName', 1);
+$ini_a -> newval('m', 'z', 1);
 # TEST
-is ($a->val('x', 'x'), 1, "x/x");
+is ($ini_a->val('x', 'x'), 1, "x/x");
 
 # TEST
-is ($a->val('x', 'LongName'), 1, "x/LongName");
+is ($ini_a->val('x', 'LongName'), 1, "x/LongName");
 
 # TEST
-is ($a->val('m', 'z'), 1, "m/z");
+is ($ini_a->val('m', 'z'), 1, "m/z");
 
 # test 6
 ## show that importing a file-less object into a file-based one works
-my $b = Config::IniFiles->new( -file=>t_file('ca.ini'), -import=>$a );
+my $ini_b = Config::IniFiles->new( -file=>t_file('ca.ini'), -import=>$ini_a );
 # TEST
-is ($b->val('x', 'LongName'), 'Resum general', "x/Longname");
+is ($ini_b->val('x', 'LongName'), 'Resum general', "x/Longname");
 # TEST
-is ($b->val('x', 'x', 0), 1, "x/x");
+is ($ini_b->val('x', 'x', 0), 1, "x/x");
 # TEST
-is ($b->val('m', 'z', 0), 1, "m/z");
+is ($ini_b->val('m', 'z', 0), 1, "m/z");
 # TEST
-is ($b->val('m', 'LongName'), 'Resum mensual', "m/LongName");
+is ($ini_b->val('m', 'LongName'), 'Resum mensual', "m/LongName");
