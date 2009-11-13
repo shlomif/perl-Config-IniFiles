@@ -1,3 +1,6 @@
+Version 2.53:   ( Fri Nov 13 11:52:40 IST 2009 )
+------------------------------------------------
+
 * Converted t/01basic.t to Test::More and modernised it.
 * Converted t/02weird.t to Test::More and modernised it.
 * Converted t/04import.t to Test::More and modernised it.
