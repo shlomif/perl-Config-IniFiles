@@ -653,12 +653,25 @@ sub _nextline {
 	if (!exists $self->{line_ends}) {
 		# no $self->{line_ends} is a hint set by caller that we are at
 		# the first line (kludge kludge).
-		do {
-			local $/=\1; my $nextchar=<$fh>;
-			return undef if (!defined $nextchar);
-			$_ .= $nextchar;
-		} until (m/(\015\012?|\012|\025|\n)$/s);
-		$self->{line_ends}=$1;
+		{
+			local $/=\1;
+			my $nextchar;
+			do {
+				$nextchar=<$fh>;
+				return undef if (!defined $nextchar);
+				$_ .= $nextchar;
+			} until (m/((\015|\012|\025|\n)$)/s);
+			$self->{line_ends}=$1;
+			if ($nextchar eq "\x0d") {
+				# peek at the next char
+				$nextchar = <$fh>;
+				if ($nextchar eq "\x0a") {
+					$self->{line_ends} .= "\x0a";
+				} else {
+					seek $fh, -1, 1;
+				}
+			}
+		}
 
 		# If there's a UTF BOM (Byte-Order-Mark) in the first
 		# character of the first line then remove it before processing

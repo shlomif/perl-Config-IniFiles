@@ -31,6 +31,7 @@ t/20allowedcommentchars.t
 t/22trailing-comment-lines.t
 t/23scalar-ref.t
 t/24case-sensitive-exists.t
+t/25line-endings.t
 t/allowed-comment-chars.ini
 t/array.ini
 t/bad.ini

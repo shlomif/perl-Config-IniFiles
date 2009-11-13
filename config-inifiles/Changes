@@ -1,5 +1,10 @@
 * Converted t/01basic.t to Test::More and modernised it.
 * Converted t/02weird.t to Test::More and modernised it.
+* Converted t/04import.t to Test::More and modernised it.
+* Applied a patch from Steffen Heinrich (SHE) for:
+    - https://rt.cpan.org/Ticket/Display.html?id=51445
+    - included t/25line-endings.t
+        - modified a little.
 
 Version 2.52:   ( Sun Jun 28 16:16:09 IDT 2009 )
 ------------------------------------------------
