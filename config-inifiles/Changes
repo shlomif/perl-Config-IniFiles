@@ -1,3 +1,9 @@
+
+* Adapted t/25line-endings.t to perl-5.6.x .
+    - http://www.nntp.perl.org/group/perl.cpan.testers/2009/11/msg6026936.html
+    - Failure there.
+    - did that by replacing open ">:raw" with "binmode()".
+
 Version 2.53:   ( Fri Nov 13 11:52:40 IST 2009 )
 ------------------------------------------------
 

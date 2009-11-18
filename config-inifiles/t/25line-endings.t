@@ -43,7 +43,8 @@ my $ini_filename =
         my $ini = $sample_ini;
         $ini =~ s/<eol>[^<]*<sol>/$lf/g;
 
-        open my $INI, '>:raw', $ini_filename or die $!;
+        open my $INI, '>', $ini_filename or die $!;
+        binmode $INI;
         print $INI $ini;
         close $INI;
 
