@@ -1,3 +1,5 @@
+Version 2.54:   ( Wed Nov 18 12:00:44 IST 2009 )
+------------------------------------------------
 
 * Adapted t/25line-endings.t to perl-5.6.x .
     - http://www.nntp.perl.org/group/perl.cpan.testers/2009/11/msg6026936.html
