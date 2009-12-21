@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 
-# Originally : 19.
 use Test::More tests => 19;
 
 use File::Spec;
