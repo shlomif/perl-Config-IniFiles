@@ -6,16 +6,11 @@ use warnings;
 use Test::More tests => 10;
 
 use Config::IniFiles;
+
 use lib "./t/lib";
+
 use Config::IniFiles::Debug;
-use File::Spec;
-
-sub t_file
-{
-    my $filename = shift;
-
-    return File::Spec->catfile(File::Spec->curdir(), "t", $filename);
-}
+use Config::IniFiles::TestPaths;
 
 my ($value, @value);
 umask 0000;

@@ -1,5 +1,6 @@
 * Converted t/05hash.t to Test::More and modernised it.
 * Converted t/06oo.t to Test::More and modernised it.
+* Testing: extracted t/lib/Config/IniFiles/TestPaths.pm.
 
 Version 2.54:   ( Wed Nov 18 12:00:44 IST 2009 )
 ------------------------------------------------

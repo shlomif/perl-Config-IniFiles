@@ -5,13 +5,11 @@ use warnings;
 
 use Test::More tests => 19;
 
-use File::Spec;
 use Config::IniFiles;
 
-sub t_file
-{
-    return File::Spec->catfile(File::Spec->curdir(), "t", @_);
-}
+use lib "./t/lib";
+
+use Config::IniFiles::TestPaths;
 
 my $ors = $\ || "\n";
 

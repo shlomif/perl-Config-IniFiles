@@ -1,24 +1,20 @@
 #!/usr/bin/perl
+
 use strict;
 use warnings;
 
 # Should be 6.
 use Test::More tests => 6;
+
 use Config::IniFiles;
 
 use lib "./t/lib";
-use Config::IniFiles::Debug;
 
-use File::Spec;
+use Config::IniFiles::Debug;
+use Config::IniFiles::TestPaths;
 
 my ($ini, $value);
 
-sub t_file
-{
-    my $filename = shift;
-
-    return File::Spec->catfile(File::Spec->curdir(), "t", $filename);
-}
 
 $ini = Config::IniFiles->new(-file => t_file("test.ini"));
 $ini->_assert_invariants();
