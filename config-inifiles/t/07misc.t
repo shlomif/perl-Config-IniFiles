@@ -1,48 +1,69 @@
 #!/usr/bin/perl
+
 use strict;
-use Test;
+use warnings;
+
+use Test::More tests => 5;
+
 use Config::IniFiles;
 
-BEGIN { plan tests => 4 }
+use lib "./t/lib";
+
+use Config::IniFiles::TestPaths;
 
 my ($ini, $value);
 
-# Get files from the 't' directory, portably
-chdir('t') if ( -d 't' );
-unlink "test07.ini";
+unlink t_file("test07.ini");
 
 # Test 1
 # Multiple equals in a parameter - should split on the first
-$ini = Config::IniFiles->new( -file => 'test.ini' );
-$value = $ini->val('test7', 'criterion') || '';
-ok($value eq 'price <= maximum');
+$ini = Config::IniFiles->new( -file => t_file('test.ini') );
+# TEST
+is ( scalar($ini->val('test7', 'criterion')), 'price <= maximum',
+    "Multiple equals in a parameter - should split on the first",
+);
 
 # Test 2
 # Parameters whose name is a substring of existing parameters should be loaded
 $value = $ini->val('substring', 'boot');
-ok( $value eq 'smarty');
+# TEST
+is( $value, 'smarty', 
+    "Parameters whose name is a substring of existing parameters should be loaded");
 
 # test 3 
 # See if default option works
-$ini = Config::IniFiles->new( -file => "test.ini", -default => 'test1', -nocase => 1 );
-$ini->SetFileName("test07.ini");
+$ini = Config::IniFiles->new( -file => t_file("test.ini"), -default => 'test1', -nocase => 1 );
+$ini->SetFileName(t_file("test07.ini"));
 $ini->SetWriteMode("0666");
-ok( (defined $ini) && ($ini->val('test2', 'three') eq 'value3') );
+
+# TEST
+ok (defined($ini), 
+    "default option works - \$ini works.");
+
+# TEST
+is ( scalar($ini->val('test2', 'three')),  'value3',
+    "default option works - ->val"
+);
 
 # Test 4
 # Check that Config::IniFiles respects RO permission on original INI file
-$ini->WriteConfig("test07.ini");
-chmod 0444, "test07.ini";
-if (-w "test07.ini") {
-	skip(1,'RO Permissions not settable.');
-} else {
+$ini->WriteConfig(t_file("test07.ini"));
+chmod 0444, t_file("test07.ini");
+
+if (-w t_file("test07.ini"))
+{
+	skip (1, 'RO Permissions not settable.');
+} 
+else
+{
 	$ini->setval('test2', 'three', 'should not be here');
-	$value = $ini->WriteConfig("test07.ini");
+	$value = $ini->WriteConfig(t_file("test07.ini"));
 	warn "Value is $value!" if (defined $value);
-	ok(not defined $value);
+    # TEST
+	ok(!defined($value), "Value is undefined.");
 } # end if
 
 
 # Clean up when we're done
-unlink "test07.ini";
+unlink t_file("test07.ini");
 
