@@ -16,6 +16,10 @@ my $builder = Test::Run::Builder->new(
         'File::Spec' => 0,
         'Scalar::Util' => 0,
     },
+    'test_requires' =>
+    {
+        'base' => 0,
+    },
     'requires' =>
     {
         'strict' => 0,
