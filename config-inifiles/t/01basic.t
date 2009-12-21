@@ -10,7 +10,7 @@ use lib "./t/lib";
 use Config::IniFiles::Debug;
 use File::Spec;
 
-sub fn
+sub t_file
 {
     my $filename = shift;
 
@@ -20,10 +20,10 @@ sub fn
 my ($value, @value);
 umask 0000;
 
-my $ini = Config::IniFiles->new(-file => fn("test.ini"));
+my $ini = Config::IniFiles->new(-file => t_file("test.ini"));
 $ini->_assert_invariants();
-unlink fn("test01.ini");
-$ini->SetFileName(fn("test01.ini"));
+unlink t_file("test01.ini");
+$ini->SetFileName(t_file("test01.ini"));
 $ini->SetWriteMode("0666");
 
 # TEST
@@ -98,5 +98,5 @@ $value = $ini->val('not a real section', 'no parameter by this name', '12345');
 is ($value, '12345', "Reading a default values from non-existent section");
 
 # Clean up when we're done
-unlink(fn("test01.ini"));
+unlink(t_file("test01.ini"));
 
