@@ -1,3 +1,5 @@
+* Converted t/05hash.t to Test::More and modernised it.
+
 Version 2.54:   ( Wed Nov 18 12:00:44 IST 2009 )
 ------------------------------------------------
 
