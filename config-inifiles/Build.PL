@@ -19,6 +19,7 @@ my $builder = Test::Run::Builder->new(
     'test_requires' =>
     {
         'base' => 0,
+        'List::Util' => 0,
     },
     'requires' =>
     {
