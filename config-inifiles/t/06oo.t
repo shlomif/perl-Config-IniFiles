@@ -1,76 +1,93 @@
 #!/usr/bin/perl
+
 use strict;
-use Test;
+use warnings;
+
+# Originally: 9
+use Test::More tests => 9;
+
+use File::Spec;
+
 use Config::IniFiles;
 
-BEGIN { plan tests => 9 }
+sub t_file
+{
+    return File::Spec->catfile(File::Spec->curdir(), "t", @_);
+}
 
 my ($en, $ini, $success);
 
-# Get files from the 't' directory, portably
-chdir('t') if ( -d 't' );
-
 # test 1
 # print "Empty list when no groups ........ ";
-$en = Config::IniFiles->new( -file => 'en.ini' );
-ok( scalar($en->Groups) == 0 );
+$en = Config::IniFiles->new( -file => t_file('en.ini') );
+# TEST
+is ( scalar($en->Groups), 0, "Empty list when no groups" );
 
 # test 2
 # print "Creating new object, no file ..... ";
-ok($ini = Config::IniFiles->new);
+$ini = Config::IniFiles->new;
+# TEST
+ok ($ini, "Creating new object");
 
 # test 3
 # print "Setting new file name .............";
-ok($ini->SetFileName('test06.ini'));
+# TEST
+ok ($ini->SetFileName(t_file('test06.ini')), "Setting new file name");
 
 # test 4
 # print "Saving under new file name ........";
-if ($ini->RewriteConfig()) {
-	if ( -f 'test06.ini' ) {
-		$success = 1;
-	} else {
-		$success = 0;
-	}
-} else {
-	$success = 0;
-}
-ok($success);
+# TEST
+ok ($ini->RewriteConfig() && (-f t_file('test06.ini')),
+    "Saving under new file name ........"
+);
 
 # test 5
 # print "SetSectionComment .................";
 $ini->newval("Section1", "Parameter1", "Value1");
 my @section_comment = ("Line 1 of section comment.", "Line 2 of section comment", "Line 3 of section comment");
-ok($ini->SetSectionComment("Section1", @section_comment));
+
+# TEST
+ok(
+    $ini->SetSectionComment("Section1", @section_comment),
+    "SetSectionComment() was successful."
+);
 
 # test 6
 # print "GetSectionComment .................";
-my @comment;
-if (@comment = $ini->GetSectionComment("Section1")) {
-	if ((join "\n", @comment) eq ("# Line 1 of section comment.\n# Line 2 of section comment\n# Line 3 of section comment")) {
-		$success = 1;
-	} else {
-		$success = 0;
-	}
-} else {
-	$success = 0;
+{
+    my @comment = $ini->GetSectionComment("Section1");
+
+    # TEST
+    is_deeply(
+        \@comment,
+        [
+            "# Line 1 of section comment.",
+            "# Line 2 of section comment",
+            "# Line 3 of section comment",
+        ],
+        "multi-line GetSectionComment",
+        );
 }
-ok($success);
 
 # test 7
 # print "DeleteSectionComment ..............";
 $ini->DeleteSectionComment("Section1");
-ok(not defined $ini->GetSectionComment("Section1"));
+# TEST
+ok(!defined($ini->GetSectionComment("Section1")),
+    "DeleteSectionComment was successful.");
 
 # test 8
 # DeleteSection
 $ini->DeleteSection( 'Section1' );
-ok( not $ini->Parameters( 'Section1' ) );
+# TEST
+ok( ! $ini->Parameters( 'Section1' ), "DeleteSection was successful." );
 
 # test 9
 # Delete entire config
 $ini->Delete();
-ok( not $ini->Sections() );
+# TEST
+ok( ! $ini->Sections(), "Delete entire config");
 
 # Clean up when we're done
-unlink "test06.ini";
+unlink t_file("test06.ini");
 
