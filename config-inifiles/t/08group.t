@@ -1,22 +1,28 @@
 #!/usr/bin/perl
+
 use strict;
-use Test;
+use warnings;
+
+use Test::More tests => 1;
+
 use Config::IniFiles;
-# $Id: 08group.t,v 1.4 2002-08-15 21:34:00 wadg Exp $
 
-BEGIN { plan tests => 1 }
+use lib "./t/lib";
 
-# Get files from the 't' directory, portably
-chdir('t') if ( -d 't' );
+use Config::IniFiles::TestPaths;
 
-my $ini = Config::IniFiles->new( -file => 'test.ini' );
+my $ini = Config::IniFiles->new( -file => t_file('test.ini') );
 my $members;
 
 # Test 1
 # Group members with spaces
 
-$members = join " ", $ini->GroupMembers("group");
-ok($members eq "group member one group member two group member three");
+# TEST
+is_deeply(
+    [$ini->GroupMembers("group")],
+    ["group member one", "group member two", "group member three"],
+    "Group members with spaces",
+);
 
 # Test 2
 # Adding a new section - updating groups list
