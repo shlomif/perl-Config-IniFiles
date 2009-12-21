@@ -13,16 +13,16 @@ use File::Spec;
 
 my ($ini, $value);
 
-sub fn
+sub t_file
 {
     my $filename = shift;
 
     return File::Spec->catfile(File::Spec->curdir(), "t", $filename);
 }
 
-$ini = Config::IniFiles->new(-file => fn("test.ini"));
+$ini = Config::IniFiles->new(-file => t_file("test.ini"));
 $ini->_assert_invariants();
-$ini->SetFileName(fn("test02.ini"));
+$ini->SetFileName(t_file("test02.ini"));
 $ini->SetWriteMode("0666");
 
 # print "Weird characters in section name . ";
@@ -66,7 +66,7 @@ ok(
 my %test;
 # TEST
 ok( (tie %test, 'Config::IniFiles'), "Tying is successful" ); 
-tied(%test)->SetFileName(fn('test02.ini')); 
+tied(%test)->SetFileName(t_file('test02.ini')); 
 
 # Test 6
 # Also with pipes when using tied interface using vlaue of 0
@@ -88,5 +88,5 @@ ok(
 );
 
 # Clean up when we're done
-unlink fn("test02.ini");
+unlink t_file("test02.ini");
 
