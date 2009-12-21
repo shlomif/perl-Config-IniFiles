@@ -6,8 +6,6 @@ use warnings;
 # Originally: 9
 use Test::More tests => 9;
 
-use File::Spec;
-
 use Config::IniFiles;
 
 use lib "./t/lib";
