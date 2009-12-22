@@ -52,7 +52,7 @@ $estext =~ s/\s*//g;
 # test 3
 ## Delta without any update should result in exact same file (ignoring
 ## distinctions about leading whitespace)
-unlink(t_file('delta.ini'));
+t_unlink('delta.ini');
 $es->WriteConfig(t_file('delta.ini'), -delta=>1);
 
 my $deltatext=slurp(t_file('delta.ini')); 
@@ -63,7 +63,7 @@ is ($deltatext, $estext,
     "Delta without any update should result in exact same file "
 );
 
-unlink(t_file('delta.ini'));
+t_unlink('delta.ini');
 
 # test 4
 ## Delta with updates
@@ -81,7 +81,7 @@ if (!ok(
     diag($deltatext);
 }
 
-unlink(t_file('delta.ini'));
+t_unlink('delta.ini');
 
 # test 5
 ## Delta with deletion marks
@@ -108,4 +108,4 @@ $es=Config::IniFiles->new( -file => t_file('delta.ini'), -import => $en );
 ok((!defined $es->val("x", "LongName")) &&
    (! $es->SectionExists("m")),
    "Parsing back deletion marks");
-unlink(t_file("delta.ini"));
+t_unlink("delta.ini");

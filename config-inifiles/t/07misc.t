@@ -13,7 +13,7 @@ use Config::IniFiles::TestPaths;
 
 my ($ini, $value);
 
-unlink t_file("test07.ini");
+t_unlink("test07.ini");
 
 # Test 1
 # Multiple equals in a parameter - should split on the first
@@ -65,5 +65,5 @@ else
 
 
 # Clean up when we're done
-unlink t_file("test07.ini");
+t_unlink("test07.ini");
 

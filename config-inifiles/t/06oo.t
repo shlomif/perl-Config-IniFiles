@@ -86,5 +86,5 @@ $ini->Delete();
 ok( ! $ini->Sections(), "Delete entire config");
 
 # Clean up when we're done
-unlink t_file("test06.ini");
+t_unlink("test06.ini");
 

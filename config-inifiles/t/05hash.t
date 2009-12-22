@@ -16,7 +16,7 @@ my ($ini, $value);
 my (@value);
 
 # Get files from the 't' directory, portably
-unlink t_file("test05.ini");
+t_unlink("test05.ini");
 
 # Test 1
 # Tying a hash.
@@ -174,5 +174,5 @@ $value = $ini{newsect}{five};
 is ($value, 1, "Testing that value is 1.");
 
 # Clean up when we're done
-unlink t_file("test05.ini");
+t_unlink("test05.ini");
 

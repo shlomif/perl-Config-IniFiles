@@ -84,5 +84,5 @@ ok(
 );
 
 # Clean up when we're done
-unlink t_file("test02.ini");
+t_unlink("test02.ini");
 

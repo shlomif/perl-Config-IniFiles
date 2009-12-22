@@ -8,7 +8,11 @@ use File::Spec;
 
 use Config::IniFiles;
 
-my $filename = File::Spec->catfile("t", "empty.ini");
+use lib "./t/lib";
+
+use Config::IniFiles::TestPaths;
+
+my $filename = t_file("empty.ini");
 
 {
     my $cfg=Config::IniFiles->new;
@@ -22,4 +26,4 @@ my $filename = File::Spec->catfile("t", "empty.ini");
     isa_ok ($cfg, "Config::IniFiles", '$cfg');
 }
 
-unlink($filename);
+t_unlink("empty.ini");

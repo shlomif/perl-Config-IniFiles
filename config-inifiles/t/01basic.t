@@ -17,7 +17,7 @@ umask 0000;
 
 my $ini = Config::IniFiles->new(-file => t_file("test.ini"));
 $ini->_assert_invariants();
-unlink t_file("test01.ini");
+t_unlink("test01.ini");
 $ini->SetFileName(t_file("test01.ini"));
 $ini->SetWriteMode("0666");
 
@@ -93,5 +93,5 @@ $value = $ini->val('not a real section', 'no parameter by this name', '12345');
 is ($value, '12345', "Reading a default values from non-existent section");
 
 # Clean up when we're done
-unlink(t_file("test01.ini"));
+t_unlink("test01.ini");
 
