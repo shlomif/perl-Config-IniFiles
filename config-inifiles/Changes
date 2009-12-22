@@ -1,7 +1,12 @@
-* Converted t/05hash.t to Test::More and modernised it.
-* Converted t/06oo.t to Test::More and modernised it.
-* Testing: extracted t/lib/Config/IniFiles/TestPaths.pm.
-* Converted t/10delta.t to Test::More and modernised it.
+Version 2.55:   ( Tue Dec 22 17:42:59 IST 2009 )
+------------------------------------------------
+
+* Refactoring the tests:
+    - Converted t/05hash.t to Test::More and modernised it.
+    - Converted t/06oo.t to Test::More and modernised it.
+    - Testing: extracted t/lib/Config/IniFiles/TestPaths.pm.
+    - Converted t/10delta.t to Test::More and modernised it.
+    - Add the t_unlink method.
 
 Version 2.54:   ( Wed Nov 18 12:00:44 IST 2009 )
 ------------------------------------------------
