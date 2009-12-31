@@ -50,19 +50,21 @@ is ( scalar($ini->val('test2', 'three')),  'value3',
 $ini->WriteConfig(t_file("test07.ini"));
 chmod 0444, t_file("test07.ini");
 
-if (-w t_file("test07.ini"))
+SKIP:
 {
-	skip (1, 'RO Permissions not settable.');
-} 
-else
-{
-	$ini->setval('test2', 'three', 'should not be here');
-	$value = $ini->WriteConfig(t_file("test07.ini"));
-	warn "Value is $value!" if (defined $value);
-    # TEST
-	ok(!defined($value), "Value is undefined.");
-} # end if
-
+    if (-w t_file("test07.ini"))
+    {
+        skip ('RO Permissions not settable.', 1);
+    } 
+    else
+    {
+        $ini->setval('test2', 'three', 'should not be here');
+        $value = $ini->WriteConfig(t_file("test07.ini"));
+        warn "Value is $value!" if (defined $value);
+        # TEST
+        ok(!defined($value), "Value is undefined.");
+    } # end if
+}
 
 # Clean up when we're done
 t_unlink("test07.ini");
