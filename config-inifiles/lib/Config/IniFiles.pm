@@ -761,7 +761,8 @@ sub ReadConfig {
   }
   
   # Get mod time of file so we can retain it (if not from STDIN)
-  if (ref($fh) ne "IO::Scalar")
+  # also check if it's a real file (could have been a filehandle made from a scalar).
+  if (ref($fh) ne "IO::Scalar" && -e $fh)
   {
     my @stats = stat $fh;
     $self->{file_mode} = sprintf("%04o", $stats[2]) if defined $stats[2];

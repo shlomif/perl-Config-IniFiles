@@ -1,3 +1,9 @@
+
+* Fixed failure to read the ini file contents from a filehandle made out of a 
+  scalar
+    - https://rt.cpan.org/Ticket/Display.html?id=45997
+    - Applied a patch by Nicolas Mendoza - thanks!
+
 Version 2.56:   ( Thu Dec 31 06:55:01 IST 2009 )
 ------------------------------------------------
 
