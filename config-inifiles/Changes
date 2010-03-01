@@ -1,3 +1,5 @@
+Version 2.57:   ( Mon Mar  1 15:49:54 IST 2010 )
+------------------------------------------------
 
 * Fixed failure to read the ini file contents from a filehandle made out of a 
   scalar
