@@ -1,3 +1,7 @@
+* Incorporated a fix for some broken POD.
+    - https://rt.cpan.org/Ticket/Display.html?id=51617
+    - Thanks to Frank Wiegand for reporting it.
+
 Version 2.57:   ( Mon Mar  1 15:49:54 IST 2010 )
 ------------------------------------------------
 
