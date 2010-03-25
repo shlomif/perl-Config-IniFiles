@@ -33,6 +33,7 @@ t/23scalar-ref.t
 t/24case-sensitive-exists.t
 t/25line-endings.t
 t/26scalar-filehandle.t
+t/27empty-ini.t
 t/allowed-comment-chars.ini
 t/array.ini
 t/bad.ini
@@ -44,6 +45,7 @@ t/case-sensitive.ini
 t/cmt.ini
 t/en.ini
 t/es.ini
+t/for-27-empty.ini
 t/lib/Config/IniFiles/Debug.pm
 t/lib/Config/IniFiles/TestPaths.pm
 t/non-contiguous-groups.ini
