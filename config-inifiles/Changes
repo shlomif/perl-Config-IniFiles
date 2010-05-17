@@ -2,6 +2,14 @@
     - https://rt.cpan.org/Ticket/Display.html?id=51617
     - Thanks to Frank Wiegand for reporting it.
 
+* Got rid of \r/carriage-returns's in lib/Config/IniFiles.pm .
+    - It interfered with applying a patch.
+
+* Applied a patch to get rid of indirect object notation in the documentation
+and code ("new Config::IniFiles") and replace it with Config::IniFiles->new().
+    - https://rt.cpan.org/Ticket/Display.html?id=57536
+    - Thanks to Tom Molesworth for the patch.
+
 Version 2.57:   ( Mon Mar  1 15:49:54 IST 2010 )
 ------------------------------------------------
 

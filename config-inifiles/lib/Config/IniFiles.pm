@@ -20,7 +20,7 @@ Config::IniFiles - A module for reading .ini-style configuration files.
 =head1 SYNOPSIS
 
   use Config::IniFiles;
-  my $cfg = new Config::IniFiles( -file => "/path/configfile.ini" );
+  my $cfg = Config::IniFiles->new( -file => "/path/configfile.ini" );
   print "The value is " . $cfg->val( 'Section', 'Parameter' ) . "."
   	if $cfg->val( 'Section', 'Parameter' );
 
@@ -119,26 +119,31 @@ any of the following things:
 
   1) the pathname of a file
 
-    $cfg = new Config::IniFiles -file => "/path/to/config_file.ini";
+    $cfg = Config::IniFiles->new( -file => "/path/to/config_file.ini" );
 
   2) a simple filehandle
 
-    $cfg = new Config::IniFiles -file => STDIN;
+    $cfg = Config::IniFiles->new( -file => STDIN );
 
   3) a filehandle glob
 
     open( CONFIG, "/path/to/config_file.ini" );
-    $cfg = new Config::IniFiles -file => *CONFIG;
+    $cfg = Config::IniFiles->new( -file => *CONFIG );
 
   4) a reference to a glob
 
     open( CONFIG, "/path/to/config_file.ini" );
-    $cfg = new Config::IniFiles -file => \*CONFIG;
+    $cfg = Config::IniFiles->new( -file => \*CONFIG );
 
   5) an IO::File object
 
-    $io = new IO::File( "/path/to/config_file.ini" );
-    $cfg = new Config::IniFiles -file => $io;
+    $io = IO::File->new( "/path/to/config_file.ini" );
+    $cfg = Config::IniFiles->new( -file => $io );
+
+  or
+
+    open my $fh, '<', "/path/to/config_file.ini" or die $!;
+    $cfg = Config::IniFiles->new( -file => $fh );
 
   6) A reference to a scalar (requires newer versions of IO::Scalar)
 
@@ -148,7 +153,7 @@ any of the following things:
     Setting=Another value
     EOT
     
-    $cfg = new Config::IniFiles -file => $ini_file_contents;
+    $cfg = Config::IniFiles->new( -file => $ini_file_contents );
 
 
 If this option is not specified, (i.e. you are creating a config file from scratch) 
@@ -173,7 +178,7 @@ in the "joe" section, there is none.
 
 If you create your Config::IniFiles object with a default section of "all" like this:
 
-   $cfg = new Config::IniFiles -file => "file.ini", -default => "all";
+   $cfg = Config::IniFiles->new( -file => "file.ini", -default => "all" );
    
 Then requsting a value for a "permissions" in the [joe] section will 
 check for a value from [all] before returning undef.
@@ -2066,7 +2071,7 @@ sub _make_filehandle {
 
   if (ref($thing) eq "SCALAR") {
 	  if (eval { require IO::Scalar; $IO::Scalar::VERSION >= 2.109; }) {
-		  return new IO::Scalar($thing);
+		  return IO::Scalar->new($thing);
 	  } else {
 		  warn "SCALAR reference as file descriptor requires IO::stringy ".
 			"v2.109 or later" if ($^W);
@@ -2303,8 +2308,8 @@ those coming from the ``original'' one and the lines coming from the
 file, the latter taking precedence. For example, let's say that
 C<$master> and C<overlay> were created like this:
 
-   my $master  = new Config::IniFiles(-file => "master.ini");
-   my $overlay = new Config::IniFiles(-file => "overlay.ini",
+   my $master  = Config::IniFiles->new(-file => "master.ini");
+   my $overlay = Config::IniFiles->new(-file => "overlay.ini",
 			-import => $master);
 
 If the contents of C<master.ini> and C<overlay.ini> are respectively
@@ -2332,9 +2337,9 @@ file for a Perl application, that can be overridden piecewise by a
 much shorter, per-site configuration file. Assuming UNIX-style path
 names, this would be done like this:
 
-   my $defaultconfig=new Config::IniFiles
+   my $defaultconfig = Config::IniFiles->new
        (-file => "/usr/share/myapp/myapp.ini.default");
-   my $config=new Config::IniFiles
+   my $config = Config::IniFiles->new
        (-file => "/etc/myapp.ini", -import => $defaultconfig);
    # Now use $config and forget about $defaultconfig in the rest of
    # the program
