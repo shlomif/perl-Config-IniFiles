@@ -7,8 +7,11 @@ WriteMakefile
           'PREREQ_PM' => {
                            'Carp' => 0,
                            'File::Spec' => 0,
+                           'List::Util' => 0,
                            'Scalar::Util' => 0,
                            'Symbol' => 0,
+                           'Test::More' => 0,
+                           'base' => 0,
                            'strict' => 0,
                            'warnings' => 0
                          },

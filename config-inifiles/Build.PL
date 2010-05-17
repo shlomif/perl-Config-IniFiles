@@ -13,13 +13,13 @@ my $builder = Test::Run::Builder->new(
     dist_author => 'Shlomi Fish <shlomif@iglu.org.il>',
     'build_requires' =>
     {
-        'File::Spec' => 0,
-        'Scalar::Util' => 0,
-    },
-    'test_requires' =>
-    {
         'base' => 0,
+        'File::Spec' => 0,
         'List::Util' => 0,
+        'Scalar::Util' => 0,
+        'strict' => 0,
+        'Test::More' => 0,
+        'warnings' => 0,
     },
     'requires' =>
     {
