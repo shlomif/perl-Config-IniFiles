@@ -34,6 +34,7 @@ t/24case-sensitive-exists.t
 t/25line-endings.t
 t/26scalar-filehandle.t
 t/27empty-ini.t
+tag-release.pl
 t/allowed-comment-chars.ini
 t/array.ini
 t/bad.ini
