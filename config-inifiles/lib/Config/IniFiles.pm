@@ -186,6 +186,27 @@ check for a value from [all] before returning undef.
    $permissions = $cfg->val( "joe", "permissions");   // returns "Nothing"
 
 
+=item I<-fallback> section
+
+Specifies a section to be used for parameters outside a section. Default is none.
+Without -fallback specified (which is the default), reading a configuration file
+which has a parameter outside a section will fail. With this set to, say,
+"GENERAL", this configuration:
+
+   wrong=wronger
+
+   [joe]
+   name=Joseph
+
+will be assumed as:
+
+   [GENERAL]
+   wrong=wronger
+
+   [joe]
+   name=Joseph
+
+
 =item I<-nocase> 0|1
 
 Set -nocase => 1 to handle the config file in a case-insensitive
@@ -298,6 +319,7 @@ sub new {
 
   my $self = bless {
 	default => '',
+	fallback =>undef,
 	imported =>undef,
 	v =>{},
 	cf => undef,
@@ -333,6 +355,9 @@ sub new {
   }  
   if (defined ($v = delete $parms{'-default'})) {
     $self->{default} = $self->{nocase} ? lc($v) : $v;
+  }
+  if (defined ($v = delete $parms{'-fallback'})) {
+    $self->{fallback} = $self->{nocase} ? lc($v) : $v;
   }
   if (defined ($v = delete $parms{'-reloadwarn'})) {
     $self->{reloadwarn} = $v ? 1 : 0;
@@ -810,6 +835,8 @@ sub ReadConfig {
       @cmts = ();
     }
     elsif (($parm, $val) = /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {	# new parameter
+		$sect = $self->{fallback}
+			if !defined($sect) && defined($self->{fallback});
 		if (!defined $sect) {
 			CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno,
 				qq#parameter found outside a section#));

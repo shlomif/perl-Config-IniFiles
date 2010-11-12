@@ -1,3 +1,10 @@
+Version 2.59:   ( Fri Nov 12 13:21:02 IST 2010 )
+------------------------------------------------
+
+* Applied a patch from "sharyanto" about enabling the -fallback parameter
+to new for items outside any section.
+    - https://rt.cpan.org/Public/Bug/Display.html?id=62944
+
 Version 2.58:   ( Mon May 17 10:43:06 IDT 2010 )
 ------------------------------------------------
 

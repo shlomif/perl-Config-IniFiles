@@ -9,12 +9,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 6;
 
 use Config::IniFiles;
 
 {
-    my $ini = Config::IniFiles->new(-file => *DATA);
+    my $data = join "", <DATA>;
+    my $ini = Config::IniFiles->new(-file => \$data);
 
     # TEST
     ok(!defined($ini), "Ini was not initialised");
@@ -29,6 +30,18 @@ use Config::IniFiles;
         qr/parameter found outside a section/,
         "Error was correct - 'parameter found outside a section'",
     );
+
+    $ini = Config::IniFiles->new(-file => \$data, -fallback => 'GENERAL');
+
+    # TEST
+    ok(defined($ini), "(-fallback) Ini was initialised");
+
+    # TEST
+    ok($ini->SectionExists('GENERAL'), "(-fallback) Fallback section exists");
+
+    # TEST
+    ok($ini->exists('GENERAL', 'wrong'),
+       "(-fallback) Fallback section catches parameter");
 }
 
 __DATA__
