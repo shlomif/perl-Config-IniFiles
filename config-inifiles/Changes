@@ -1,3 +1,8 @@
+* Made t/19param-found-outside-section.t pass in case IO::Scalar is not
+installed.
+    - We got many failing test reports due to that, like:
+    - http://www.cpantesters.org/cpan/report/eb3df0f4-eeb7-11df-b934-9430e12b63f3
+
 Version 2.59:   ( Fri Nov 12 13:21:02 IST 2010 )
 ------------------------------------------------
 

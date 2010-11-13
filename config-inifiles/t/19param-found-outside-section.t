@@ -9,9 +9,15 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More;
 
 use Config::IniFiles;
+
+eval "use IO::Scalar 2.109";
+
+plan skip_all => "IO::Scalar 2.109 required for testing POD coverage" if $@;
+
+plan tests => 6;
 
 {
     my $data = join "", <DATA>;
