@@ -1,3 +1,8 @@
+* Correct the opening comment on t/26scalar-filehandle.t to point to the right
+bug URL and to include the title of the bug
+    - https://rt.cpan.org/Ticket/Display.html?id=54997 - this is the right
+    URL.
+
 Version 2.60:   ( Sat Nov 13 09:21:23 IST 2010 )
 ------------------------------------------------
 
