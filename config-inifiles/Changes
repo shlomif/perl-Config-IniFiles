@@ -1,3 +1,6 @@
+Version 2.61:    ( Sun Nov 14 10:52:39 IST 2010 )
+-------------------------------------------------
+
 * Correct the opening comment on t/26scalar-filehandle.t to point to the right
 bug URL and to include the title of the bug
     - https://rt.cpan.org/Ticket/Display.html?id=54997 - this is the right
