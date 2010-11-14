@@ -11,6 +11,10 @@ my $builder = Test::Run::Builder->new(
     'module_name' => "Config::IniFiles",
     'license' => "perl",
     dist_author => 'Shlomi Fish <shlomif@iglu.org.il>',
+    'configure_requires' =>
+    {
+        'Module::Build' => '0.36',
+    },
     'build_requires' =>
     {
         'base' => 0,
