@@ -3,6 +3,10 @@ bug URL and to include the title of the bug
     - https://rt.cpan.org/Ticket/Display.html?id=54997 - this is the right
     URL.
 
+* Correct the check in t/26scalar-filehandle.t - it should check that Perl
+is above 5.8.x - not that IO::Scalar is available, because we use
+open my $fh, "<", \$buffer;
+
 Version 2.60:   ( Sat Nov 13 09:21:23 IST 2010 )
 ------------------------------------------------
 

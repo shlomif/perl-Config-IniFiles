@@ -18,9 +18,9 @@ use English qw(-no_match_vars);
 
 use Config::IniFiles;
 
-if ( ! eval { require IO::Scalar; } )
+if ( ! eval "require 5.008;" )
 {
-    plan skip_all => "IO::Scalar is not available";
+    plan skip_all => "We need filehandles made from scalar which is a feature of Perl above 5.8.x";
 }
 else
 {
