@@ -1,3 +1,6 @@
+Version 2.62:     ( Fri Nov 19 15:31:36 IST 2010 )
+--------------------------------------------------
+
 * Applied a modified version of Steven Haryanto's commit
 ac6ace8bf09fabba4e6ea3b2826ff13cd30507bc :
     - When writing config with fallback section, also omit the fallback 
