@@ -1385,6 +1385,36 @@ should be set to 1 if writing only delta.
 
 =cut
 
+sub _OutputParam {
+    my ($self, $sect, $parm, $val, $ors, $output_cb) = @_;
+
+    if ((@$val <= 1) or $self->{nomultiline}) {
+        foreach (@{$val}) {
+            $output_cb->("$parm=$_$ors");
+        }
+    }
+    else
+    {
+        my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
+
+        # Make sure the $eotmark does not occur inside the string.
+        my @letters = ('A' .. 'Z');
+        my $joined_val = join(q{ }, @$val);
+        while (index($joined_val, $eotmark) >= 0)
+        {
+            $eotmark .= $letters[rand(@letters)];
+        }
+
+        $output_cb->("$parm= <<$eotmark$ors");
+        foreach (@{$val}) {
+            $output_cb->("$_$ors");
+        }
+        $output_cb->("$eotmark$ors");
+    }
+
+    return;
+}
+
 sub OutputConfig {
     my ($self, $delta) = @_;
 
@@ -1439,56 +1469,24 @@ sub OutputConfig {
 
             my $val = $self->{v}{$sect}{$parm};
             next if ! defined ($val); # No parameter exists !!
-            if (ref($val) eq 'ARRAY') {
-                if ($self->{nomultiline}) {
-                    foreach (@{$val}) {
-                        print "$parm=$_$ors";
-                    }
-                } else {
-                    my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
-                    print "$parm= <<$eotmark$ors";
-                    foreach (@{$val}) {
-                        print "$_$ors";
-                    }
-                    print "$eotmark$ors";
-                }
-            } elsif( $val =~ /[$ors]/ ) {
-                # The FETCH of a tied hash is never called in 
-                # an array context, so generate a EOT multiline
-                # entry if the entry looks to be multiline
-                my @val = split /[$ors]/, $val, -1;
-                if( @val > 1 ) {
-                    my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
 
-                    # Make sure the $eotmark does not occur inside the string.
-                    my @letters = ('A' .. 'Z');
-                    while (index($val, $eotmark) >= 0)
-                    {
-                        $eotmark .= $letters[rand(@letters)];
-                    }
-
-                    if ($self->{nomultiline}) {
-                        foreach (@{$val}) {
-                            print "$parm=$_$ors";
-                        }
-                    } else {
-                        print "$parm= <<$eotmark$ors";
-                        print map "$_$ors", @val;
-                        print "$eotmark$ors";
-                    }
-                } else {
-                    print "$parm=$val[0]$ors";
-                } # end if
-            } else {
-                print "$parm=$val$ors";
-            }
+            $self->_OutputParam(
+                $sect,
+                $parm, 
+                ((ref($val) eq 'ARRAY')
+                    ? $val
+                    : [split /[$ors]/, $val, -1]
+                ),
+                $ors,
+                sub { print @_; },
+            );
         }
     }
     foreach my $comment ($self->_GetEndComments()) {
         print "$comment$ors";
     }
     return 1;
-}
+    }
 
 =head2 SetSectionComment($section, @comment)
 

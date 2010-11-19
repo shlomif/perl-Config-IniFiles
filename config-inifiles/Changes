@@ -1,3 +1,14 @@
+Version 2.63:
+
+* Fixed https://rt.cpan.org/Ticket/Display.html?id=63079 by
+refactoring/bug-fixing the main module into the _OutputParam method, which
+handles the output of multi-line and single-line parameters with all the edge
+cases. 
+    - The reported problem was that EOT was encountered again in certain cases
+    in the output string, and now we make sure the program always avoid it. The
+    reappearance of the bug was caused due to duplicate code, which was now
+    eliminated.
+
 Version 2.62:     ( Fri Nov 19 15:31:36 IST 2010 )
 --------------------------------------------------
 
