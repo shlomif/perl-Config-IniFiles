@@ -153,7 +153,7 @@ any of the following things:
     Setting=Another value
     EOT
     
-    $cfg = Config::IniFiles->new( -file => $ini_file_contents );
+    $cfg = Config::IniFiles->new( -file => \$ini_file_contents );
 
 
 If this option is not specified, (i.e. you are creating a config file from scratch) 
