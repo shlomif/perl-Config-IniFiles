@@ -308,6 +308,22 @@ or daemon application. The application is still responsible for determining
 when the object is to be reloaded.
 
 
+=item I<-nomultiline> 0|1
+
+Set -nomultiline => 1 to output multi-valued parameter as:
+
+ param=value1
+ param=value2
+
+instead of the default:
+
+ param=<<EOT
+ value1
+ value2
+ EOT
+
+As the later might not be compatible with all applications.
+
 =back
 
 =cut
@@ -327,6 +343,7 @@ sub new {
 	v =>{},
 	cf => undef,
 	firstload => 1,
+	nomultiline => 0,
   }, $class;
 
   if( ref($parms{-import}) && ($parms{-import}->isa('Config::IniFiles')) ) {
@@ -365,11 +382,14 @@ sub new {
   if (defined ($v = delete $parms{'-reloadwarn'})) {
     $self->{reloadwarn} = $v ? 1 : 0;
   }
+  if (defined ($v = delete $parms{'-nomultiline'})) {
+    $self->{nomultiline} = $v ? 1 : 0;
+  }
   if (defined ($v = delete $parms{'-allowcontinue'})) {
     $self->{allowcontinue} = $v ? 1 : 0;
   }
   if (defined ($v = delete $parms{'-allowempty'})) {
-	  $self->{allowempty} = $v ? 1 : 0;
+     $self->{allowempty} = $v ? 1 : 0;
   }
   if (defined ($v = delete $parms{'-negativedeltas'})) {
 	  $self->{negativedeltas} = $v ? 1 : 0;
@@ -1420,12 +1440,18 @@ sub OutputConfig {
             my $val = $self->{v}{$sect}{$parm};
             next if ! defined ($val); # No parameter exists !!
             if (ref($val) eq 'ARRAY') {
-                my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
-                print "$parm= <<$eotmark$ors";
-                foreach (@{$val}) {
-                    print "$_$ors";
+                if ($self->{nomultiline}) {
+                    foreach (@{$val}) {
+                        print "$parm=$_$ors";
+                    }
+                } else {
+                    my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
+                    print "$parm= <<$eotmark$ors";
+                    foreach (@{$val}) {
+                        print "$_$ors";
+                    }
+                    print "$eotmark$ors";
                 }
-                print "$eotmark$ors";
             } elsif( $val =~ /[$ors]/ ) {
                 # The FETCH of a tied hash is never called in 
                 # an array context, so generate a EOT multiline
@@ -1441,9 +1467,15 @@ sub OutputConfig {
                         $eotmark .= $letters[rand(@letters)];
                     }
 
-                    print "$parm= <<$eotmark$ors";
-                    print map "$_$ors", @val;
-                    print "$eotmark$ors";
+                    if ($self->{nomultiline}) {
+                        foreach (@{$val}) {
+                            print "$parm=$_$ors";
+                        }
+                    } else {
+                        print "$parm= <<$eotmark$ors";
+                        print map "$_$ors", @val;
+                        print "$eotmark$ors";
+                    }
                 } else {
                     print "$parm=$val[0]$ors";
                 } # end if
