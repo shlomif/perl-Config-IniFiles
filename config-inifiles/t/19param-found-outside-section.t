@@ -13,15 +13,20 @@ use Test::More;
 
 use Config::IniFiles;
 
-eval "use IO::Scalar 2.109";
+eval "use File::Temp qw(tempfile)";
 
-plan skip_all => "IO::Scalar 2.109 required for testing POD coverage" if $@;
+plan skip_all => "File::Temp required for testing" if $@;
 
-plan tests => 6;
+plan tests => 7;
 
 {
+    my ($fh, $filename) = tempfile();
     my $data = join "", <DATA>;
-    my $ini = Config::IniFiles->new(-file => \$data);
+    open F, "> $filename";
+    print F $data;
+    close F;
+
+    my $ini = Config::IniFiles->new(-file => $filename);
 
     # TEST
     ok(!defined($ini), "Ini was not initialised");
@@ -37,7 +42,7 @@ plan tests => 6;
         "Error was correct - 'parameter found outside a section'",
     );
 
-    $ini = Config::IniFiles->new(-file => \$data, -fallback => 'GENERAL');
+    $ini = Config::IniFiles->new(-file => $filename, -fallback => 'GENERAL');
 
     # TEST
     ok(defined($ini), "(-fallback) Ini was initialised");
@@ -48,6 +53,18 @@ plan tests => 6;
     # TEST
     ok($ini->exists('GENERAL', 'wrong'),
        "(-fallback) Fallback section catches parameter");
+       
+    # TEST
+    my ($newfh, $newfilename) = tempfile();
+    my $content;
+    $ini->WriteConfig($newfilename);
+    {
+        local $/;
+        open F, "< $newfilename";
+        $content = <F>;
+    }
+    ok($content =~ /^wrong/m && $content !~ /^\[GENERAL\]/m,
+       "(-fallback) Outputting fallback section without section header");
 }
 
 __DATA__
