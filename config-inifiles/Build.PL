@@ -32,7 +32,7 @@ my $builder = Test::Run::Builder->new(
         'Symbol' => 0,
         'warnings' => 0,
     },
-    create_makefile_pl => 'traditional',
+    create_makefile_pl => 'small',
     meta_merge =>
     {
         resources =>

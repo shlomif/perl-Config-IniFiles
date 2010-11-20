@@ -1,3 +1,11 @@
+Version 2.64:    ( Sat Nov 20 11:47:07 IST 2010 )
+-------------------------------------------------
+
+* Fixed https://rt.cpan.org/Ticket/Display.html?id=63177
+    - tag-release.pl was installed into lib/Config by EU-MM. Converted the
+    Makefile.PL to a wrapper around Build.PL by using Module-Build's
+    create_makefile_pl='small' instead of create_makefile_pl='traditional' .
+
 Version 2.63:    ( Fri Nov 19 16:50:58 IST 2010 )
 -------------------------------------------------
 
