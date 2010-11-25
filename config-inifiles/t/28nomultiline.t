@@ -6,15 +6,17 @@ use strict;
 use warnings;
 
 use Config::IniFiles;
+use File::Spec;
 
-eval "use File::Temp qw(tempfile)";
+eval "use File::Temp qw(tempdir)";
 
 plan skip_all => "File::Temp required for testing" if $@;
 
 plan tests => 2;
 
 {
-    my ($fh, $filename) = tempfile();
+    my $dir_name = tempdir(CLEANUP => 1);
+    my $filename = File::Spec->catfile($dir_name, "foo.ini");
     my $data = join "", <DATA>;
     open F, ">$filename";
     print F $data;

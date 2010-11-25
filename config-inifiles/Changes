@@ -1,3 +1,7 @@
+* Replaced calls to File::Temp's tempfile() with those to its tempdir()
+followed by File::Spec->catfile() - hopefully fixes the CPAN smoking failures
+on Win32.
+
 Version 2.64:    ( Sat Nov 20 11:47:07 IST 2010 )
 -------------------------------------------------
 
