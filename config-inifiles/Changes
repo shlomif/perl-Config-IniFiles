@@ -1,3 +1,16 @@
+Version 2.66:
+-------------------------------------------------
+
+* Add support for the handle_trailing_comment option to support trailing
+comments at the end of a param=value line.
+    - Fixes https://rt.cpan.org/Public/Bug/Display.html?id=43843 .
+    - Original patch by Peter Xu.
+    - Some comments and corrections of the patch by Shlomi Fish (the current 
+    Config-IniFiles maintainer.)
+
+Version 2.65:    ( Thu Nov 25 12:00:00 IST 2010 )
+-------------------------------------------------
+
 * Replaced calls to File::Temp's tempfile() with those to its tempdir()
 followed by File::Spec->catfile() - hopefully fixes the CPAN smoking failures
 on Win32.

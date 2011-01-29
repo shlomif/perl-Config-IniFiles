@@ -35,6 +35,7 @@ t/25line-endings.t
 t/26scalar-filehandle.t
 t/27empty-ini.t
 t/28nomultiline.t
+t/29end-of-line-comment.t
 tag-release.pl
 t/allowed-comment-chars.ini
 t/array.ini
@@ -45,6 +46,7 @@ t/ca.ini
 t/case-sensitive-default.ini
 t/case-sensitive.ini
 t/cmt.ini
+t/end-of-line-comment.ini
 t/en.ini
 t/es.ini
 t/for-27-empty.ini

@@ -324,6 +324,24 @@ instead of the default:
 
 As the later might not be compatible with all applications.
 
+=item I<-handle_trailing_comment> 0|1
+
+Set -handle_trailing_comment => 1 to enable support of parameter trailing
+comments.
+
+For example, if we have a parameter line like this:
+
+ param1=value1;comment1
+
+by default, handle_trailing_comment will be set to B<0>, and we will get
+I<value1;comment1> as the value of I<param1>. If we have 
+-handle_trailing_comment set to B<1>, then we will get I<value1> 
+as the value for I<param1>, and I<comment1> as the trailing comment of 
+I<param1>. 
+
+Set and get methods for trailing comments are provided as
+L</SetParameterTrailingComment> and L</GetParameterTrailingComment>.
+
 =back
 
 =cut
@@ -344,6 +362,7 @@ sub new {
 	cf => undef,
 	firstload => 1,
 	nomultiline => 0,
+    handle_trailing_comment => 0,
   }, $class;
 
   if( ref($parms{-import}) && ($parms{-import}->isa('Config::IniFiles')) ) {
@@ -392,7 +411,7 @@ sub new {
      $self->{allowempty} = $v ? 1 : 0;
   }
   if (defined ($v = delete $parms{'-negativedeltas'})) {
-	  $self->{negativedeltas} = $v ? 1 : 0;
+      $self->{negativedeltas} = $v ? 1 : 0;
   }
   if (defined ($v = delete $parms{'-commentchar'})) {
     if(!defined $v || length($v) != 1) {
@@ -418,6 +437,11 @@ sub new {
       $self->{allowed_comment_char} = $v;
     }
   }
+
+  if (defined ($v = delete $parms{'-handle_trailing_comment'})) {
+      $self->{handle_trailing_comment} = $v ? 1 : 0;
+  }
+
   $self->{comment_char} = '#' unless exists $self->{comment_char};
   $self->{allowed_comment_char} = ';' unless exists $self->{allowed_comment_char};
   # make sure that comment character is always allowed
@@ -760,6 +784,7 @@ sub ReadConfig {
   my($group, $groupmem);
   my($parm, $val);
   my @cmts;
+  my $end_comment;
 
   @Config::IniFiles::errors = ( );
 
@@ -773,6 +798,7 @@ sub ReadConfig {
   $self->{EOT}    = {};
   $self->{mysects} = []; # A pair of hashes to remember which params are loaded
   $self->{myparms} = {}; # or set using the API vs. imported - useful for
+  $self->{peCMT}  = {};  # this will store trailing comments at the end of single-lined params
   # import shadowing, see below, and WriteConfig(-delta=>1)
 
   if( defined $self->{imported} ) {
@@ -794,6 +820,7 @@ sub ReadConfig {
   );
   
   my $nocase = $self->{nocase};
+  my $end_commenthandle = $self->{handle_trailing_comment};
 
   # If this is a reload and we want warnings then send one to the STDERR log
   unless( $self->{firstload} || !$self->{reloadwarn} ) {
@@ -904,6 +931,16 @@ sub ReadConfig {
 	  $lineno++;
           $val .= $_;
         }
+
+        # we should split value and comments if there is any comment
+        if ($end_commenthandle &&
+            $val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt\s]*)$/) {
+            $val = $1;
+            $end_comment = $2;
+        } else {
+            $end_comment = "";
+        }
+
 		@val = $val;
       }
 		# Now load value
@@ -919,6 +956,8 @@ sub ReadConfig {
 		$self->SetParameterComment($sect, $parm, @cmts);
 		@cmts = ( );
 		$self->SetParameterEOT($sect,$parm,$eotmark) if (defined $eotmark);
+        # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
+        $self->SetParameterTrailingComment($sect, $parm, $end_comment);
 
     } else {
       CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $lineno, $_));
@@ -1386,11 +1425,18 @@ should be set to 1 if writing only delta.
 =cut
 
 sub _OutputParam {
-    my ($self, $sect, $parm, $val, $ors, $output_cb) = @_;
+    my ($self, $sect, $parm, $val, $ors, $end_comment, $output_cb) = @_;
 
     if ((@$val <= 1) or $self->{nomultiline}) {
+        my $cnt = 0;
         foreach (@{$val}) {
-            $output_cb->("$parm=$_$ors");
+            $cnt++;
+            $output_cb->("$parm=$_");
+            # output trailing comment at the last parameter
+            if ($end_comment && $cnt == @$val) {
+                $output_cb->(" $self->{comment_char} $end_comment") 
+            }
+            $output_cb->("$ors");
         }
     }
     else
@@ -1406,8 +1452,15 @@ sub _OutputParam {
         }
 
         $output_cb->("$parm= <<$eotmark$ors");
+        my $cnt = 0;
         foreach (@{$val}) {
-            $output_cb->("$_$ors");
+            $cnt++;
+            $output_cb->("$_");
+            # output trailing comment at the last parameter
+            if ($end_comment && $cnt == @$val) {
+                $output_cb->(" $self->{comment_char} $end_comment")
+            }
+            $output_cb->("$ors");
         }
         $output_cb->("$eotmark$ors");
     }
@@ -1468,6 +1521,8 @@ sub OutputConfig {
             }
 
             my $val = $self->{v}{$sect}{$parm};
+            my $end_comment = $self->{peCMT}{$sect}{$parm};
+
             next if ! defined ($val); # No parameter exists !!
 
             $self->_OutputParam(
@@ -1478,6 +1533,7 @@ sub OutputConfig {
                     : [split /[$ors]/, $val, -1]
                 ),
                 $ors,
+                defined $end_comment ? $end_comment : "",
                 sub { print @_; },
             );
         }
@@ -1800,6 +1856,68 @@ sub DeleteParameterEOT
 	delete $self->{EOT}{$sect}{$parm};
 }
 
+=head2 SetParameterTrailingComment ($section, $parameter, $cmt)
+
+Set the end trailing comment for the given section and parameter. 
+If there is a old comment for the parameter, it will be 
+overwritten by the new one.
+
+If there is a new parameter trailing comment to be added, the
+value should be added first.
+
+=cut
+
+sub SetParameterTrailingComment
+{
+    my $self = shift;
+    my $sect = shift;
+    my $parm = shift;
+    my $cmt = shift;
+
+    return undef if not defined $sect;
+    return undef if not defined $parm;
+    return undef if not defined $cmt;
+
+    if ($self->{nocase}) {
+        $sect = lc($sect);
+        $parm = lc($parm);
+    }
+
+    # confirm the parameter exist
+    return undef if not exists $self->{v}{$sect}{$parm};
+
+    $self->_touch_parameter($sect, $parm);
+    $self->{peCMT}{$sect}{$parm} = $cmt;
+    1;
+}
+
+=head2 GetParameterTrailingComment ($section, $parameter)
+
+An accessor method to read the trailing comment after the parameter. 
+The trailing comment will be returned if there is one. A null string 
+will be returned if the parameter exists but no comment for it. 
+otherwise, L<undef> will be returned.
+
+=cut
+
+sub GetParameterTrailingComment
+{
+    my $self = shift;
+    my $sect = shift;
+    my $parm = shift;
+
+    return undef if not defined $sect;
+    return undef if not defined $parm;
+
+    if ($self->{nocase}) {
+        $sect = lc($sect);
+        $parm = lc($parm);
+    }
+
+    # confirm the parameter exist
+    return undef if not exists $self->{v}{$sect}{$parm};
+    return $self->{peCMT}{$sect}{$parm};
+}
 
 =head2 Delete
 
