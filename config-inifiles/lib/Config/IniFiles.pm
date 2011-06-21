@@ -1554,7 +1554,7 @@ sub OutputConfig {
 
 Sets the comment for section $section to the lines contained in @comment.
 
-Each comment line will be prepended with the comment charcter (default
+Each comment line will be prepended with the comment character (default
 is C<#>) if it doesn't already have a comment character (ie: if the
 line does not start with whitespace followed by an allowed comment
 character, default is C<#> and C<;>).
