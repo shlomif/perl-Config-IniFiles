@@ -1,3 +1,6 @@
+Version 2.67:    ( Tue Jun 21 14:55:07 IDT 2011 )
+-------------------------------------------------
+
 * Made sure that parameters with empty values will be written to the file.
     - Fixes https://rt.cpan.org/Public/Bug/Display.html?id=68554 .
 
