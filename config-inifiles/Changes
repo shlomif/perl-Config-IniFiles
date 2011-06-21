@@ -1,3 +1,6 @@
+* Made sure that parameters with empty values will be written to the file.
+    - Fixes https://rt.cpan.org/Public/Bug/Display.html?id=68554 .
+
 Version 2.66:    ( Sat Jan 29 18:28:53 IST 2011 )
 -------------------------------------------------
 
