@@ -934,7 +934,7 @@ sub ReadConfig {
 
         # we should split value and comments if there is any comment
         if ($end_commenthandle &&
-            $val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt\s]*)$/) {
+            $val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
             $val = $1;
             $end_comment = $2;
         } else {
