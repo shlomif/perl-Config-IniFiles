@@ -1306,13 +1306,12 @@ sub WriteConfig {
     }
   
     my $new_file = $file . "-new";
-    local(*F);
-    open(F, "> $new_file") || do {
+    open(my $fh, '>', $new_file) || do {
       carp "Unable to write temp config file $new_file: $!";
       return undef;
     };
-    $self->OutputConfigToFileHandle(*F, $parms{-delta});
-    close(F);
+    $self->OutputConfigToFileHandle($fh, $parms{-delta});
+    close($fh);
     rename( $new_file, $file ) || do {
       carp "Unable to rename temp config file ($new_file) to $file: $!";
       return undef;
