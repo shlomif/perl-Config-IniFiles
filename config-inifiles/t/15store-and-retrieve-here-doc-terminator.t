@@ -36,3 +36,5 @@ my $filename = File::Spec->catfile(
     );
 }
 
+# Delete it again to keep the working-copy clean.
+unlink($filename);
