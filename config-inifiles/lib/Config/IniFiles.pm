@@ -1416,11 +1416,17 @@ sub SetFileName {
   return undef;
 }
 
+=head2 $ini->OutputConfigToFileHandle($fh, $delta)
+
+Writes OutputConfig to the $fh filehandle. $delta should be set to 1
+1 if writing only delta. This is a newer and safer version of 
+C<OutputConfig()> and one is encouraged to use it instead.
+
 =head2 $ini->OutputConfig($delta)
 
 Writes OutputConfig to STDOUT. Use select() to redirect STDOUT to
 the output target before calling this function. Optional argument
-should be set to 1 if writing only delta.
+should be set to 1 if writing only delta. Also see OutputConfigToFileHandle
 
 =cut
 
@@ -1477,6 +1483,15 @@ sub _OutputParam {
 sub OutputConfig {
     my ($self, $delta) = @_;
 
+    return $self->OutputConfigToFileHandle(select(), $delta);
+}
+
+sub OutputConfigToFileHandle {
+    # We need no strict 'refs' to be able to print to $fh if it points
+    # to a glob filehandle.
+    no strict 'refs';
+    my ($self, $fh, $delta) = @_;
+
     my($sect, $parm, @cmts);
     my $ors = $self->{line_ends} || $\ || "\n"; # $\ is normally unset, but use input by default
     my $notfirst = 0;
@@ -1485,19 +1500,19 @@ sub OutputConfig {
     foreach $sect (@{$self->{$delta ? "mysects" : "sects"}}) {
         if (!defined $self->{v}{$sect}) {
             if ($delta) {
-                print "$self->{comment_char} [$sect] is deleted$ors";
+                print {$fh} "$self->{comment_char} [$sect] is deleted$ors";
             } else {
                 warn "Weird unknown section $sect" if $^W;
             }
             next SECT;
         }
         next unless defined $self->{v}{$sect};
-        print $ors if $notfirst;
+        print {$fh} $ors if $notfirst;
         $notfirst = 1;
         if ((ref($self->{sCMT}{$sect}) eq 'ARRAY') &&
             (@cmts = @{$self->{sCMT}{$sect}})) {
             foreach (@cmts) {
-                print "$_$ors";
+                print {$fh} "$_$ors";
             }
         }
 
@@ -1505,7 +1520,7 @@ sub OutputConfig {
             ($self->{fallback_used} and $sect eq $self->{fallback})
         )
         {
-            print "[$sect]$ors";
+            print {$fh} "[$sect]$ors";
         }
         next unless ref $self->{v}{$sect} eq 'HASH';
 
@@ -1513,7 +1528,7 @@ sub OutputConfig {
         foreach $parm (@{$self->{$delta ? "myparms" : "parms"}{$sect}}) {
             if (!defined $self->{v}{$sect}{$parm}) {
                 if ($delta) {
-                    print "$self->{comment_char} $parm is deleted$ors";
+                    print {$fh} "$self->{comment_char} $parm is deleted$ors";
                 } else {
                     warn "Weird unknown parameter $parm" if $^W;
                 }
@@ -1522,7 +1537,7 @@ sub OutputConfig {
             if ((ref($self->{pCMT}{$sect}{$parm}) eq 'ARRAY') &&
                 (@cmts = @{$self->{pCMT}{$sect}{$parm}})) {
                 foreach (@cmts) {
-                    print "$_$ors";
+                    print {$fh} "$_$ors";
                 }
             }
 
@@ -1540,15 +1555,15 @@ sub OutputConfig {
                 ),
                 $ors,
                 defined $end_comment ? $end_comment : "",
-                sub { print @_; },
+                sub { print {$fh} @_; },
             );
         }
     }
     foreach my $comment ($self->_GetEndComments()) {
-        print "$comment$ors";
+        print {$fh} "$comment$ors";
     }
     return 1;
-    }
+}
 
 =head2 SetSectionComment($section, @comment)
 

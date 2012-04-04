@@ -2,6 +2,12 @@
     - "Trailing comments with whitespace are not recognised"
     - Thanks to briconaut for the report and to rbowen for the patch and test.
 
+* Add the method ->OutputConfigToFileHandle which is a more explicit and
+safer version of ->OutputConfig.
+    - ->OutputConfig now uses it.
+    - all existing tests pass, but no tests were written for the new function
+    yet.
+
 Version 2.68:    ( Tue Jun 21 22:14:39 IDT 2011 )
 -------------------------------------------------
 
