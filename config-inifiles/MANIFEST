@@ -37,6 +37,7 @@ t/27empty-ini.t
 t/28nomultiline.t
 t/29end-of-line-comment.t
 t/30parameters-with-empty-values.t
+t/31comments_with_spaces.t
 tag-release.pl
 t/allowed-comment-chars.ini
 t/array.ini

@@ -1,3 +1,7 @@
+* Fix https://sourceforge.net/tracker/?func=detail&aid=3388382&group_id=6926&atid=106926
+    - "Trailing comments with whitespace are not recognised"
+    - Thanks to briconaut for the report and to rbowen for the patch and test.
+
 Version 2.68:    ( Tue Jun 21 22:14:39 IDT 2011 )
 -------------------------------------------------
 
