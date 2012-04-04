@@ -1311,10 +1311,8 @@ sub WriteConfig {
       carp "Unable to write temp config file $new_file: $!";
       return undef;
     };
-    my $oldfh = select(F);
-    $self->OutputConfig($parms{-delta});
+    $self->OutputConfigToFileHandle(*F, $parms{-delta});
     close(F);
-    select($oldfh);
     rename( $new_file, $file ) || do {
       carp "Unable to rename temp config file ($new_file) to $file: $!";
       return undef;
@@ -1341,10 +1339,8 @@ sub WriteConfig {
       carp "Cannot write configuration file to STDIN.";
     } else {
       seek( $fh, 0, 0 );
-      my $oldfh = select($fh);
-      $self->OutputConfig($parms{-delta});
+      $self->OutputConfigToFileHandle($fh, $parms{-delta});
       seek( $fh, 0, 0 );
-      select($oldfh);
     } # end if
 
   } # end if (filehandle/name)
