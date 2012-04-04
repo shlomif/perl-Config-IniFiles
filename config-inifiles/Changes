@@ -5,8 +5,8 @@
 * Add the method ->OutputConfigToFileHandle which is a more explicit and
 safer version of ->OutputConfig.
     - ->OutputConfig now uses it.
-    - all existing tests pass, but no tests were written for the new function
-    yet.
+    - all existing tests pass, and a new test was added to 
+    t/15store-and-retrieve-here-doc-terminator.t .
 
 Version 2.68:    ( Tue Jun 21 22:14:39 IDT 2011 )
 -------------------------------------------------

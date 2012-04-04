@@ -6,7 +6,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 1;
+use Test::More tests => 2;
 use File::Spec;
 
 use Config::IniFiles;
@@ -15,26 +15,49 @@ my $filename = File::Spec->catfile(
     File::Spec->curdir(), "t", "store-and-retrieve-here-doc-terminator.ini"
 );
 
-# Prepare the offending file.
+my @file_write_subs =
+(
+    sub {
+        my ($cfg) = @_;
+    
+        $cfg->WriteConfig($filename);
+
+        return;
+    },
+    sub {
+        my ($cfg) = @_;
+
+        open my $fh, '>', $filename
+            or die "Cannot open '$filename' for writing - $!";
+        $cfg->OutputConfigToFileHandle($fh);
+        close($fh);
+
+        return;
+    },
+);
+foreach my $write_sub (@file_write_subs)
 {
-    # Delete the stray file - we want to over-write it.
-    unlink($filename);
-    my $cfg=Config::IniFiles->new();
+    # Prepare the offending file.
+    {
+        # Delete the stray file - we want to over-write it.
+        unlink($filename);
+        my $cfg=Config::IniFiles->new();
 
-    $cfg->newval ("MySection", "MyParam", "Hello\nEOT\n");
+        $cfg->newval ("MySection", "MyParam", "Hello\nEOT\n");
 
-    $cfg->WriteConfig($filename);
-}
+        $write_sub->($cfg);
+    }
 
-{
-    my $cfg=Config::IniFiles->new(-file => $filename);
+    {
+        my $cfg=Config::IniFiles->new(-file => $filename);
 
-    # TEST
-    is (scalar($cfg->val ("MySection", "MyParam")),
-        "Hello\nEOT\n",
-        "Default here-doc terminator was stored and retrieved correctly",
-    );
-}
+        # TEST*2
+        is (scalar($cfg->val ("MySection", "MyParam")),
+            "Hello\nEOT\n",
+            "Default here-doc terminator was stored and retrieved correctly",
+        );
+    }
 
 # Delete it again to keep the working-copy clean.
-unlink($filename);
+    unlink($filename);
+}

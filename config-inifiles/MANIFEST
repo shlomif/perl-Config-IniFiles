@@ -59,3 +59,4 @@ t/pod-coverage.t
 t/pod.t
 t/test.ini
 t/trailing-comments.ini
+META.json
