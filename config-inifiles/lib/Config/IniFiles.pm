@@ -346,6 +346,18 @@ L</SetParameterTrailingComment> and L</GetParameterTrailingComment>.
 
 =cut
 
+sub _nocase
+{
+    my $self = shift;
+
+    if (@_)
+    {
+        $self->{nocase} = (shift(@_) ? 1 : 0);
+    }
+
+    return $self->{nocase};
+}
+
 sub new {
   my $class = shift;
   my %parms = @_;
@@ -380,7 +392,7 @@ sub new {
   # Parse options
   my($k, $v);
   local $_;
-  $self->{nocase} = 0;
+  $self->_nocase(0);
 
   # Handle known parameters first in this order, 
   # because each() could return parameters in any order
@@ -390,13 +402,13 @@ sub new {
     $self->{cf} = $v;
   }
   if (defined ($v = delete $parms{'-nocase'})) {
-    $self->{nocase} = $v ? 1 : 0;
+    $self->_nocase($v);
   }  
   if (defined ($v = delete $parms{'-default'})) {
-    $self->{default} = $self->{nocase} ? lc($v) : $v;
+    $self->{default} = $self->_nocase ? lc($v) : $v;
   }
   if (defined ($v = delete $parms{'-fallback'})) {
-    $self->{fallback} = $self->{nocase} ? lc($v) : $v;
+    $self->{fallback} = $self->_nocase ? lc($v) : $v;
   }
   if (defined ($v = delete $parms{'-reloadwarn'})) {
     $self->{reloadwarn} = $v ? 1 : 0;
@@ -490,7 +502,7 @@ sub val {
   return if not defined $sect;
   return if not defined $parm;
   
-  if ($self->{nocase}) {
+  if ($self->_nocase) {
     $sect = lc($sect);
     $parm = lc($parm);
   }
@@ -534,7 +546,7 @@ a parameter C<$parameter> inside, not counting default values.
 sub exists {
 	my ($self, $sect, $parm)=@_;
 
-    if ($self->{nocase}) {
+    if ($self->_nocase) {
         $sect = lc($sect);
         $parm = lc($parm);
     }
@@ -562,7 +574,7 @@ sub push {
   return undef if not defined $sect;
   return undef if not defined $parm;
 
-  if ($self->{nocase}) {
+  if ($self->_nocase) {
     $sect = lc($sect);
     $parm = lc($parm);
   }
@@ -604,7 +616,7 @@ sub setval {
   return undef if not defined $sect;
   return undef if not defined $parm;
 
-  if ($self->{nocase}) {
+  if ($self->_nocase) {
     $sect = lc($sect);
     $parm = lc($parm);
   }
@@ -640,7 +652,7 @@ sub newval {
   return undef if not defined $sect;
   return undef if not defined $parm;
 
-  if ($self->{nocase}) {
+  if ($self->_nocase) {
     $sect = lc($sect);
     $parm = lc($parm);
   }
@@ -674,7 +686,7 @@ sub delval {
   return undef if not defined $sect;
   return undef if not defined $parm;
 
-  if ($self->{nocase}) {
+  if ($self->_nocase) {
     $sect = lc($sect);
     $parm = lc($parm);
   }
@@ -819,7 +831,7 @@ sub ReadConfig {
     ($self->{cf} eq '')
   );
   
-  my $nocase = $self->{nocase};
+  my $nocase = $self->_nocase;
   my $end_commenthandle = $self->{handle_trailing_comment};
 
   # If this is a reload and we want warnings then send one to the STDERR log
@@ -877,7 +889,7 @@ sub ReadConfig {
     }
     elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {		# New Section
       $sect = $1;
-      if ($self->{nocase}) {
+      if ($self->_nocase) {
         $sect = lc($sect);
       }
       $self->AddSection($sect);
@@ -1009,7 +1021,7 @@ sub SectionExists {
 	
 	return undef if not defined $sect;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 	}
 	
@@ -1035,7 +1047,7 @@ sub AddSection {
 	
 	return undef if not defined $sect;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 	}
 	
@@ -1089,7 +1101,7 @@ sub DeleteSection {
 	
 	return undef if not defined $sect;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 	}
 
@@ -1127,7 +1139,7 @@ sub Parameters {
   
   return undef if not defined $sect;
   
-  if ($self->{nocase}) {
+  if ($self->_nocase) {
     $sect = lc($sect);
   }
   
@@ -1222,7 +1234,7 @@ sub GroupMembers {
   
   return undef if not defined $group;
   
-  if ($self->{nocase}) {
+  if ($self->_nocase) {
   	$group = lc($group);
   }
   
@@ -1582,7 +1594,7 @@ sub SetSectionComment
 	return undef if not defined $sect;
 	return undef unless @comment;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 	}
 	
@@ -1632,7 +1644,7 @@ sub GetSectionComment
 
 	return undef if not defined $sect;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 	}
 	
@@ -1666,7 +1678,7 @@ sub DeleteSectionComment
 	
 	return undef if not defined $sect;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 	}
 	$self->_touch_section($sect);
@@ -1694,7 +1706,7 @@ sub SetParameterComment
 	defined($parm) || return undef;
 	@comment || return undef;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 		$parm = lc($parm);
 	}
@@ -1743,7 +1755,7 @@ sub GetParameterComment
 	defined($sect) || return undef;
 	defined($parm) || return undef;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 		$parm = lc($parm);
 	};
@@ -1770,7 +1782,7 @@ sub DeleteParameterComment
 	defined($sect) || return undef;
 	defined($parm) || return undef;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 		$parm = lc($parm);
 	};
@@ -1799,7 +1811,7 @@ sub GetParameterEOT
 	defined($sect) || return undef;
 	defined($parm) || return undef;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 		$parm = lc($parm);
 	};
@@ -1833,7 +1845,7 @@ sub SetParameterEOT
 	defined($parm) || return undef;
 	defined($EOT) || return undef;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 		$parm = lc($parm);
 	};
@@ -1863,7 +1875,7 @@ sub DeleteParameterEOT
 	defined($sect) || return undef;
 	defined($parm) || return undef;
 	
-	if ($self->{nocase}) {
+	if ($self->_nocase) {
 		$sect = lc($sect);
 		$parm = lc($parm);
 	}
@@ -1894,7 +1906,7 @@ sub SetParameterTrailingComment
     return undef if not defined $parm;
     return undef if not defined $cmt;
 
-    if ($self->{nocase}) {
+    if ($self->_nocase) {
         $sect = lc($sect);
         $parm = lc($parm);
     }
@@ -1925,7 +1937,7 @@ sub GetParameterTrailingComment
     return undef if not defined $sect;
     return undef if not defined $parm;
 
-    if ($self->{nocase}) {
+    if ($self->_nocase) {
         $sect = lc($sect);
         $parm = lc($parm);
     }
