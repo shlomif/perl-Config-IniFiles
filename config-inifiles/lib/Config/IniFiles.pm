@@ -495,18 +495,30 @@ otherwise the values will be joined using \n.
 
 =cut
 
+sub _caseify {
+    my ($self, @refs) = @_;
+
+    if (not $self->_nocase)
+    {
+        return;
+    }
+
+    foreach my $ref (@refs) {
+        ${$ref} = lc(${$ref})
+    }
+
+    return;
+}
+
 sub val {
   my ($self, $sect, $parm, $def) = @_;
 
   # Always return undef on bad parameters
   return if not defined $sect;
   return if not defined $parm;
-  
-  if ($self->_nocase) {
-    $sect = lc($sect);
-    $parm = lc($parm);
-  }
-  
+ 
+  $self->_caseify(\$sect, \$parm);
+
   my $val = defined($self->{v}{$sect}{$parm}) ?
     $self->{v}{$sect}{$parm} :
     $self->{v}{$self->{default}}{$parm};
@@ -544,13 +556,10 @@ a parameter C<$parameter> inside, not counting default values.
 =cut
 
 sub exists {
-	my ($self, $sect, $parm)=@_;
+	my ($self, $sect, $parm) = @_;
 
-    if ($self->_nocase) {
-        $sect = lc($sect);
-        $parm = lc($parm);
-    }
-    
+    $self->_caseify(\$sect, \$parm);
+
 	return (exists $self->{v}{$sect}{$parm});
 }
 
@@ -569,15 +578,12 @@ attempted. See B<newval> below to do this. Otherwise, it returns 1.
 =cut
 
 sub push {
-  my ($self, $sect, $parm, @vals)=@_;
+  my ($self, $sect, $parm, @vals) = @_;
 
   return undef if not defined $sect;
   return undef if not defined $parm;
 
-  if ($self->_nocase) {
-    $sect = lc($sect);
-    $parm = lc($parm);
-  }
+  $self->_caseify(\$sect, \$parm);
 
   return undef if (! defined($self->{v}{$sect}{$parm}));
 
@@ -616,10 +622,7 @@ sub setval {
   return undef if not defined $sect;
   return undef if not defined $parm;
 
-  if ($self->_nocase) {
-    $sect = lc($sect);
-    $parm = lc($parm);
-  }
+  $self->_caseify(\$sect, \$parm);
 
   if (defined($self->{v}{$sect}{$parm})) {
 	$self->_touch_parameter($sect, $parm);
@@ -652,10 +655,7 @@ sub newval {
   return undef if not defined $sect;
   return undef if not defined $parm;
 
-  if ($self->_nocase) {
-    $sect = lc($sect);
-    $parm = lc($parm);
-  }
+  $self->_caseify(\$sect, \$parm);
 
   $self->AddSection($sect);
 
@@ -686,10 +686,7 @@ sub delval {
   return undef if not defined $sect;
   return undef if not defined $parm;
 
-  if ($self->_nocase) {
-    $sect = lc($sect);
-    $parm = lc($parm);
-  }
+  $self->_caseify(\$sect, \$parm);
 
   @{$self->{parms}{$sect}} = grep !/^\Q$parm\E$/, @{$self->{parms}{$sect}};
   $self->_touch_parameter($sect, $parm);
@@ -891,9 +888,7 @@ sub ReadConfig {
     }
     elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {		# New Section
       $sect = $1;
-      if ($self->_nocase) {
-        $sect = lc($sect);
-      }
+      $self->_caseify(\$sect);
       $self->AddSection($sect);
       $self->SetSectionComment($sect, @cmts);
       @cmts = ();
@@ -1023,10 +1018,8 @@ sub SectionExists {
 	
 	return undef if not defined $sect;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-	}
-	
+    $self->_caseify(\$sect);
+
 	return undef() if not defined $sect;
 	return 1 if (grep {/^\Q$sect\E$/} @{$self->{sects}});
 	return 0;
@@ -1044,15 +1037,12 @@ the name that you're adding isn't in the list of sections already.
 =cut
 
 sub AddSection {
-	my $self = shift;
-	my $sect = shift;
+    my ($self, $sect) = @_;
 	
 	return undef if not defined $sect;
-	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-	}
-	
+
+    $self->_caseify(\$sect);
+
 	return if $self->SectionExists($sect);
 	CORE::push @{$self->{sects}}, $sect unless
 	  grep /^\Q$sect\E$/, @{$self->{sects}};
@@ -1103,9 +1093,7 @@ sub DeleteSection {
 	
 	return undef if not defined $sect;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-	}
+    $self->_caseify(\$sect);
 
 	# This is done the fast way, change if data structure changes!!
 	delete $self->{v}{$sect};
@@ -1141,10 +1129,8 @@ sub Parameters {
   
   return undef if not defined $sect;
   
-  if ($self->_nocase) {
-    $sect = lc($sect);
-  }
-  
+  $self->_caseify(\$sect);
+
   return @{$self->{parms}{$sect}} if ref $self->{parms}{$sect} eq 'ARRAY';
   return ();
 }
@@ -1236,10 +1222,8 @@ sub GroupMembers {
   
   return undef if not defined $group;
   
-  if ($self->_nocase) {
-  	$group = lc($group);
-  }
-  
+  $self->_caseify(\$group);
+
   return @{$self->{group}{$group}} if ref $self->{group}{$group} eq 'ARRAY';
   return ();
 }
@@ -1595,10 +1579,8 @@ sub SetSectionComment
 	return undef if not defined $sect;
 	return undef unless @comment;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-	}
-	
+    $self->_caseify(\$sect);
+
 	$self->_touch_section($sect);
 	$self->{sCMT}{$sect} = [];
 	# At this point it's possible to have a comment for a section that
@@ -1645,10 +1627,8 @@ sub GetSectionComment
 
 	return undef if not defined $sect;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-	}
-	
+    $self->_caseify(\$sect);
+
 	if (exists $self->{sCMT}{$sect}) {
 		my @ret = @{$self->{sCMT}{$sect}};
         if (wantarray()) {
@@ -1679,9 +1659,7 @@ sub DeleteSectionComment
 	
 	return undef if not defined $sect;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-	}
+    $self->_caseify(\$sect);
 	$self->_touch_section($sect);
 
 	delete $self->{sCMT}{$sect};
@@ -1707,11 +1685,8 @@ sub SetParameterComment
 	defined($parm) || return undef;
 	@comment || return undef;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-		$parm = lc($parm);
-	}
-	
+    $self->_caseify(\$sect, \$parm);
+
 	$self->_touch_parameter($sect, $parm);
 	if (not exists $self->{pCMT}{$sect}) {
 		$self->{pCMT}{$sect} = {};
@@ -1756,11 +1731,8 @@ sub GetParameterComment
 	defined($sect) || return undef;
 	defined($parm) || return undef;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-		$parm = lc($parm);
-	};
-	
+    $self->_caseify(\$sect, \$parm);
+
 	exists($self->{pCMT}{$sect}) || return undef;
 	exists($self->{pCMT}{$sect}{$parm}) || return undef;
 	
@@ -1783,11 +1755,8 @@ sub DeleteParameterComment
 	defined($sect) || return undef;
 	defined($parm) || return undef;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-		$parm = lc($parm);
-	};
-	
+    $self->_caseify(\$sect, \$parm);
+
 	# If the parameter doesn't exist, our goal has already been achieved
 	exists($self->{pCMT}{$sect}) || return 1;
 	exists($self->{pCMT}{$sect}{$parm}) || return 1;
@@ -1812,10 +1781,7 @@ sub GetParameterEOT
 	defined($sect) || return undef;
 	defined($parm) || return undef;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-		$parm = lc($parm);
-	};
+    $self->_caseify(\$sect, \$parm);
 
 	if (not exists $self->{EOT}{$sect}) {
 		$self->{EOT}{$sect} = {};
@@ -1846,10 +1812,7 @@ sub SetParameterEOT
 	defined($parm) || return undef;
 	defined($EOT) || return undef;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-		$parm = lc($parm);
-	};
+    $self->_caseify(\$sect, \$parm);
 
 	$self->_touch_parameter($sect, $parm);
     if (not exists $self->{EOT}{$sect}) {
@@ -1876,10 +1839,7 @@ sub DeleteParameterEOT
 	defined($sect) || return undef;
 	defined($parm) || return undef;
 	
-	if ($self->_nocase) {
-		$sect = lc($sect);
-		$parm = lc($parm);
-	}
+    $self->_caseify(\$sect, \$parm);
 
 	$self->_touch_parameter($sect, $parm);
 	delete $self->{EOT}{$sect}{$parm};
@@ -1907,10 +1867,7 @@ sub SetParameterTrailingComment
     return undef if not defined $parm;
     return undef if not defined $cmt;
 
-    if ($self->_nocase) {
-        $sect = lc($sect);
-        $parm = lc($parm);
-    }
+    $self->_caseify(\$sect, \$parm);
 
     # confirm the parameter exist
     return undef if not exists $self->{v}{$sect}{$parm};
@@ -1938,10 +1895,7 @@ sub GetParameterTrailingComment
     return undef if not defined $sect;
     return undef if not defined $parm;
 
-    if ($self->_nocase) {
-        $sect = lc($sect);
-        $parm = lc($parm);
-    }
+    $self->_caseify(\$sect, \$parm);
 
     # confirm the parameter exist
     return undef if not exists $self->{v}{$sect}{$parm};
@@ -2145,7 +2099,7 @@ sub FETCH {
   my $self = shift;
   my( $key ) = @_;
 
-  $key = lc($key) if( $self->_nocase );
+  $self->_caseify(\$key);
   return if (! $self->{v}{$key});
 
   my %retval;
@@ -2167,7 +2121,7 @@ sub STORE {
 
   return undef unless ref($ref) eq 'HASH';
 
-  $key = lc($key) if( $self->_nocase() );
+  $self->_caseify(\$key);
 
   $self->AddSection($key);
   $self->{v}{$key} = {%$ref};
