@@ -825,11 +825,13 @@ sub ReadConfig {
 	  }
   } # end if
   
-  return 1 if (
-    (not exists $self->{cf}) or
-    (not defined $self->{cf}) or
-    ($self->{cf} eq '')
-  );
+  if (    (not exists $self->{cf})
+       or (not defined $self->{cf})
+       or ($self->{cf} eq '')
+  )
+  {
+      return 1;
+  }
   
   my $nocase = $self->_nocase;
   my $end_commenthandle = $self->{handle_trailing_comment};
