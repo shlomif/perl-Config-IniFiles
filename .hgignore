@@ -1,4 +1,6 @@
 config-inifiles/Build
+config-inifiles/META.json
+config-inifiles/META.yml
 config-inifiles/MYMETA.json
 config-inifiles/MYMETA.yml
 config-inifiles/_build

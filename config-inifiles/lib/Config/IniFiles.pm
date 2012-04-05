@@ -2145,7 +2145,7 @@ sub FETCH {
   my $self = shift;
   my( $key ) = @_;
 
-  $key = lc($key) if( $self->{nocase} );
+  $key = lc($key) if( $self->_nocase );
   return if (! $self->{v}{$key});
 
   my %retval;
@@ -2167,7 +2167,7 @@ sub STORE {
 
   return undef unless ref($ref) eq 'HASH';
 
-  $key = lc($key) if( $self->{nocase} );
+  $key = lc($key) if( $self->_nocase() );
 
   $self->AddSection($key);
   $self->{v}{$key} = {%$ref};
