@@ -8,6 +8,10 @@ safer version of ->OutputConfig.
     - all existing tests pass, and a new test was added to 
     t/15store-and-retrieve-here-doc-terminator.t .
 
+* Started refactoring the code.
+    - Convert tabs to spaces.
+    - many other small changes.
+
 Version 2.68:    ( Tue Jun 21 22:14:39 IDT 2011 )
 -------------------------------------------------
 
