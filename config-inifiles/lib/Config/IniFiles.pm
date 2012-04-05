@@ -1325,10 +1325,10 @@ sub WriteConfig {
     };
     $self->OutputConfigToFileHandle($fh, $parms{-delta});
     close($fh);
-    rename( $new_file, $file ) || do {
+    if (!rename( $new_file, $file )) {
       carp "Unable to rename temp config file ($new_file) to $file: $!";
       return undef;
-    };
+    }
     if (exists $self->{file_mode}) {
       chmod oct($self->{file_mode}), $file;
     }
