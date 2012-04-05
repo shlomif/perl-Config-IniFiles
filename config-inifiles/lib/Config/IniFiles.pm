@@ -1298,7 +1298,6 @@ Returns true on success, C<undef> on failure.
 
 sub WriteConfig {
   my ($self, $file, %parms)=@_;
-  %parms = () unless %parms;
   
   return undef unless defined $file;
   
