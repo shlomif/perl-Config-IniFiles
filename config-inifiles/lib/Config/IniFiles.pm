@@ -1297,7 +1297,7 @@ Returns true on success, C<undef> on failure.
 =cut
 
 sub WriteConfig {
-  my ($self, $file, %parms)=@_;
+  my ($self, $file, %parms) = @_;
   
   return undef unless defined $file;
   
