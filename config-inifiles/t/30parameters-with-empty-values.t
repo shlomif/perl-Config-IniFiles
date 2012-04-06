@@ -23,7 +23,7 @@ sub slurp
 
     local *SLURP;
 
-    open(SLURP, "<$filename") || die "Cannot open $filename: $!";
+    open(SLURP, '<', $filename) or die "Cannot open $filename: $!";
 
     local $/;
     my $retval = <SLURP>;

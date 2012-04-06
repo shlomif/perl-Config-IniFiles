@@ -18,7 +18,7 @@ plan tests => 2;
     my $dir_name = tempdir(CLEANUP => 1);
     my $filename = File::Spec->catfile($dir_name, "foo.ini");
     my $data = join "", <DATA>;
-    open F, ">$filename";
+    open F, '>', $filename;
     print F $data;
     close F;
 
@@ -30,9 +30,9 @@ plan tests => 2;
     $ini->RewriteConfig;
     my $content;
     {
+        open my $fh, '<', $filename;
         local $/;
-        open F, $filename;
-        $content = <F>;
+        $content = <$fh>;
     }
     ok($content !~ /EOT/ && $content =~ /^a=1/m && $content =~ /^a=2/m,
        "No multiline is output");

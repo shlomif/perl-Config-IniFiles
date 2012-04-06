@@ -15,13 +15,11 @@ sub slurp
 {
     my ($filename)=@_;
 
-    local *SLURP;
-
-    open(SLURP, "<$filename") || die "Cannot open $filename: $!";
+    open(my $SLURP, '<', $filename) || die "Cannot open $filename: $!";
 
     local $/;
-    my $retval = <SLURP>;
-    close(SLURP);
+    my $retval = <$SLURP>;
+    close($SLURP);
 
     return $retval;
 }

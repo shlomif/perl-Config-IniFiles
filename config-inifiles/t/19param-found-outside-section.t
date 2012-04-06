@@ -24,9 +24,11 @@ plan tests => 7;
     my $dir_name = tempdir(CLEANUP => 1);
     my $filename = File::Spec->catfile($dir_name, "foo.ini");
     my $data = join "", <DATA>;
-    open F, "> $filename";
-    print F $data;
-    close F;
+    {
+        open my $fh, '>', $filename;
+        print {$fh} $data;
+        close ($fh);
+    }
 
     my $ini = Config::IniFiles->new(-file => $filename);
 
@@ -62,8 +64,8 @@ plan tests => 7;
     $ini->WriteConfig($newfilename);
     {
         local $/;
-        open F, "< $newfilename";
-        $content = <F>;
+        open my $fh, '<', $newfilename;
+        $content = <$fh>;
     }
     ok($content =~ /^wrong/m && $content !~ /^\[GENERAL\]/m,
        "(-fallback) Outputting fallback section without section header");

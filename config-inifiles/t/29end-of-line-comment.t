@@ -36,10 +36,10 @@ my $writefile = "end-trailing-comment-writeback.ini";
     # TEST
     ok($ini->WriteConfig($filename), "Write trailing comments back");
 
-    open my $fh, "< $filename";
+    open my $fh, '<', $filename;
     my $works = 0;
-    while (<$fh>) {
-        $works = 1 if /param1\s*=\s*value1\s*[;#]\s*comment1/;
+    while (my $line = <$fh>) {
+        $works = 1 if ($line =~ /param1\s*=\s*value1\s*[;#]\s*comment1/);
     }
     close $fh;
     # TEST
