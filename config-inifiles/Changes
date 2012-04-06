@@ -1,3 +1,6 @@
+Version 2.70:   ( Fri Apr  6 12:47:25 IDT 2012 )
+------------------------------------------------
+
 * Fix the test dependency (in the new t/31comments_with_spaces.t test)
 on IO::stringy (now writing it to a file).
     - This caused some CPAN Testers failures such as:
