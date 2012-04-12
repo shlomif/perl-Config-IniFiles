@@ -1079,8 +1079,13 @@ sub _touch_section {
     my ($self, $sect)=@_;
 
     $self->{mysects} ||= [];
-    CORE::push @{$self->{mysects}}, $sect unless
-      grep /^\Q$sect\E$/, @{$self->{mysects}};
+
+    if (none { $_ eq $sect } @{$self->{mysects}})
+    {
+        CORE::push @{$self->{mysects}}, $sect;
+    }
+
+    return;
 }
 
 # Marks a parameter as modified by us (this includes deleted by us).
