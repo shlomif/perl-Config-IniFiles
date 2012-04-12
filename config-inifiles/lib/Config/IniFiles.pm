@@ -695,7 +695,7 @@ sub delval {
 
     $self->_caseify(\$sect, \$parm);
 
-    @{$self->{parms}{$sect}} = grep !/^\Q$parm\E$/, @{$self->{parms}{$sect}};
+    $self->{parms}{$sect} = [grep {$_ ne $parm} @{$self->{parms}{$sect}}];
     $self->_touch_parameter($sect, $parm);
     delete $self->{v}{$sect}{$parm};
     return 1
