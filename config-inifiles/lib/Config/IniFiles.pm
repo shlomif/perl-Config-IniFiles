@@ -830,10 +830,7 @@ sub ReadConfig {
       }
   } # end if
   
-  if (    (not exists $self->{cf})
-       or (not defined $self->{cf})
-       or ($self->{cf} eq '')
-  )
+  if (! length($self->{cf}))
   {
       return 1;
   }
