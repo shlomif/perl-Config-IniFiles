@@ -686,19 +686,19 @@ Deletes the specified parameter from the configuration file
 =cut
 
 sub delval {
-  my $self = shift;
-  my $sect = shift;
-  my $parm = shift;
-  
-  return undef if not defined $sect;
-  return undef if not defined $parm;
+    my $self = shift;
+    my $sect = shift;
+    my $parm = shift;
 
-  $self->_caseify(\$sect, \$parm);
+    return undef if not defined $sect;
+    return undef if not defined $parm;
 
-  @{$self->{parms}{$sect}} = grep !/^\Q$parm\E$/, @{$self->{parms}{$sect}};
-  $self->_touch_parameter($sect, $parm);
-  delete $self->{v}{$sect}{$parm};
-  return 1
+    $self->_caseify(\$sect, \$parm);
+
+    @{$self->{parms}{$sect}} = grep !/^\Q$parm\E$/, @{$self->{parms}{$sect}};
+    $self->_touch_parameter($sect, $parm);
+    delete $self->{v}{$sect}{$parm};
+    return 1
 }
 
 =head2 ReadConfig
