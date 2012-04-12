@@ -649,31 +649,34 @@ file.
 =cut
 
 sub newval {
-  my $self = shift;
-  my $sect = shift;
-  my $parm = shift;
-  my @val  = @_;
-  
-  return undef if not defined $sect;
-  return undef if not defined $parm;
+    my $self = shift;
+    my $sect = shift;
+    my $parm = shift;
+    my @val  = @_;
 
-  $self->_caseify(\$sect, \$parm);
+    return undef if not defined $sect;
+    return undef if not defined $parm;
 
-  $self->AddSection($sect);
+    $self->_caseify(\$sect, \$parm);
 
-  if (none { $_ eq $parm } @{$self->{parms}{$sect}})
-  {
-    CORE::push(@{$self->{parms}{$sect}}, $parm) 
-  }
+    $self->AddSection($sect);
 
-  $self->_touch_parameter($sect, $parm);
-  if (@val > 1) {
-    $self->{v}{$sect}{$parm} = \@val;
-    $self->{EOT}{$sect}{$parm} = 'EOT' unless defined $self->{EOT}{$sect}{$parm};
-  } else {
-    $self->{v}{$sect}{$parm} = shift @val;
-  }
-  return 1
+    if (none { $_ eq $parm } @{$self->{parms}{$sect}})
+    {
+        CORE::push(@{$self->{parms}{$sect}}, $parm) 
+    }
+
+    $self->_touch_parameter($sect, $parm);
+    if (@val > 1) {
+        $self->{v}{$sect}{$parm} = \@val;
+        if (!defined $self->{EOT}{$sect}{$parm})
+        {
+            $self->{EOT}{$sect}{$parm} = 'EOT';
+        }
+    } else {
+        $self->{v}{$sect}{$parm} = shift @val;
+    }
+    return 1
 }
 
 =head2 delval($section, $parameter)
