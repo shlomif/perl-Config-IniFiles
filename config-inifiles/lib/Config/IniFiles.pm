@@ -1125,12 +1125,7 @@ sub DeleteSection {
     @{$self->{sects}} = grep !/^\Q$sect\E$/, @{$self->{sects}};
     $self->_touch_section($sect);
 
-    if( $sect =~ /^(\S+)\s+\S+/ ) {
-        my $group = $1;
-        if( defined($self->{group}{$group}) ) {
-            @{$self->{group}{$group}} = grep !/^\Q$sect\E$/, @{$self->{group}{$group}};
-        } # end if
-    } # end if
+    $self->RemoveGroupMember($sect);
 
     return 1;
 } # end DeleteSection
