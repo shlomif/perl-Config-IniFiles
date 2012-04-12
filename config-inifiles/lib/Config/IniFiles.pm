@@ -698,7 +698,8 @@ sub delval {
     $self->{parms}{$sect} = [grep {$_ ne $parm} @{$self->{parms}{$sect}}];
     $self->_touch_parameter($sect, $parm);
     delete $self->{v}{$sect}{$parm};
-    return 1
+
+    return 1;
 }
 
 =head2 ReadConfig
