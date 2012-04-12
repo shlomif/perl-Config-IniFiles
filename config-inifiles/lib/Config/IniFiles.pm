@@ -1090,8 +1090,13 @@ sub _touch_parameter {
     $self->_touch_section($sect);
     return if (!exists $self->{v}{$sect});
     $self->{myparms}{$sect} ||= [];
-    CORE::push @{$self->{myparms}{$sect}}, $parm unless
-        $self->_is_parm_in_sect($sect, $parm);
+
+    if (! $self->_is_parm_in_sect($sect, $parm))
+    {
+        CORE::push @{$self->{myparms}{$sect}}, $parm;
+    }
+
+    return;
 }
 
 
