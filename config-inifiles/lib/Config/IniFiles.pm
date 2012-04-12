@@ -1091,7 +1091,7 @@ sub _touch_parameter {
     return if (!exists $self->{v}{$sect});
     $self->{myparms}{$sect} ||= [];
     CORE::push @{$self->{myparms}{$sect}}, $parm unless
-        $self->_is_parm_in_sect($self, $sect, $parm);
+        $self->_is_parm_in_sect($sect, $parm);
 }
 
 
