@@ -730,9 +730,9 @@ sub _deepcopy {
     }
 
     if (UNIVERSAL::isa($ref, "HASH")) {
-        my $return={};
+        my $return = {};
         foreach my $k (keys %$ref) {
-            $return->{$k}=_deepcopy($ref->{$k});
+            $return->{$k} = _deepcopy($ref->{$k});
         }
         return $return;
     }
