@@ -1044,14 +1044,17 @@ sub AddSection {
     $self->_caseify(\$sect);
 
     return if $self->SectionExists($sect);
-    CORE::push @{$self->{sects}}, $sect unless
-      grep /^\Q$sect\E$/, @{$self->{sects}};
+    CORE::push @{$self->{sects}}, $sect;
     $self->_touch_section($sect);
 
     $self->SetGroupMember($sect);
     
     # Set up the parameter names and values lists
-    $self->{parms}{$sect} = [] unless ref $self->{parms}{$sect} eq 'ARRAY';
+    if (ref($self->{parms}{$sect}) ne 'ARRAY')
+    {
+        $self->{parms}{$sect} = [];
+    }
+
     if (!defined($self->{v}{$sect})) {
         $self->{sCMT}{$sect} = [];
         $self->{pCMT}{$sect} = {};      # Comments above parameters
