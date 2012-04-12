@@ -361,6 +361,13 @@ sub _nocase
     return $self->{nocase};
 }
 
+sub _is_parm_in_sect
+{
+    my ($self, $sect, $parm) = @_;
+
+    return any { $_ eq $parm } @{$self->{myparms}{$sect}};
+}
+
 sub new {
   my $class = shift;
   my %parms = @_;
@@ -961,7 +968,7 @@ sub ReadConfig {
         # Now load value
         if (exists $self->{v}{$sect}{$parm} && 
             exists $self->{myparms}{$sect} && 
-            grep( /^\Q$parm\E$/, @{$self->{myparms}{$sect}}) ) {
+            $self->_is_parm_in_sect($sect, $parm)) {
             $self->push($sect, $parm, @val);
         } else {
             # Loaded parameters shadow imported ones, instead of appending
@@ -1084,7 +1091,7 @@ sub _touch_parameter {
     return if (!exists $self->{v}{$sect});
     $self->{myparms}{$sect} ||= [];
     CORE::push @{$self->{myparms}{$sect}}, $parm unless
-      grep /^\Q$parm\E$/, @{$self->{myparms}{$sect}};
+        $self->_is_parm_in_sect($self, $sect, $parm);
 }
 
 
