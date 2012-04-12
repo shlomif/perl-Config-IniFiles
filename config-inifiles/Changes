@@ -1,5 +1,6 @@
 * Now requiring List::MoreUtils (for any and other functions).
 
+* Add "use warnings;" to lib/Config/IniFiles.pm .
 Version 2.70:   ( Fri Apr  6 12:47:25 IDT 2012 )
 ------------------------------------------------
 

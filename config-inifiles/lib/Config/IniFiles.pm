@@ -6,6 +6,7 @@ $VERSION = '2.70';
 
 require 5.004;
 use strict;
+use warnings;
 use Carp;
 use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
@@ -2295,6 +2296,7 @@ sub _make_filehandle {
 package Config::IniFiles::_section;
 
 use strict;
+use warnings;
 use Carp;
 use vars qw( $VERSION );
 
