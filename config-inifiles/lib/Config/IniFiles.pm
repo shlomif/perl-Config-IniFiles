@@ -769,7 +769,7 @@ sub _nextline {
 
         # If there's a UTF BOM (Byte-Order-Mark) in the first
         # character of the first line then remove it before processing
-        # (http://www.unicode.org/unicode/faq/utf_bom.html#22)
+        # ( http://www.unicode.org/unicode/faq/utf_bom.html#22 )
         s/^﻿//;
 
         return $_;
