@@ -1020,7 +1020,6 @@ sub SectionExists {
     
     $self->_caseify(\$sect);
 
-    return undef() if not defined $sect;
     return 1 if (grep {/^\Q$sect\E$/} @{$self->{sects}});
     return 0;
 }
