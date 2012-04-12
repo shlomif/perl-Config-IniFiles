@@ -719,23 +719,25 @@ problem is in the file.
 # structures.  Ignores blessed objects in tree (could be taught not
 # to, if needed)
 sub _deepcopy {
-  my $ref = shift;
+    my $ref = shift;
 
-  if (! ref($ref)) { return $ref; }
+    if (! ref($ref)) {
+        return $ref;
+    }
 
-  if (UNIVERSAL::isa($ref, "ARRAY")) {
-          return [map {_deepcopy($_)} @$ref];
-  }
+    if (UNIVERSAL::isa($ref, "ARRAY")) {
+        return [map {_deepcopy($_)} @$ref];
+    }
 
-  if (UNIVERSAL::isa($ref, "HASH")) {
-          my $return={};
-          foreach my $k (keys %$ref) {
-                  $return->{$k}=_deepcopy($ref->{$k});
-          }
-          return $return;
-  }
+    if (UNIVERSAL::isa($ref, "HASH")) {
+        my $return={};
+        foreach my $k (keys %$ref) {
+            $return->{$k}=_deepcopy($ref->{$k});
+        }
+        return $return;
+    }
 
-  carp "Unhandled data structure in $ref, cannot _deepcopy()";
+    carp "Unhandled data structure in $ref, cannot _deepcopy()";
 }
 
 # Internal method, gets the next line, taking proper care of line endings.
