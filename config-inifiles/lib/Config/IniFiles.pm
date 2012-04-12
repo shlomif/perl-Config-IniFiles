@@ -9,7 +9,7 @@ use strict;
 use Carp;
 use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 
 @Config::IniFiles::errors = ( );
 
@@ -661,8 +661,10 @@ sub newval {
 
   $self->AddSection($sect);
 
-  CORE::push(@{$self->{parms}{$sect}}, $parm) 
-      unless (grep {/^\Q$parm\E$/} @{$self->{parms}{$sect}} );
+  if (none { $_ eq $parm } @{$self->{parms}{$sect}})
+  {
+    CORE::push(@{$self->{parms}{$sect}}, $parm) 
+  }
 
   $self->_touch_parameter($sect, $parm);
   if (@val > 1) {
