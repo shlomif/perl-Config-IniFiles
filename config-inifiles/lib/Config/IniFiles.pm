@@ -1217,7 +1217,9 @@ sub RemoveGroupMember {
     
     my $group = $1;
     return unless exists $self->{group}{$group};
-    @{$self->{group}{$group}} = grep {!/^\Q$sect\E$/} @{$self->{group}{$group}};
+
+    $self->{group}{$group} =
+        [grep { $_ ne $sect } @{$self->{group}{$group}}];
 }
 
 =head2 GroupMembers ($group)
