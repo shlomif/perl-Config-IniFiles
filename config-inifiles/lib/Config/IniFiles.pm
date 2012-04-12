@@ -1220,6 +1220,8 @@ sub RemoveGroupMember {
 
     $self->{group}{$group} =
         [grep { $_ ne $sect } @{$self->{group}{$group}}];
+
+    return;
 }
 
 =head2 GroupMembers ($group)
