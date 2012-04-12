@@ -1,3 +1,5 @@
+* Now requiring List::MoreUtils (for any and other functions).
+
 Version 2.70:   ( Fri Apr  6 12:47:25 IDT 2012 )
 ------------------------------------------------
 

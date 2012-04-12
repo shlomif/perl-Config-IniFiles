@@ -9,6 +9,8 @@ use strict;
 use Carp;
 use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
+use List::MoreUtils qw(any);
+
 @Config::IniFiles::errors = ( );
 
 #   $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.41 2003-12-08 10:50:56 domq Exp $
@@ -1020,8 +1022,7 @@ sub SectionExists {
     
     $self->_caseify(\$sect);
 
-    return 1 if (grep {/^\Q$sect\E$/} @{$self->{sects}});
-    return 0;
+    return ((any { $_ eq $sect } @{$self->{sects}}) ? 1 : 0);
 }
 
 =head2 AddSection ( $sect_name )
