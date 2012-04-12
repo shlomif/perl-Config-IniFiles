@@ -719,11 +719,9 @@ problem is in the file.
 # structures.  Ignores blessed objects in tree (could be taught not
 # to, if needed)
 sub _deepcopy {
-  my $ref=shift;
+  my $ref = shift;
 
   if (! ref($ref)) { return $ref; }
-
-  local $_;
 
   if (UNIVERSAL::isa($ref, "ARRAY")) {
           return [map {_deepcopy($_)} @$ref];
