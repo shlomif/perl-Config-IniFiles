@@ -801,6 +801,13 @@ sub _rollback {
   } # end if
 }
 
+sub _no_filename
+{
+    my $self = shift;
+
+    return not length $self->{cf};
+}
+
 
 sub ReadConfig {
   my $self = shift;
@@ -838,7 +845,7 @@ sub ReadConfig {
       }
   } # end if
   
-  if (! length($self->{cf}))
+  if ($self->_no_filename)
   {
       return 1;
   }
@@ -1378,12 +1385,11 @@ file should be rewritten.
 sub RewriteConfig {
   my $self = shift;
   
-  return undef if (
-    (not exists $self->{cf}) or
-    (not defined $self->{cf}) or
-    ($self->{cf} eq '')
-  );
-  
+  if ($self->_no_filename)
+  {
+      return 1;
+  }
+
   # Return whatever WriteConfig returns :)
   $self->WriteConfig($self->{cf});
 }
