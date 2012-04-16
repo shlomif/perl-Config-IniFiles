@@ -1863,13 +1863,17 @@ sub DeleteParameterEOT
 {
     my ($self, $sect, $parm) = @_;
     
-    defined($sect) || return undef;
-    defined($parm) || return undef;
+    if (not (defined($sect) && defined($parm)))
+    {
+        return undef;
+    }
     
     $self->_caseify(\$sect, \$parm);
 
     $self->_touch_parameter($sect, $parm);
     delete $self->{EOT}{$sect}{$parm};
+
+    return;
 }
 
 =head2 SetParameterTrailingComment ($section, $parameter, $cmt)
