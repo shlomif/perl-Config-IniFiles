@@ -1861,9 +1861,7 @@ then "EOT" is used.
 
 sub DeleteParameterEOT
 {
-    my $self = shift;
-    my $sect = shift;
-    my $parm = shift;
+    my ($self, $sect, $parm) = @_;
     
     defined($sect) || return undef;
     defined($parm) || return undef;
