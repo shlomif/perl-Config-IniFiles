@@ -1903,7 +1903,8 @@ sub SetParameterTrailingComment
 
     $self->_touch_parameter($sect, $parm);
     $self->{peCMT}{$sect}{$parm} = $cmt;
-    1;
+
+    return 1;
 }
 
 =head2 GetParameterTrailingComment ($section, $parameter)
