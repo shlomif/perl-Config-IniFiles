@@ -1887,10 +1887,7 @@ value should be added first.
 
 sub SetParameterTrailingComment
 {
-    my $self = shift;
-    my $sect = shift;
-    my $parm = shift;
-    my $cmt = shift;
+    my ($self, $sect, $parm, $cmt) = @_;
 
     return undef if not defined $sect;
     return undef if not defined $parm;
