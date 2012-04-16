@@ -1834,10 +1834,11 @@ sub SetParameterEOT
 {
     my ($self, $sect, $parm, $EOT) = @_;
 
-    defined($sect) || return undef;
-    defined($parm) || return undef;
-    defined($EOT) || return undef;
-    
+    if (not (defined($sect) && defined($parm) && defined($EOT)))
+    {
+        return undef;
+    }
+
     $self->_caseify(\$sect, \$parm);
 
     $self->_touch_parameter($sect, $parm);
