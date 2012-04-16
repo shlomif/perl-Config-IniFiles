@@ -1803,22 +1803,15 @@ Accessor method for the EOT text (in fact, style) of the specified parameter. If
 
 sub GetParameterEOT
 {
-    my $self = shift;
-    my $sect = shift;
-    my $parm = shift;
+    my ($self, $sect, $parm) = @_;
 
-    defined($sect) || return undef;
-    defined($parm) || return undef;
-    
-    $self->_caseify(\$sect, \$parm);
-
-    if (not exists $self->{EOT}{$sect}) {
-        $self->{EOT}{$sect} = {};
-    }
-
-    if (not exists $self->{EOT}{$sect}{$parm}) {
+    if (not (defined($sect) && defined($parm)))
+    {
         return undef;
     }
+
+    $self->_caseify(\$sect, \$parm);
+
     return $self->{EOT}{$sect}{$parm};
 }
 
