@@ -1842,9 +1842,6 @@ sub SetParameterEOT
     $self->_caseify(\$sect, \$parm);
 
     $self->_touch_parameter($sect, $parm);
-    if (not exists $self->{EOT}{$sect}) {
-        $self->{EOT}{$sect} = {};
-    }
 
     $self->{EOT}{$sect}{$parm} = $EOT;
 
