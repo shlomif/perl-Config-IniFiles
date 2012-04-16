@@ -2156,7 +2156,8 @@ sub STORE {
   $self->{v}{$key} = {%$ref};
   $self->{parms}{$key} = [keys %$ref];
   $self->{myparms}{$key} = [keys %$ref];
-  1;
+
+  return 1;
 } # end STORE
 
 
