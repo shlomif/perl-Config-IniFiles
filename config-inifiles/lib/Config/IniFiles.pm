@@ -1847,6 +1847,8 @@ sub SetParameterEOT
     }
 
     $self->{EOT}{$sect}{$parm} = $EOT;
+
+    return;
 }
 
 =head2 DeleteParameterEOT ($section, $parmeter)
