@@ -2279,12 +2279,10 @@ sub _make_filehandle {
   }
 
   return $thing if defined(fileno $thing);
-#  return $thing if defined($thing) && ref($thing) && defined(fileno $thing);
   
   # otherwise try qualifying it into caller's package
   my $fh = qualify_to_ref($thing,caller(1));
   return $fh if defined(fileno $fh);
-#  return $fh if defined($thing) && ref($thing) && defined(fileno $fh);
   
   # otherwise treat it as a file to open
   $fh = gensym;
