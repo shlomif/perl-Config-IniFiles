@@ -1832,10 +1832,7 @@ To un-set the EOT text, use DeleteParameterEOT ($section, $parameter).
 
 sub SetParameterEOT
 {
-    my $self = shift;
-    my $sect = shift;
-    my $parm = shift;
-    my $EOT = shift;
+    my ($self, $sect, $parm, $EOT) = @_;
 
     defined($sect) || return undef;
     defined($parm) || return undef;
