@@ -1886,9 +1886,10 @@ sub SetParameterTrailingComment
 {
     my ($self, $sect, $parm, $cmt) = @_;
 
-    return undef if not defined $sect;
-    return undef if not defined $parm;
-    return undef if not defined $cmt;
+    if (not (defined($sect) && defined($parm) && defined($cmt)))
+    {
+        return undef;
+    }
 
     $self->_caseify(\$sect, \$parm);
 
@@ -1914,8 +1915,10 @@ sub GetParameterTrailingComment
 {
     my ($self, $sect, $parm) = @_;
 
-    return undef if not defined $sect;
-    return undef if not defined $parm;
+    if (not (defined($sect) && defined($parm)))
+    {
+        return undef;
+    }
 
     $self->_caseify(\$sect, \$parm);
 
