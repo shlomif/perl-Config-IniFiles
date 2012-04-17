@@ -1753,18 +1753,21 @@ comments - in scalar context returns them joined by newlines.
 
 sub GetParameterComment
 {
-    my $self = shift;
-    my $sect = shift;
-    my $parm = shift;
-    
-    defined($sect) || return undef;
-    defined($parm) || return undef;
-    
+    my ($self, $sect, $parm) = @_;
+
+    if (not (defined($sect) && defined($parm)))
+    {
+        return undef;
+    }
+
     $self->_caseify(\$sect, \$parm);
 
-    exists($self->{pCMT}{$sect}) || return undef;
-    exists($self->{pCMT}{$sect}{$parm}) || return undef;
-    
+    if (not (exists( $self->{pCMT}{$sect} )
+         &&  exists( $self->{pCMT}{$sect}{$parm} )))
+    {
+        return undef;
+    }
+
     my @comment = @{$self->{pCMT}{$sect}{$parm}};
     return wantarray() ? @comment : join((defined $/ ? $/ : "\n"), @comment);
 }
