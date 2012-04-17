@@ -1777,21 +1777,23 @@ Deletes the comment attached to a parameter.
 
 sub DeleteParameterComment
 {
-    my $self = shift;
-    my $sect = shift;
-    my $parm = shift;
-    
-    defined($sect) || return undef;
-    defined($parm) || return undef;
-    
+    my ($self, $sect, $parm) = @_;
+
+    if (not (defined($sect) && defined($parm)))
+    {
+        return undef;
+    }
+
     $self->_caseify(\$sect, \$parm);
 
     # If the parameter doesn't exist, our goal has already been achieved
-    exists($self->{pCMT}{$sect}) || return 1;
-    exists($self->{pCMT}{$sect}{$parm}) || return 1;
+    if (   exists( $self->{pCMT}{$sect} )
+        && exists( $self->{pCMT}{$sect}{$parm} ))
+    {
+        $self->_touch_parameter($sect, $parm);
+        delete $self->{pCMT}{$sect}{$parm};
+    }
 
-    $self->_touch_parameter($sect, $parm);
-    delete $self->{pCMT}{$sect}{$parm};
     return 1;
 }
 
