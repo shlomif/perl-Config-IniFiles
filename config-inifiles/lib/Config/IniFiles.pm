@@ -1457,8 +1457,7 @@ sub _OutputParam {
     if (! @$val) {
         # An empty variable - see:
         # https://rt.cpan.org/Public/Bug/Display.html?id=68554
-        $output_cb->("$parm=");
-        $output_cb->("$ors");
+        $output_cb->("$parm=$ors");
     }
     elsif ((@$val == 1) or $self->{nomultiline}) {
         my $cnt = 0;
