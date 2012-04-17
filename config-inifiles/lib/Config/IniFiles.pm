@@ -1705,26 +1705,21 @@ prepended with one. See L</SetSectionComment($section, @comment)> above
 
 sub SetParameterComment
 {
-    my $self = shift;
-    my $sect = shift;
-    my $parm = shift;
-    my @comment = @_;
+    my ($self, $sect, $parm, @comment) = @_;
 
-    defined($sect) || return undef;
-    defined($parm) || return undef;
-    @comment || return undef;
-    
+    if (not (defined($sect) && defined($parm) && @comment))
+    {
+        return undef;
+    }
+
     $self->_caseify(\$sect, \$parm);
 
     $self->_touch_parameter($sect, $parm);
-    if (not exists $self->{pCMT}{$sect}) {
-        $self->{pCMT}{$sect} = {};
-    }
-    
-    $self->{pCMT}{$sect}{$parm} = [];
+
     # Note that at this point, it's possible to have a comment for a parameter,
     # without that parameter actually existing in the INI file.
-    CORE::push @{$self->{pCMT}{$sect}{$parm}}, $self->_markup_comments(@comment);
+    $self->{pCMT}{$sect}{$parm} = [ $self->_markup_comments(@comment) ];
+
     return scalar @comment;
 }
 
