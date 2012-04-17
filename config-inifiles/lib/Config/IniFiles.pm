@@ -1649,6 +1649,15 @@ used on that line.
 
 =cut
 
+sub _return_comment
+{
+    my ($self, $comment_aref) = @_;
+
+    my $delim = defined($/) ? $/ : "\n";
+
+    return wantarray() ? @$comment_aref : join($delim, @$comment_aref);
+}
+
 sub GetSectionComment
 {
     my ($self, $sect) = @_;
@@ -1657,21 +1666,11 @@ sub GetSectionComment
     
     $self->_caseify(\$sect);
 
-    if (exists $self->{sCMT}{$sect}) {
-        my @ret = @{$self->{sCMT}{$sect}};
-        if (wantarray()) {
-            return @ret;
-        }
-        else {
-            if (defined ($/)) {
-                return join "$/", @ret;
-            } else {
-                return join "\n", @ret;
-            }
-        }
-    } else {
+    if (! exists $self->{sCMT}{$sect}) {
         return undef;
     }
+
+    return $self->_return_comment( $self->{sCMT}{$sect} );
 }
 
 =head2 DeleteSectionComment ($section)
@@ -1764,8 +1763,7 @@ sub GetParameterComment
         return undef;
     }
 
-    my @comment = @{$self->{pCMT}{$sect}{$parm}};
-    return wantarray() ? @comment : join((defined $/ ? $/ : "\n"), @comment);
+    return $self->_return_comment( $self->{pCMT}{$sect}{$parm} );
 }
 
 =head2 DeleteParameterComment ($section, $parmeter)
