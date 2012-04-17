@@ -1692,6 +1692,8 @@ sub DeleteSectionComment
     $self->_touch_section($sect);
 
     delete $self->{sCMT}{$sect};
+
+    return;
 }
 
 =head2 SetParameterComment ($section, $parameter, @comment)
