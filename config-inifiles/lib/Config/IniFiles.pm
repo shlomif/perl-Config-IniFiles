@@ -1452,18 +1452,17 @@ should be set to 1 if writing only delta. Also see OutputConfigToFileHandle
 =cut
 
 sub _OutputParam {
-    my ($self, $sect, $parm, $val, $ors, $end_comment, $output_cb) = @_;
+    my ($self, $sect, $parm, $val, $end_comment, $output_cb) = @_;
 
     my $line_loop = sub {
         my ($mapper) = @_;
 
         foreach my $line (@{$val}[0 .. $#$val-1]) {
-            $output_cb->($mapper->($line), $ors);
+            $output_cb->($mapper->($line));
         }
         $output_cb->(
             $mapper->($val->[-1]),
             ($end_comment ? (" $self->{comment_char} $end_comment") : ()),
-            $ors
         );
         return;
     };
@@ -1471,7 +1470,7 @@ sub _OutputParam {
     if (! @$val) {
         # An empty variable - see:
         # https://rt.cpan.org/Public/Bug/Display.html?id=68554
-        $output_cb->("$parm=$ors");
+        $output_cb->("$parm=");
     }
     elsif ((@$val == 1) or $self->{nomultiline}) {
         $line_loop->(sub { my ($line) = @_; return "$parm=$line"; });
@@ -1488,9 +1487,9 @@ sub _OutputParam {
             $eotmark .= $letters[rand(@letters)];
         }
 
-        $output_cb->("$parm= <<$eotmark$ors");
+        $output_cb->("$parm= <<$eotmark");
         $line_loop->(sub { my ($line) = @_; return $line; });
-        $output_cb->("$eotmark$ors");
+        $output_cb->("$eotmark");
     }
 
     return;
@@ -1569,9 +1568,8 @@ sub OutputConfigToFileHandle {
                     ? $val
                     : [split /[$ors]/, $val, -1]
                 ),
-                $ors,
                 defined $end_comment ? $end_comment : "",
-                sub { print {$fh} @_; },
+                sub { print {$fh} (@_, $ors); },
             );
         }
     }
