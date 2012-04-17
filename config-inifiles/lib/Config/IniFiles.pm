@@ -1601,21 +1601,20 @@ To clear a section comment, use DeleteSectionComment ($section)
 
 sub SetSectionComment
 {
-    my $self = shift;
-    my $sect = shift;
-    my @comment = @_;
+    my ($self, $sect, @comment) = @_;
 
-    return undef if not defined $sect;
-    return undef unless @comment;
-    
+    if (not (defined($sect) && @comment))
+    {
+        return undef;
+    }
+
     $self->_caseify(\$sect);
 
     $self->_touch_section($sect);
-    $self->{sCMT}{$sect} = [];
     # At this point it's possible to have a comment for a section that
     # doesn't exist. This comment will not get written to the INI file.
-    
-    CORE::push @{$self->{sCMT}{$sect}}, $self->_markup_comments(@comment);
+    $self->{sCMT}{$sect} = [ $self->_markup_comments(@comment) ];
+
     return scalar @comment;
 }
 
