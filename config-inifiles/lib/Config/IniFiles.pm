@@ -1580,9 +1580,11 @@ sub OutputConfigToFileHandle {
             );
         }
     }
+
     foreach my $comment ($self->_GetEndComments()) {
         print {$fh} "$comment$ors";
     }
+
     return 1;
 }
 
