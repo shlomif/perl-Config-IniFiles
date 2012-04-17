@@ -1457,17 +1457,14 @@ sub _OutputParam {
     my $line_loop = sub {
         my ($mapper) = @_;
 
-        my $cnt = 0;
-        foreach my $line (@{$val}) {
-            $cnt++;
-            $output_cb->($mapper->($line));
-            # output trailing comment at the last parameter
-            if ($end_comment && $cnt == @$val) {
-                $output_cb->(" $self->{comment_char} $end_comment")
-            }
-            $output_cb->($ors);
+        foreach my $line (@{$val}[0 .. $#$val-1]) {
+            $output_cb->($mapper->($line), $ors);
         }
-
+        $output_cb->(
+            $mapper->($val->[-1]),
+            ($end_comment ? (" $self->{comment_char} $end_comment") : ()),
+            $ors
+        );
         return;
     };
 
