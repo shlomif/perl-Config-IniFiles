@@ -1454,22 +1454,30 @@ should be set to 1 if writing only delta. Also see OutputConfigToFileHandle
 sub _OutputParam {
     my ($self, $sect, $parm, $val, $ors, $end_comment, $output_cb) = @_;
 
+    my $line_loop = sub {
+        my ($mapper) = @_;
+
+        my $cnt = 0;
+        foreach my $line (@{$val}) {
+            $cnt++;
+            $output_cb->($mapper->($line));
+            # output trailing comment at the last parameter
+            if ($end_comment && $cnt == @$val) {
+                $output_cb->(" $self->{comment_char} $end_comment")
+            }
+            $output_cb->($ors);
+        }
+
+        return;
+    };
+
     if (! @$val) {
         # An empty variable - see:
         # https://rt.cpan.org/Public/Bug/Display.html?id=68554
         $output_cb->("$parm=$ors");
     }
     elsif ((@$val == 1) or $self->{nomultiline}) {
-        my $cnt = 0;
-        foreach (@{$val}) {
-            $cnt++;
-            $output_cb->("$parm=$_");
-            # output trailing comment at the last parameter
-            if ($end_comment && $cnt == @$val) {
-                $output_cb->(" $self->{comment_char} $end_comment") 
-            }
-            $output_cb->("$ors");
-        }
+        $line_loop->(sub { my ($line) = @_; return "$parm=$line"; });
     }
     else
     {
@@ -1484,16 +1492,7 @@ sub _OutputParam {
         }
 
         $output_cb->("$parm= <<$eotmark$ors");
-        my $cnt = 0;
-        foreach my $line (@{$val}) {
-            $cnt++;
-            $output_cb->($line);
-            # output trailing comment at the last parameter
-            if ($end_comment && $cnt == @$val) {
-                $output_cb->(" $self->{comment_char} $end_comment")
-            }
-            $output_cb->($ors);
-        }
+        $line_loop->(sub { my ($line) = @_; return $line; });
         $output_cb->("$eotmark$ors");
     }
 
