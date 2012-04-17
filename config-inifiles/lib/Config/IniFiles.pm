@@ -1651,8 +1651,7 @@ used on that line.
 
 sub GetSectionComment
 {
-    my $self = shift;
-    my $sect = shift;
+    my ($self, $sect) = @_;
 
     return undef if not defined $sect;
     
