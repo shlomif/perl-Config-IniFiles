@@ -1513,12 +1513,12 @@ sub OutputConfigToFileHandle {
     no strict 'refs';
     my ($self, $fh, $delta) = @_;
 
-    my($sect, $parm, @cmts);
+    my($parm, @cmts);
     my $ors = $self->{line_ends} || $\ || "\n"; # $\ is normally unset, but use input by default
     my $notfirst = 0;
     local $_;
     SECT:
-    foreach $sect (@{$self->{$delta ? "mysects" : "sects"}}) {
+    foreach my $sect (@{$self->{$delta ? "mysects" : "sects"}}) {
         if (!defined $self->{v}{$sect}) {
             if ($delta) {
                 print {$fh} "$self->{comment_char} [$sect] is deleted$ors";
