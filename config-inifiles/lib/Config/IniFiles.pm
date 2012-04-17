@@ -1613,7 +1613,7 @@ sub SetSectionComment
     $self->_touch_section($sect);
     # At this point it's possible to have a comment for a section that
     # doesn't exist. This comment will not get written to the INI file.
-    $self->{sCMT}{$sect} = [ $self->_markup_comments(@comment) ];
+    $self->{sCMT}{$sect} = $self->_markup_comments(\@comment);
 
     return scalar @comment;
 }
@@ -1624,15 +1624,15 @@ sub SetSectionComment
 # character
 sub _markup_comments 
 {
-  my $self = shift;
-  my @comment = @_;
+    my ($self, $comment_aref) = @_;
 
-  my $allCmt = $self->{allowed_comment_char};
-  my $cmtChr = $self->{comment_char};
-  foreach (@comment) {
-    m/^\s*[$allCmt]/ or ($_ = "$cmtChr $_");
-  }
-  @comment;
+    my $allCmt = $self->{allowed_comment_char};
+    my $cmtChr = $self->{comment_char};
+
+    my $is_comment = qr/\A\s*[$allCmt]/;
+
+    # TODO : Maybe create a qr// out of it.
+    return [map { ($_ =~ $is_comment) ? $_ : "$cmtChr $_" } @$comment_aref];
 }
 
 
@@ -1717,7 +1717,7 @@ sub SetParameterComment
 
     # Note that at this point, it's possible to have a comment for a parameter,
     # without that parameter actually existing in the INI file.
-    $self->{pCMT}{$sect}{$parm} = [ $self->_markup_comments(@comment) ];
+    $self->{pCMT}{$sect}{$parm} = $self->_markup_comments(\@comment);
 
     return scalar @comment;
 }
