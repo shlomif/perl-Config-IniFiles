@@ -1912,9 +1912,7 @@ otherwise, L<undef> will be returned.
 
 sub GetParameterTrailingComment
 {
-    my $self = shift;
-    my $sect = shift;
-    my $parm = shift;
+    my ($self, $sect, $parm) = @_;
 
     return undef if not defined $sect;
     return undef if not defined $parm;
