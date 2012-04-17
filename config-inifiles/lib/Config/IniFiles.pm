@@ -1527,7 +1527,7 @@ sub OutputConfigToFileHandle {
             }
             next SECT;
         }
-        next unless defined $self->{v}{$sect};
+        next SECT unless defined $self->{v}{$sect};
         print {$fh} $ors if $notfirst;
         $notfirst = 1;
         if ((ref($self->{sCMT}{$sect}) eq 'ARRAY') &&
@@ -1543,7 +1543,7 @@ sub OutputConfigToFileHandle {
         {
             print {$fh} "[$sect]$ors";
         }
-        next unless ref $self->{v}{$sect} eq 'HASH';
+        next SECT unless ref $self->{v}{$sect} eq 'HASH';
 
         PARM:
         foreach $parm (@{$self->{$delta ? "myparms" : "parms"}{$sect}}) {
@@ -1565,7 +1565,7 @@ sub OutputConfigToFileHandle {
             my $val = $self->{v}{$sect}{$parm};
             my $end_comment = $self->{peCMT}{$sect}{$parm};
 
-            next if ! defined ($val); # No parameter exists !!
+            next PARM if ! defined ($val); # No parameter exists !!
 
             $self->_OutputParam(
                 $sect,
