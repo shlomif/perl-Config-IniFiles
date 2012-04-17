@@ -750,7 +750,7 @@ sub _deepcopy {
 
 # Internal method, gets the next line, taking proper care of line endings.
 sub _nextline {
-    my ($self, $fh)=@_;
+    my ($self, $fh) = @_;
     local $_;
     if (!exists $self->{line_ends}) {
         # no $self->{line_ends} is a hint set by caller that we are at
@@ -790,7 +790,7 @@ sub _nextline {
 # Internal method, closes or resets the file handle. To be called
 # whenever ReadConfig() returns.
 sub _rollback {
-    my ($self, $fh)=@_;
+    my ($self, $fh) = @_;
   # Only close if this is a filename, if it's
   # an open handle, then just roll back to the start
   if( !ref($self->{cf}) ) {
@@ -1083,7 +1083,7 @@ sub AddSection {
 
 # Marks a section as modified by us (this includes deleted by us).
 sub _touch_section {
-    my ($self, $sect)=@_;
+    my ($self, $sect) = @_;
 
     $self->{mysects} ||= [];
 
@@ -1097,7 +1097,7 @@ sub _touch_section {
 
 # Marks a parameter as modified by us (this includes deleted by us).
 sub _touch_parameter {
-    my ($self, $sect, $parm)=@_;
+    my ($self, $sect, $parm) = @_;
 
     $self->_touch_section($sect);
     return if (!exists $self->{v}{$sect});
@@ -2332,7 +2332,7 @@ $Config::IniFiles::_section::VERSION = 2.16;
 sub TIEHASH {
   my $proto = shift;
   my $class = ref($proto) || $proto;
-  my ($config, $section)=@_;
+  my ($config, $section) = @_;
 
   # Make a new object
   return bless {config=>$config, section=>$section}, $class;
@@ -2355,7 +2355,7 @@ sub TIEHASH {
 # 2002Jul04 Returning scalar values (Bug:447532)          AS
 # ----------------------------------------------------------
 sub FETCH {
-    my ($self, $key)=@_;
+    my ($self, $key) = @_;
     my @retval=$self->{config}->val($self->{section}, $key);
     return (@retval <= 1) ? $retval[0] : \@retval;
 } # end FETCH
@@ -2375,7 +2375,7 @@ sub FETCH {
 # 2001Apr04 Fixed -nocase bug                             JW
 # ----------------------------------------------------------
 sub STORE {
-    my ($self, $key, @val)=@_;
+    my ($self, $key, @val) = @_;
     return $self->{config}->newval($self->{section}, $key, @val);
 } # end STORE
 
@@ -2394,7 +2394,7 @@ sub STORE {
 # 2001Apr04 Fixed -nocase bug                              JW
 # ----------------------------------------------------------
 sub DELETE {
-    my ($self, $key)=@_;
+    my ($self, $key) = @_;
     my $retval=$self->{config}->val($self->{section}, $key);
     $self->{config}->delval($self->{section}, $key);
     return $retval;
@@ -2428,7 +2428,7 @@ sub CLEAR    {
 # 2001Apr04 Fixed -nocase bug                             JW
 # ----------------------------------------------------------
 sub EXISTS   {
-  my ($self, $key)=@_;
+  my ($self, $key) = @_;
   return $self->{config}->exists($self->{section},$key);
 } # end EXISTS
 
