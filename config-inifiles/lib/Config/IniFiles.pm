@@ -1486,14 +1486,14 @@ sub _OutputParam {
 
         $output_cb->("$parm= <<$eotmark$ors");
         my $cnt = 0;
-        foreach (@{$val}) {
+        foreach my $line (@{$val}) {
             $cnt++;
-            $output_cb->("$_");
+            $output_cb->($line);
             # output trailing comment at the last parameter
             if ($end_comment && $cnt == @$val) {
                 $output_cb->(" $self->{comment_char} $end_comment")
             }
-            $output_cb->("$ors");
+            $output_cb->($ors);
         }
         $output_cb->("$eotmark$ors");
     }
