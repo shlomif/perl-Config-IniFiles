@@ -1489,7 +1489,7 @@ sub _OutputParam {
 
         $output_cb->("$parm= <<$eotmark");
         $line_loop->(sub { my ($line) = @_; return $line; });
-        $output_cb->("$eotmark");
+        $output_cb->($eotmark);
     }
 
     return;
