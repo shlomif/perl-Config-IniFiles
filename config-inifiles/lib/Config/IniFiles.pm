@@ -1583,7 +1583,7 @@ sub OutputConfigToFileHandle {
                     ? $val
                     : [split /[$ors]/, $val, -1]
                 ),
-                defined $end_comment ? $end_comment : "",
+                (defined($end_comment) ? $end_comment : ""),
                 $print_line,
             );
         }
