@@ -1516,7 +1516,6 @@ sub OutputConfigToFileHandle {
     no strict 'refs';
     my ($self, $fh, $delta) = @_;
 
-    my (@cmts);
     my $ors = $self->{line_ends} || $\ || "\n"; # $\ is normally unset, but use input by default
     my $notfirst = 0;
     local $_;
@@ -1533,10 +1532,9 @@ sub OutputConfigToFileHandle {
         next SECT unless defined $self->{v}{$sect};
         print {$fh} $ors if $notfirst;
         $notfirst = 1;
-        if ((ref($self->{sCMT}{$sect}) eq 'ARRAY') &&
-            (@cmts = @{$self->{sCMT}{$sect}})) {
-            foreach (@cmts) {
-                print {$fh} "$_$ors";
+        if (ref($self->{sCMT}{$sect}) eq 'ARRAY') {
+            foreach my $comment (@{$self->{sCMT}{$sect}}) {
+                print {$fh} "$comment$ors";
             }
         }
 
@@ -1558,10 +1556,9 @@ sub OutputConfigToFileHandle {
                 }
                 next PARM;
             }
-            if ((ref($self->{pCMT}{$sect}{$parm}) eq 'ARRAY') &&
-                (@cmts = @{$self->{pCMT}{$sect}{$parm}})) {
-                foreach (@cmts) {
-                    print {$fh} "$_$ors";
+            if (ref($self->{pCMT}{$sect}{$parm}) eq 'ARRAY') {
+                foreach my $comment (@{$self->{pCMT}{$sect}{$parm}}) {
+                    print {$fh} "$comment$ors";
                 }
             }
 
