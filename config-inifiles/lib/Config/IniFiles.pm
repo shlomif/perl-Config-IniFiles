@@ -1523,6 +1523,37 @@ sub _output_comments
     return;
 }
 
+sub _output_param_total
+{
+    my ($self, $sect, $parm, $print_line, $split_val, $delta) = @_;
+    if (!defined $self->{v}{$sect}{$parm}) {
+        if ($delta) {
+            $print_line->("$self->{comment_char} $parm is deleted");
+        }
+        else {
+            warn "Weird unknown parameter $parm" if $^W;
+        }
+        return;
+    }
+
+    $self->_output_comments($print_line, $self->{pCMT}{$sect}{$parm});
+
+    my $val = $self->{v}{$sect}{$parm};
+    my $end_comment = $self->{peCMT}{$sect}{$parm};
+
+    return if ! defined ($val); # No parameter exists !!
+
+    $self->_OutputParam(
+        $sect,
+        $parm, 
+        $split_val->($val),
+        (defined($end_comment) ? $end_comment : ""),
+        $print_line,
+    );
+
+    return;
+}
+
 sub OutputConfigToFileHandle {
     # We need no strict 'refs' to be able to print to $fh if it points
     # to a glob filehandle.
@@ -1531,6 +1562,14 @@ sub OutputConfigToFileHandle {
 
     my $ors = $self->{line_ends} || $\ || "\n"; # $\ is normally unset, but use input by default
     my $print_line = sub { print {$fh} (@_, $ors); };
+    my $split_val = sub { 
+        my ($val) = @_;
+
+        return ((ref($val) eq 'ARRAY')
+            ? $val
+            : [split /[$ors]/, $val, -1]
+        );
+    };
 
     my $notfirst = 0;
 
@@ -1560,31 +1599,8 @@ sub OutputConfigToFileHandle {
 
         PARM:
         foreach my $parm (@{$self->{$delta ? "myparms" : "parms"}{$sect}}) {
-            if (!defined $self->{v}{$sect}{$parm}) {
-                if ($delta) {
-                    print {$fh} "$self->{comment_char} $parm is deleted$ors";
-                } else {
-                    warn "Weird unknown parameter $parm" if $^W;
-                }
-                next PARM;
-            }
-
-            $self->_output_comments($print_line, $self->{pCMT}{$sect}{$parm});
-
-            my $val = $self->{v}{$sect}{$parm};
-            my $end_comment = $self->{peCMT}{$sect}{$parm};
-
-            next PARM if ! defined ($val); # No parameter exists !!
-
-            $self->_OutputParam(
-                $sect,
-                $parm, 
-                ((ref($val) eq 'ARRAY')
-                    ? $val
-                    : [split /[$ors]/, $val, -1]
-                ),
-                (defined($end_comment) ? $end_comment : ""),
-                $print_line,
+            $self->_output_param_total(
+                $sect, $parm, $print_line, $split_val, $delta
             );
         }
     }
