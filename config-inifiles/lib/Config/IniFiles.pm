@@ -1516,7 +1516,7 @@ sub OutputConfigToFileHandle {
     no strict 'refs';
     my ($self, $fh, $delta) = @_;
 
-    my($parm, @cmts);
+    my (@cmts);
     my $ors = $self->{line_ends} || $\ || "\n"; # $\ is normally unset, but use input by default
     my $notfirst = 0;
     local $_;
@@ -1549,7 +1549,7 @@ sub OutputConfigToFileHandle {
         next SECT unless ref $self->{v}{$sect} eq 'HASH';
 
         PARM:
-        foreach $parm (@{$self->{$delta ? "myparms" : "parms"}{$sect}}) {
+        foreach my $parm (@{$self->{$delta ? "myparms" : "parms"}{$sect}}) {
             if (!defined $self->{v}{$sect}{$parm}) {
                 if ($delta) {
                     print {$fh} "$self->{comment_char} $parm is deleted$ors";
