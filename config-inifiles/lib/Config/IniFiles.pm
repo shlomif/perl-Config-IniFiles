@@ -1510,6 +1510,19 @@ sub OutputConfig {
     return $self->OutputConfigToFileHandle(select(), $delta);
 }
 
+sub _output_comments
+{
+    my ($self, $print_line, $comments_aref) = @_;
+
+    if (ref($comments_aref) eq 'ARRAY') {
+        foreach my $comment (@$comments_aref) {
+            $print_line->($comment);
+        }
+    }
+
+    return;
+}
+
 sub OutputConfigToFileHandle {
     # We need no strict 'refs' to be able to print to $fh if it points
     # to a glob filehandle.
@@ -1517,7 +1530,10 @@ sub OutputConfigToFileHandle {
     my ($self, $fh, $delta) = @_;
 
     my $ors = $self->{line_ends} || $\ || "\n"; # $\ is normally unset, but use input by default
+    my $print_line = sub { print {$fh} (@_, $ors); };
+
     my $notfirst = 0;
+
     local $_;
     SECT:
     foreach my $sect (@{$self->{$delta ? "mysects" : "sects"}}) {
@@ -1532,11 +1548,7 @@ sub OutputConfigToFileHandle {
         next SECT unless defined $self->{v}{$sect};
         print {$fh} $ors if $notfirst;
         $notfirst = 1;
-        if (ref($self->{sCMT}{$sect}) eq 'ARRAY') {
-            foreach my $comment (@{$self->{sCMT}{$sect}}) {
-                print {$fh} "$comment$ors";
-            }
-        }
+        $self->_output_comments($print_line, $self->{sCMT}{$sect});
 
         if (!
             ($self->{fallback_used} and $sect eq $self->{fallback})
@@ -1556,11 +1568,8 @@ sub OutputConfigToFileHandle {
                 }
                 next PARM;
             }
-            if (ref($self->{pCMT}{$sect}{$parm}) eq 'ARRAY') {
-                foreach my $comment (@{$self->{pCMT}{$sect}{$parm}}) {
-                    print {$fh} "$comment$ors";
-                }
-            }
+
+            $self->_output_comments($print_line, $self->{pCMT}{$sect}{$parm});
 
             my $val = $self->{v}{$sect}{$parm};
             my $end_comment = $self->{peCMT}{$sect}{$parm};
@@ -1575,14 +1584,12 @@ sub OutputConfigToFileHandle {
                     : [split /[$ors]/, $val, -1]
                 ),
                 defined $end_comment ? $end_comment : "",
-                sub { print {$fh} (@_, $ors); },
+                $print_line,
             );
         }
     }
 
-    foreach my $comment ($self->_GetEndComments()) {
-        print {$fh} "$comment$ors";
-    }
+    $self->_output_comments($print_line, [ $self->_GetEndComments() ] );
 
     return 1;
 }
