@@ -1451,6 +1451,23 @@ should be set to 1 if writing only delta. Also see OutputConfigToFileHandle
 
 =cut
 
+sub _calc_eot_mark
+{
+    my ($self, $sect, $parm, $val) = @_;
+
+    my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
+
+    # Make sure the $eotmark does not occur inside the string.
+    my @letters = ('A' .. 'Z');
+    my $joined_val = join(q{ }, @$val);
+    while (index($joined_val, $eotmark) >= 0)
+    {
+        $eotmark .= $letters[rand(@letters)];
+    }
+
+    return $eotmark;
+}
+
 sub _OutputParam {
     my ($self, $sect, $parm, $val, $end_comment, $output_cb) = @_;
 
@@ -1477,15 +1494,7 @@ sub _OutputParam {
     }
     else
     {
-        my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
-
-        # Make sure the $eotmark does not occur inside the string.
-        my @letters = ('A' .. 'Z');
-        my $joined_val = join(q{ }, @$val);
-        while (index($joined_val, $eotmark) >= 0)
-        {
-            $eotmark .= $letters[rand(@letters)];
-        }
+        my $eotmark = $self->_calc_eot_mark($sect, $parm, $val);
 
         $output_cb->("$parm= <<$eotmark");
         $line_loop->(sub { my ($line) = @_; return $line; });
