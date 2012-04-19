@@ -1554,6 +1554,39 @@ sub _output_param_total
     return;
 }
 
+sub _output_section {
+    my ($self, $sect, $print_line, $split_val, $delta, $notfirst) = @_;
+
+    if (!defined $self->{v}{$sect}) {
+        if ($delta) {
+            $print_line->("$self->{comment_char} [$sect] is deleted");
+        } else {
+            warn "Weird unknown section $sect" if $^W;
+        }
+        return;
+    }
+    return if not defined $self->{v}{$sect};
+    $print_line->() if $notfirst;
+    $notfirst = 1;
+    $self->_output_comments($print_line, $self->{sCMT}{$sect});
+
+    if (!
+        ($self->{fallback_used} and $sect eq $self->{fallback})
+    )
+    {
+        $print_line->("[$sect]");
+    }
+    return if ref($self->{v}{$sect}) ne 'HASH';
+
+    foreach my $parm (@{$self->{$delta ? "myparms" : "parms"}{$sect}}) {
+        $self->_output_param_total(
+            $sect, $parm, $print_line, $split_val, $delta
+        );
+    }
+    
+    return;
+}
+
 sub OutputConfigToFileHandle {
     # We need no strict 'refs' to be able to print to $fh if it points
     # to a glob filehandle.
@@ -1574,34 +1607,10 @@ sub OutputConfigToFileHandle {
     my $notfirst = 0;
 
     local $_;
-    SECT:
     foreach my $sect (@{$self->{$delta ? "mysects" : "sects"}}) {
-        if (!defined $self->{v}{$sect}) {
-            if ($delta) {
-                $print_line->("$self->{comment_char} [$sect] is deleted");
-            } else {
-                warn "Weird unknown section $sect" if $^W;
-            }
-            next SECT;
-        }
-        next SECT unless defined $self->{v}{$sect};
-        $print_line->() if $notfirst;
-        $notfirst = 1;
-        $self->_output_comments($print_line, $self->{sCMT}{$sect});
-
-        if (!
-            ($self->{fallback_used} and $sect eq $self->{fallback})
-        )
-        {
-            $print_line->("[$sect]");
-        }
-        next SECT unless ref $self->{v}{$sect} eq 'HASH';
-
-        foreach my $parm (@{$self->{$delta ? "myparms" : "parms"}{$sect}}) {
-            $self->_output_param_total(
-                $sect, $parm, $print_line, $split_val, $delta
-            );
-        }
+        $self->_output_section(
+            $sect, $print_line, $split_val, $delta, $notfirst++
+        );
     }
 
     $self->_output_comments($print_line, [ $self->_GetEndComments() ] );
