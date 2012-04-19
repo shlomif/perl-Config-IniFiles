@@ -1578,14 +1578,14 @@ sub OutputConfigToFileHandle {
     foreach my $sect (@{$self->{$delta ? "mysects" : "sects"}}) {
         if (!defined $self->{v}{$sect}) {
             if ($delta) {
-                print {$fh} "$self->{comment_char} [$sect] is deleted$ors";
+                $print_line->("$self->{comment_char} [$sect] is deleted");
             } else {
                 warn "Weird unknown section $sect" if $^W;
             }
             next SECT;
         }
         next SECT unless defined $self->{v}{$sect};
-        print {$fh} $ors if $notfirst;
+        $print_line->() if $notfirst;
         $notfirst = 1;
         $self->_output_comments($print_line, $self->{sCMT}{$sect});
 
@@ -1593,7 +1593,7 @@ sub OutputConfigToFileHandle {
             ($self->{fallback_used} and $sect eq $self->{fallback})
         )
         {
-            print {$fh} "[$sect]$ors";
+            $print_line->("[$sect]");
         }
         next SECT unless ref $self->{v}{$sect} eq 'HASH';
 
