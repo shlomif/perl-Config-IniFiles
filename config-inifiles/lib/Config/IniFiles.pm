@@ -1605,7 +1605,6 @@ sub OutputConfigToFileHandle {
 
     my $position = 0;
 
-    local $_;
     foreach my $sect (@{$self->{$delta ? "mysects" : "sects"}}) {
         $self->_output_section(
             $sect, $print_line, $split_val, $delta, $position++
