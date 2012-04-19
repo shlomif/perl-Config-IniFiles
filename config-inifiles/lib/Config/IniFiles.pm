@@ -1597,7 +1597,6 @@ sub OutputConfigToFileHandle {
         }
         next SECT unless ref $self->{v}{$sect} eq 'HASH';
 
-        PARM:
         foreach my $parm (@{$self->{$delta ? "myparms" : "parms"}{$sect}}) {
             $self->_output_param_total(
                 $sect, $parm, $print_line, $split_val, $delta
