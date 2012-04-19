@@ -1562,7 +1562,7 @@ sub OutputConfigToFileHandle {
 
     my $ors = $self->{line_ends} || $\ || "\n"; # $\ is normally unset, but use input by default
     my $print_line = sub { print {$fh} (@_, $ors); };
-    my $split_val = sub { 
+    my $split_val = sub {
         my ($val) = @_;
 
         return ((ref($val) eq 'ARRAY')
