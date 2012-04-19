@@ -1555,7 +1555,7 @@ sub _output_param_total
 }
 
 sub _output_section {
-    my ($self, $sect, $print_line, $split_val, $delta, $notfirst) = @_;
+    my ($self, $sect, $print_line, $split_val, $delta, $position) = @_;
 
     if (!defined $self->{v}{$sect}) {
         if ($delta) {
@@ -1566,8 +1566,7 @@ sub _output_section {
         return;
     }
     return if not defined $self->{v}{$sect};
-    $print_line->() if $notfirst;
-    $notfirst = 1;
+    $print_line->() if ($position > 0);
     $self->_output_comments($print_line, $self->{sCMT}{$sect});
 
     if (!
@@ -1604,12 +1603,12 @@ sub OutputConfigToFileHandle {
         );
     };
 
-    my $notfirst = 0;
+    my $position = 0;
 
     local $_;
     foreach my $sect (@{$self->{$delta ? "mysects" : "sects"}}) {
         $self->_output_section(
-            $sect, $print_line, $split_val, $delta, $notfirst++
+            $sect, $print_line, $split_val, $delta, $position++
         );
     }
 
