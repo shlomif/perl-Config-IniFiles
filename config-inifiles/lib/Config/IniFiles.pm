@@ -1425,16 +1425,14 @@ Returns $filename if that was a valid name, undef otherwise.
 =cut
 
 sub SetFileName {
-    my $self = shift;
-    my $newfile = shift;
+    my ($self, $new_filename) = @_;
 
-    return undef if not defined $newfile;
-
-    if ($newfile ne "") {
-        $self->{cf} = $newfile;
-        return $self->{cf};
+    if ( length($new_filename) > 0 ) {
+        return ($self->{cf} = $new_filename);
     }
-    return undef;
+    else {
+        return undef;
+    }
 }
 
 =head2 $ini->OutputConfigToFileHandle($fh, $delta)
