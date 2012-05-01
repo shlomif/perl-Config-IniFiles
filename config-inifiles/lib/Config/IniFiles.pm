@@ -1405,13 +1405,8 @@ If no filename has been specified, returns undef.
 sub GetFileName
 {
     my $self = shift;
-    my $filename;
-    if (exists $self->{cf}) {
-        $filename = $self->{cf};
-    } else {
-        undef $filename;
-    }
-    return $filename;
+
+    return $self->{cf};
 }
 
 =head2 SetFileName ($filename)
