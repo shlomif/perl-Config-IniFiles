@@ -1383,15 +1383,14 @@ file should be rewritten.
 =cut
 
 sub RewriteConfig {
-  my $self = shift;
-  
-  if ($self->_no_filename)
-  {
-      return 1;
-  }
+    my $self = shift;
 
-  # Return whatever WriteConfig returns :)
-  $self->WriteConfig($self->{cf});
+    if ($self->_no_filename)
+    {
+        return 1;
+    }
+
+    return $self->WriteConfig($self->{cf});
 }
 
 =head2 GetFileName
