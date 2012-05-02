@@ -1,3 +1,7 @@
+* More refactoring.
+
+* Now requiring Fcntl (which is a core module) for SEEK_SET() and SEEK_CUR().
+
 Version 2.71:   ( Wed May  2 10:59:04 IDT 2012 )
 ------------------------------------------------
 

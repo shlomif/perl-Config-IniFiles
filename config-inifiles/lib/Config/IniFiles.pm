@@ -9,6 +9,7 @@ use strict;
 use warnings;
 use Carp;
 use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
+use Fcntl qw( SEEK_SET SEEK_CUR );
 
 use List::MoreUtils qw(any none);
 
@@ -773,7 +774,7 @@ sub _nextline {
                 if ($nextchar eq "\x0a") {
                     $self->{line_ends} .= "\x0a";
                 } else {
-                    seek $fh, -1, 1;
+                    seek $fh, -1, SEEK_CUR();
                 }
             }
         }
@@ -800,7 +801,7 @@ sub _rollback {
     close($fh);
   } else {
     # Attempt to rollback to beginning, no problem if this fails (e.g. STDIN)
-    seek( $fh, 0, 0 );
+    seek( $fh, 0, SEEK_SET() );
   } # end if
 }
 
@@ -1366,9 +1367,9 @@ sub _write_config_to_fh
     }
     else
     {
-        seek( $fh, 0, 0 );
+        seek( $fh, 0, SEEK_SET() );
         $self->OutputConfigToFileHandle($fh, $parms{-delta});
-        seek( $fh, 0, 0 );
+        seek( $fh, 0, SEEK_SET() );
     } # end if
 
     return 1;
