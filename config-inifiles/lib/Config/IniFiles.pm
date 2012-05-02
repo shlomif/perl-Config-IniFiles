@@ -1313,6 +1313,38 @@ Returns true on success, C<undef> on failure.
 
 =cut
 
+sub _write_config_to_filename
+{
+    my ($self, $file, %parms) = @_;
+
+    if (-e $file) {
+        if (not (-w $file))
+        {
+            #carp "File $file is not writable.  Refusing to write config";
+            return undef;
+        }
+        my $mode = (stat $file)[2];
+        $self->{file_mode} = sprintf "%04o", ($mode & 0777);
+        #carp "Using mode $self->{file_mode} for file $file";
+    }
+
+    my ($fh, $new_file) = tempfile(
+        "temp.ini-XXXXXXXXXX",
+        DIR => dirname($file)
+    );
+    $self->OutputConfigToFileHandle($fh, $parms{-delta});
+    close($fh);
+    if (!rename( $new_file, $file )) {
+        carp "Unable to rename temp config file ($new_file) to $file: $!";
+        return undef;
+    }
+    if (exists $self->{file_mode}) {
+        chmod oct($self->{file_mode}), $file;
+    }
+
+    return 1;
+}
+
 sub WriteConfig {
     my ($self, $file, %parms) = @_;
 
@@ -1320,34 +1352,9 @@ sub WriteConfig {
 
     # If we are using a filename, then do mode checks and write to a 
     # temporary file to avoid a race condition
-    if( !ref($file) ) {
-        if (-e $file) {
-            if (not (-w $file))
-            {
-                #carp "File $file is not writable.  Refusing to write config";
-                return undef;
-            }
-            my $mode = (stat $file)[2];
-            $self->{file_mode} = sprintf "%04o", ($mode & 0777);
-            #carp "Using mode $self->{file_mode} for file $file";
-        } elsif (defined($self->{file_mode}) and not (oct($self->{file_mode}) & 0222)) {
-            #carp "Store mode $self->{file_mode} prohibits writing config";
-        }
-
-        my ($fh, $new_file) = tempfile(
-            "temp.ini-XXXXXXXXXX",
-            DIR => dirname($file)
-        );
-        $self->OutputConfigToFileHandle($fh, $parms{-delta});
-        close($fh);
-        if (!rename( $new_file, $file )) {
-            carp "Unable to rename temp config file ($new_file) to $file: $!";
-            return undef;
-        }
-        if (exists $self->{file_mode}) {
-            chmod oct($self->{file_mode}), $file;
-        }
-
+    if( !ref($file) )
+    {
+        return $self->_write_config_to_filename($file, %parms);
     } # Otherwise, reset to the start of the file and write, unless we are using STDIN
     else {
         # Get a filehandle, allowing almost any type of 'file' parameter
