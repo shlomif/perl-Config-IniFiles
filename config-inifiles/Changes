@@ -1,4 +1,9 @@
-* Now requiring List::MoreUtils (for any() and other functions).
+* SECURITY BUG FIX: Config::IniFiles used to write to a temporary filename
+with a predictable name ("${filename}-new") which opens the door for potential
+exploits.
+
+* Now requiring List::MoreUtils (for any() and other functions), File::Temp
+and File::Basename .
 
 * Add "use warnings;" to lib/Config/IniFiles.pm .
 

@@ -12,6 +12,9 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 
 use List::MoreUtils qw(any none);
 
+use File::Basename qw( dirname );
+use File::Temp qw/ tempfile /;
+
 @Config::IniFiles::errors = ( );
 
 #   $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.41 2003-12-08 10:50:56 domq Exp $
@@ -1331,11 +1334,10 @@ sub WriteConfig {
             #carp "Store mode $self->{file_mode} prohibits writing config";
         }
 
-        my $new_file = $file . "-new";
-        open(my $fh, '>', $new_file) || do {
-            carp "Unable to write temp config file $new_file: $!";
-            return undef;
-        };
+        my ($fh, $new_file) = tempfile(
+            "temp.ini-XXXXXXXXXX",
+            DIR => dirname($file)
+        );
         $self->OutputConfigToFileHandle($fh, $parms{-delta});
         close($fh);
         if (!rename( $new_file, $file )) {

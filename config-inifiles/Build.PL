@@ -31,6 +31,8 @@ my $builder = Test::Run::Builder->new(
         'Carp' => 0,
         'Symbol' => 0,
         'warnings' => 0,
+        'File::Basename' => 0,
+        'File::Temp' => 0,
         'List::MoreUtils' => 0,
     },
     create_makefile_pl => 'small',
