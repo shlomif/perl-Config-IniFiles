@@ -40,7 +40,7 @@ my $builder = Test::Run::Builder->new(
     {
         resources =>
         {
-            repository => "http://config-inifiles.svn.sourceforge.net/svnroot/config-inifiles/",
+            repository => "https://bitbucket.org/shlomif/perl-config-inifiles",
             homepage => "https://sourceforge.net/projects/config-inifiles/",
         },
         keywords =>
