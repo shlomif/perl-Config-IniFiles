@@ -1,3 +1,6 @@
+Version 2.71:   ( Wed May  2 10:59:04 IDT 2012 )
+------------------------------------------------
+
 * SECURITY BUG FIX: Config::IniFiles used to write to a temporary filename
 with a predictable name ("${filename}-new") which opens the door for potential
 exploits.
