@@ -1345,6 +1345,35 @@ sub _write_config_to_filename
     return 1;
 }
 
+sub _write_config_to_fh
+{
+    my ($self, $file, %parms) = @_;
+
+    # Get a filehandle, allowing almost any type of 'file' parameter
+    ## NB: If this were a filename, this would fail because _make_file 
+    ##     opens a read-only handle, but we have already checked that case
+    ##     so re-using the logic is ok [JW/WADG]
+    my $fh = $self->_make_filehandle( $file );
+    if (!$fh) {
+        carp "Could not find a filehandle for the input stream ($file): $!";
+        return undef;
+    }
+
+    # Only roll back if it's not STDIN (if it is, Carp)
+    if( $fh == \*STDIN )
+    {
+        carp "Cannot write configuration file to STDIN.";
+    }
+    else
+    {
+        seek( $fh, 0, 0 );
+        $self->OutputConfigToFileHandle($fh, $parms{-delta});
+        seek( $fh, 0, 0 );
+    } # end if
+
+    return 1;
+}
+
 sub WriteConfig {
     my ($self, $file, %parms) = @_;
 
@@ -1355,32 +1384,13 @@ sub WriteConfig {
     if( !ref($file) )
     {
         return $self->_write_config_to_filename($file, %parms);
-    } # Otherwise, reset to the start of the file and write, unless we are using STDIN
-    else {
-        # Get a filehandle, allowing almost any type of 'file' parameter
-        ## NB: If this were a filename, this would fail because _make_file 
-        ##     opens a read-only handle, but we have already checked that case
-        ##     so re-using the logic is ok [JW/WADG]
-        my $fh = $self->_make_filehandle( $file );
-        if (!$fh) {
-            carp "Could not find a filehandle for the input stream ($file): $!";
-            return undef;
-        }
-
-
-        # Only roll back if it's not STDIN (if it is, Carp)
-        if( $fh == \*STDIN ) {
-            carp "Cannot write configuration file to STDIN.";
-        } else {
-            seek( $fh, 0, 0 );
-            $self->OutputConfigToFileHandle($fh, $parms{-delta});
-            seek( $fh, 0, 0 );
-        } # end if
-
-    } # end if (filehandle/name)
-
-    return 1;
-  
+    } 
+    # Otherwise, reset to the start of the file and write, unless we are using
+    # STDIN
+    else
+    {
+        return $self->_write_config_to_fh($file, %parms);
+    }
 }
 
 =head2 RewriteConfig
