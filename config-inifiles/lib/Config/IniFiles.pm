@@ -1219,9 +1219,8 @@ appropriate group. Only intended for use in DeleteSection.
 =cut
 
 sub RemoveGroupMember {
-    my $self = shift;
-    my $sect = shift;
-    
+    my ($self, $sect) = @_;
+
     return undef if not defined $sect;
     
     return(1) unless $sect =~ /^(\S+)\s+\S+/;
