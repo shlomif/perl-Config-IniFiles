@@ -917,7 +917,6 @@ sub _ReadConfig_lines_loop
     my ($self, $fh) = @_;
 
     my $allCmt = $self->{allowed_comment_char};
-    my $nocase = $self->_nocase;
     my $end_commenthandle = $self->{handle_trailing_comment};
 
     $self->_curr_sect(undef());
@@ -975,7 +974,7 @@ sub _ReadConfig_lines_loop
                 return undef;
             }
 
-            $parm = lc($parm) if $nocase;
+            $self->_caseify(\$parm);
             $self->_curr_parm($parm);
             my @val = ( );
             my $eotmark;
