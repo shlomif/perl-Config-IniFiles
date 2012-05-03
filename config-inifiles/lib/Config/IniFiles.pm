@@ -1656,7 +1656,7 @@ sub _process_continue_val
         return;
     }
 
-    while(${$val_ref} =~ s/\\$//) {
+    while(${$val_ref} =~ s/\\\z//) {
         ${$val_ref} .= $self->_read_next_line($fh);
     }
 
