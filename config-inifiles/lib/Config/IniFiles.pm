@@ -1195,19 +1195,25 @@ Only intended for use in newval.
 =cut
 
 sub SetGroupMember {
-    my $self = shift;
-    my $sect = shift;
-    
+    my ($self, $sect) = @_;
+
     return undef if not defined $sect;
-    
-    return(1) unless $sect =~ /^(\S+)\s+\S+/;
-    
-    my $group = $1;
-    if (not exists($self->{group}{$group})) {
-        $self->{group}{$group} = [];
+
+    if (! (my ($group) = ($sect =~ /\A(\S+)\s+\S/)))
+    {
+        return 1;
     }
-    if (not grep {/^\Q$sect\E$/} @{$self->{group}{$group}}) {
-        CORE::push @{$self->{group}{$group}}, $sect;
+    else
+    {
+        if (not exists($self->{group}{$group})) {
+            $self->{group}{$group} = [];
+        }
+
+        if (none {$_ eq $sect} @{$self->{group}{$group}}) {
+            CORE::push @{$self->{group}{$group}}, $sect;
+        }
+
+        return;
     }
 }
 
