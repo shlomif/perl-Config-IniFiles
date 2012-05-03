@@ -853,12 +853,25 @@ sub _add_error
     return;
 }
 
+# The current section - used for parsing.
+sub _curr_sect
+{
+    my $self = shift;
+
+    if (@_)
+    {
+        $self->{_curr_sect} = shift;
+    }
+
+    return $self->{_curr_sect};
+}
+
 sub _ReadConfig_lines_loop
 {
     my ($self, $fh) = @_;
 
     # The current section - a loop state variable.
-    my ($sect, $val, @cmts, $parm);
+    my ($val, @cmts, $parm);
 
     my $allCmt = $self->{allowed_comment_char};
     my $nocase = $self->_nocase;
@@ -878,7 +891,7 @@ sub _ReadConfig_lines_loop
                 if ($todelete =~ m/\A\[(.*)\]\z/) {
                     $self->DeleteSection($1);
                 } else {
-                    $self->delval($sect, $todelete);
+                    $self->delval($self->_curr_sect, $todelete);
                 }
             } else {
                 CORE::push(@cmts, $line);
@@ -888,21 +901,22 @@ sub _ReadConfig_lines_loop
 
         # New Section
         if ($line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/) {
-            $sect = $1;
+            my $sect = $1;
             $self->_caseify(\$sect);
-            $self->AddSection($sect);
-            $self->SetSectionComment($sect, @cmts);
+            $self->_curr_sect($sect);
+            $self->AddSection($self->_curr_sect);
+            $self->SetSectionComment($self->_curr_sect, @cmts);
             @cmts = ();
         }
         # New parameter
         elsif (($parm, $val) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
             my $end_comment;
-            if ((!defined($sect)) and defined($self->{fallback}))
+            if ((!defined($self->_curr_sect)) and defined($self->{fallback}))
             {
-                $sect = $self->{fallback};
+                $self->_curr_sect($self->{fallback});
                 $self->{fallback_used}++;
             }
-            if (!defined $sect) {
+            if (!defined $self->_curr_sect) {
                 $self->_add_error(
                     sprintf('%d: %s', $self->_read_line_num(), 
                         qq#parameter found outside a section#
@@ -952,20 +966,20 @@ sub _ReadConfig_lines_loop
                 @val = $val;
             }
             # Now load value
-            if (exists $self->{v}{$sect}{$parm} &&
-                exists $self->{myparms}{$sect} &&
-                $self->_is_parm_in_sect($sect, $parm)) {
-                $self->push($sect, $parm, @val);
+            if (exists $self->{v}{$self->_curr_sect}{$parm} &&
+                exists $self->{myparms}{$self->_curr_sect} &&
+                $self->_is_parm_in_sect($self->_curr_sect, $parm)) {
+                $self->push($self->_curr_sect, $parm, @val);
             } else {
                 # Loaded parameters shadow imported ones, instead of appending
                 # to them
-                $self->newval($sect, $parm, @val);
+                $self->newval($self->_curr_sect, $parm, @val);
             }
-            $self->SetParameterComment($sect, $parm, @cmts);
+            $self->SetParameterComment($self->_curr_sect, $parm, @cmts);
             @cmts = ( );
-            $self->SetParameterEOT($sect,$parm,$eotmark) if (defined $eotmark);
+            $self->SetParameterEOT($self->_curr_sect, $parm,$eotmark) if (defined $eotmark);
             # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
-            $self->SetParameterTrailingComment($sect, $parm, $end_comment);
+            $self->SetParameterTrailingComment($self->_curr_sect, $parm, $end_comment);
 
         } else {
             $self->_add_error(sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $self->_read_line_num(), $line));
