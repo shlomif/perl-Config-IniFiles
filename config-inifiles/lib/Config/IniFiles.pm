@@ -1083,6 +1083,8 @@ sub AddSection {
         $self->{parms}{$sect} = [];
         $self->{v}{$sect} = {};
     }
+
+    return;
 }
 
 # Marks a section as modified by us (this includes deleted by us).
