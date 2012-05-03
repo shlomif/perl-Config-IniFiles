@@ -1180,10 +1180,18 @@ Groups is to aid people building more complex configuration files.
 
 =cut
 
-sub Groups  {
-  my $self = shift;
-  return keys %{$self->{group}} if ref $self->{group} eq 'HASH';
-  return ();
+sub Groups
+{
+    my $self = shift;
+
+    if (ref($self->{group}) eq 'HASH')
+    {
+        return keys %{$self->{group}};
+    }
+    else
+    {
+        return ();
+    }
 }
 
 =head2 SetGroupMember ( $sect )
