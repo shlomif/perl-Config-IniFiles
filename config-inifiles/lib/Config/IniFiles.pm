@@ -1346,19 +1346,9 @@ sub _write_config_to_filename
     return 1;
 }
 
-sub _write_config_to_fh
+sub _write_config_with_a_made_fh
 {
-    my ($self, $file, %parms) = @_;
-
-    # Get a filehandle, allowing almost any type of 'file' parameter
-    ## NB: If this were a filename, this would fail because _make_file 
-    ##     opens a read-only handle, but we have already checked that case
-    ##     so re-using the logic is ok [JW/WADG]
-    my $fh = $self->_make_filehandle( $file );
-    if (!$fh) {
-        carp "Could not find a filehandle for the input stream ($file): $!";
-        return undef;
-    }
+    my ($self, $fh, %parms) = @_;
 
     # Only roll back if it's not STDIN (if it is, Carp)
     if( $fh == \*STDIN )
@@ -1373,6 +1363,24 @@ sub _write_config_to_fh
     } # end if
 
     return 1;
+}
+
+sub _write_config_to_fh
+{
+    my ($self, $file, %parms) = @_;
+
+    # Get a filehandle, allowing almost any type of 'file' parameter
+    ## NB: If this were a filename, this would fail because _make_file 
+    ##     opens a read-only handle, but we have already checked that case
+    ##     so re-using the logic is ok [JW/WADG]
+    my $fh = $self->_make_filehandle( $file );
+
+    if (!$fh) {
+        carp "Could not find a filehandle for the input stream ($file): $!";
+        return undef;
+    }
+
+    return $self->_write_config_with_a_made_fh($fh, %parms);
 }
 
 sub WriteConfig {
