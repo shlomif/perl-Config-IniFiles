@@ -1154,15 +1154,15 @@ section.
 =cut
 
 sub Parameters {
-  my $self = shift;
-  my $sect = shift;
-  
-  return undef if not defined $sect;
-  
-  $self->_caseify(\$sect);
+    my $self = shift;
+    my $sect = shift;
 
-  return @{$self->{parms}{$sect}} if ref $self->{parms}{$sect} eq 'ARRAY';
-  return ();
+    return undef if not defined $sect;
+
+    $self->_caseify(\$sect);
+
+    return @{$self->{parms}{$sect}} if ref $self->{parms}{$sect} eq 'ARRAY';
+    return ();
 }
 
 =head2 Groups
