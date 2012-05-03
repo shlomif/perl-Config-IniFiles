@@ -1316,31 +1316,31 @@ Returns true on success, C<undef> on failure.
 
 sub _write_config_to_filename
 {
-    my ($self, $file, %parms) = @_;
+    my ($self, $filename, %parms) = @_;
 
-    if (-e $file) {
-        if (not (-w $file))
+    if (-e $filename) {
+        if (not (-w $filename))
         {
-            #carp "File $file is not writable.  Refusing to write config";
+            #carp "File $filename is not writable.  Refusing to write config";
             return undef;
         }
-        my $mode = (stat $file)[2];
+        my $mode = (stat $filename)[2];
         $self->{file_mode} = sprintf "%04o", ($mode & 0777);
         #carp "Using mode $self->{file_mode} for file $file";
     }
 
     my ($fh, $new_file) = tempfile(
         "temp.ini-XXXXXXXXXX",
-        DIR => dirname($file)
+        DIR => dirname($filename)
     );
     $self->OutputConfigToFileHandle($fh, $parms{-delta});
     close($fh);
-    if (!rename( $new_file, $file )) {
-        carp "Unable to rename temp config file ($new_file) to $file: $!";
+    if (!rename( $new_file, $filename )) {
+        carp "Unable to rename temp config file ($new_file) to ${filename}: $!";
         return undef;
     }
     if (exists $self->{file_mode}) {
-        chmod oct($self->{file_mode}), $file;
+        chmod oct($self->{file_mode}), $filename;
     }
 
     return 1;
