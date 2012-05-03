@@ -1272,12 +1272,14 @@ $mode must be a string representation of the octal mode.
 
 sub SetWriteMode
 {
-    my $self = shift;
-    my $mode = shift;
-    return undef if not defined ($mode);
-    return undef if not ($mode =~ m/[0-7]{3,3}/);
-    $self->{file_mode} = $mode;
-    return $mode;
+    my ($self, $mode) = @_;
+
+    if (not (defined($mode) && ($mode =~ m/\A[0-7]{3}\z/)))
+    {
+        return undef;
+    }
+
+    return ($self->{file_mode} = $mode);
 }
 
 =head2 GetWriteMode ($mode)
