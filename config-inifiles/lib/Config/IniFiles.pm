@@ -817,7 +817,7 @@ sub ReadConfig
 {
     my $self = shift;
 
-    my($lineno, $sect);
+    my($sect);
     my($group, $groupmem);
     my($parm, $val);
     my @cmts;
@@ -891,10 +891,12 @@ sub ReadConfig
 
     local $_;
     delete $self->{line_ends}; # Marks start of parsing for _nextline()
+
+    my $line_num = 0;
     while ( defined($_ = $self->_nextline($fh)) )
     {
         s/(\015\012?|\012|\025|\n)$//;              # remove line ending char(s)
-        $lineno++;
+        $line_num++;
         if (/^\s*$/) {              # ignore blank lines
             next;
         }
@@ -926,8 +928,11 @@ sub ReadConfig
                 $self->{fallback_used}++;
             }
             if (!defined $sect) {
-                CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno,
-                        qq#parameter found outside a section#));
+                CORE::push(@Config::IniFiles::errors, 
+                    sprintf('%d: %s', $line_num, 
+                        qq#parameter found outside a section#
+                    )
+                );
                 $self->_rollback($fh);
                 return undef;
             }
@@ -938,10 +943,10 @@ sub ReadConfig
             if ($val =~ /^<<(.*)$/) {         # "here" value
                 $eotmark  = $1;
                 my $foundeot = 0;
-                my $startline = $lineno;
+                my $startline = $line_num;
                 while ( defined($_=$self->_nextline($fh)) ) {
                     s/(\015\012?|\012|\025|\n)$//;                # remove line ending char(s)
-                    $lineno++;
+                    $line_num++;
                     if ($_ eq $eotmark) {
                         $foundeot = 1;
                         last;
@@ -963,7 +968,7 @@ sub ReadConfig
                 while($self->{allowcontinue} && $val =~ s/\\$//) {
                     $_ = $self->_nextline($fh);
                     s/(\015\012?|\012|\025|\n)$//; # remove line ending char(s)
-                    $lineno++;
+                    $line_num++;
                     $val .= $_;
                 }
 
@@ -995,7 +1000,7 @@ sub ReadConfig
             $self->SetParameterTrailingComment($sect, $parm, $end_comment);
 
         } else {
-            CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $lineno, $_));
+            CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $line_num, $_));
         }
     } # End main parsing loop
 
