@@ -1194,8 +1194,9 @@ Only intended for use in newval.
 
 =cut
 
-sub SetGroupMember {
-    my ($self, $sect) = @_;
+sub _group_member_handling_skeleton
+{
+    my ($self, $sect, $method) = @_;
 
     return undef if not defined $sect;
 
@@ -1205,16 +1206,29 @@ sub SetGroupMember {
     }
     else
     {
-        if (not exists($self->{group}{$group})) {
-            $self->{group}{$group} = [];
-        }
-
-        if (none {$_ eq $sect} @{$self->{group}{$group}}) {
-            CORE::push @{$self->{group}{$group}}, $sect;
-        }
-
-        return;
+        return $self->$method($sect, $group);
     }
+}
+
+sub _SetGroupMember_helper
+{
+    my ($self, $sect, $group) = @_;
+
+    if (not exists($self->{group}{$group})) {
+        $self->{group}{$group} = [];
+    }
+
+    if (none {$_ eq $sect} @{$self->{group}{$group}}) {
+        CORE::push @{$self->{group}{$group}}, $sect;
+    }
+
+    return;
+}
+
+sub SetGroupMember {
+    my ($self, $sect) = @_;
+
+    return $self->_group_member_handling_skeleton($sect, '_SetGroupMember_helper');
 }
 
 =head2 RemoveGroupMember ( $sect )
@@ -1224,27 +1238,26 @@ appropriate group. Only intended for use in DeleteSection.
 
 =cut
 
-sub RemoveGroupMember {
-    my ($self, $sect) = @_;
+sub _RemoveGroupMember_helper
+{
+    my ($self, $sect, $group) = @_;
 
-    return undef if not defined $sect;
- 
-    if (! (my ($group) = ($sect =~ /\A(\S+)\s+\S/)))
+    if (!exists $self->{group}{$group})
     {
-        return 1;
-    }
-    else
-    {
-        if (!exists $self->{group}{$group})
-        {
-            return;
-        }
-
-        $self->{group}{$group} =
-            [grep { $_ ne $sect } @{$self->{group}{$group}}];
-
         return;
     }
+
+    $self->{group}{$group} =
+        [grep { $_ ne $sect } @{$self->{group}{$group}}];
+
+    return;
+}
+
+sub RemoveGroupMember
+{
+    my ($self, $sect) = @_;
+
+    return $self->_group_member_handling_skeleton($sect, '_RemoveGroupMember_helper');
 }
 
 =head2 GroupMembers ($group)
