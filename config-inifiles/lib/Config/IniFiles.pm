@@ -1251,15 +1251,20 @@ GroupMembers would return ("Group Element 1", "Group Element 2").
 =cut
 
 sub GroupMembers {
-  my $self  = shift;
-  my $group = shift;
-  
-  return undef if not defined $group;
-  
-  $self->_caseify(\$group);
+    my ($self, $group) = @_;
 
-  return @{$self->{group}{$group}} if ref $self->{group}{$group} eq 'ARRAY';
-  return ();
+    return undef if not defined $group;
+
+    $self->_caseify(\$group);
+
+    if (ref( $self->{group}{$group} ) eq 'ARRAY')
+    {
+        return @{$self->{group}{$group}};
+    }
+    else
+    {
+        return ();
+    }
 }
 
 =head2 SetWriteMode ($mode)
