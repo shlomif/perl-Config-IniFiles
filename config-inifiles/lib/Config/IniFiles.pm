@@ -1291,7 +1291,7 @@ $mode is a string representation of the octal mode.
 sub GetWriteMode
 {
     my $self = shift;
-    return undef if not exists $self->{file_mode};
+
     return $self->{file_mode};
 }
 
