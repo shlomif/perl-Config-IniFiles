@@ -1153,6 +1153,13 @@ section.
 
 =cut
 
+sub _aref_or_empty
+{
+    my ($aref) = @_;
+
+    return ((defined($aref) and ref($aref) eq 'ARRAY') ? $aref : []);
+}
+
 sub Parameters {
     my $self = shift;
     my $sect = shift;
@@ -1161,8 +1168,7 @@ sub Parameters {
 
     $self->_caseify(\$sect);
 
-    return @{$self->{parms}{$sect}} if ref $self->{parms}{$sect} eq 'ARRAY';
-    return ();
+    return @{_aref_or_empty($self->{parms}{$sect})};
 }
 
 =head2 Groups
@@ -1290,14 +1296,7 @@ sub GroupMembers {
 
     $self->_caseify(\$group);
 
-    if (ref( $self->{group}{$group} ) eq 'ARRAY')
-    {
-        return @{$self->{group}{$group}};
-    }
-    else
-    {
-        return ();
-    }
+    return @{_aref_or_empty($self->{group}{$group})};
 }
 
 =head2 SetWriteMode ($mode)
