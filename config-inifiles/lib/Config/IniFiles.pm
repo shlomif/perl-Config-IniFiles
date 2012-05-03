@@ -1223,7 +1223,7 @@ sub RemoveGroupMember {
 
     return undef if not defined $sect;
  
-    if (! (my ($group) = ($sect =~ /\A(\S+)\s+\S+/)))
+    if (! (my ($group) = ($sect =~ /\A(\S+)\s+\S/)))
     {
         return 1;
     }
