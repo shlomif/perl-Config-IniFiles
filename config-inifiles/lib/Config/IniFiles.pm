@@ -889,39 +889,44 @@ sub ReadConfig
     my $first = '';
     my $allCmt = $self->{allowed_comment_char};
 
-    local $_;
     delete $self->{line_ends}; # Marks start of parsing for _nextline()
 
     my $line_num = 0;
-    while ( defined($_ = $self->_nextline($fh)) )
+    LINES_LOOP :
+    while ( defined(my $line = $self->_nextline($fh)) )
     {
-        s/(\015\012?|\012|\025|\n)$//;              # remove line ending char(s)
+        $line =~ s/(\015\012?|\012|\025|\n)$//;              # remove line ending char(s)
         $line_num++;
-        if (/^\s*$/) {              # ignore blank lines
-            next;
+
+        if ($line =~ /\A\s*\z/) {              # ignore blank lines
+            next LINES_LOOP;
         }
-        elsif (/^\s*[$allCmt]/) {           # collect comments
+
+        if ($line =~/^\s*[$allCmt]/) {           # collect comments
             if ($self->{negativedeltas} &&
-                m/^$self->{comment_char} (.*) is deleted$/) {
+                $line =~ m/\A$self->{comment_char} (.*) is deleted\z/) {
                 my $todelete=$1;
-                if ($todelete =~ m/^\[(.*)\]$/) {
+                if ($todelete =~ m/\A\[(.*)\]\z/) {
                     $self->DeleteSection($1);
                 } else {
                     $self->delval($sect, $todelete);
                 }
             } else {
-                CORE::push(@cmts, $_);
+                CORE::push(@cmts, $line);
             }
-            next;
+            next LINES_LOOP;
         }
-        elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {       # New Section
+
+        # New Section
+        if ($line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/) {
             $sect = $1;
             $self->_caseify(\$sect);
             $self->AddSection($sect);
             $self->SetSectionComment($sect, @cmts);
             @cmts = ();
         }
-        elsif (($parm, $val) = /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {  # new parameter
+        # New parameter
+        elsif (($parm, $val) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {  
             if ((!defined($sect)) and defined($self->{fallback}))
             {
                 $sect = $self->{fallback};
@@ -944,15 +949,16 @@ sub ReadConfig
                 $eotmark  = $1;
                 my $foundeot = 0;
                 my $startline = $line_num;
-                while ( defined($_=$self->_nextline($fh)) ) {
-                    s/(\015\012?|\012|\025|\n)$//;                # remove line ending char(s)
+                while (defined( $line = $self->_nextline($fh) )) {
+                    # remove line ending char(s)
+                    $line =~ s/(\015\012?|\012|\025|\n)$//;                
                     $line_num++;
-                    if ($_ eq $eotmark) {
+                    if ($line eq $eotmark) {
                         $foundeot = 1;
                         last;
                     } else {
                         # Untaint
-                        /(.*)/ms;
+                        $line =~ /(.*)/ms;
                         CORE::push(@val, $1);
                     }
                 }
@@ -966,10 +972,10 @@ sub ReadConfig
 
                 # process continuation lines, if any
                 while($self->{allowcontinue} && $val =~ s/\\$//) {
-                    $_ = $self->_nextline($fh);
-                    s/(\015\012?|\012|\025|\n)$//; # remove line ending char(s)
+                    $line = $self->_nextline($fh);
+                    $line =~ s/(\015\012?|\012|\025|\n)$//; # remove line ending char(s)
                     $line_num++;
-                    $val .= $_;
+                    $val .= $line;
                 }
 
                 # we should split value and comments if there is any comment
@@ -1000,7 +1006,7 @@ sub ReadConfig
             $self->SetParameterTrailingComment($sect, $parm, $end_comment);
 
         } else {
-            CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $line_num, $_));
+            CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $line_num, $line));
         }
     } # End main parsing loop
 
