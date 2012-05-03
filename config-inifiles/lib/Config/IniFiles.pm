@@ -879,6 +879,14 @@ sub _curr_parm
     return $self->{_curr_parm};
 }
 
+# Current location - section and parameter.
+sub _curr_loc
+{
+    my $self = shift;
+
+    return ($self->_curr_sect, $self->_curr_parm);
+}
+
 sub _ReadConfig_lines_loop
 {
     my ($self, $fh) = @_;
@@ -982,18 +990,18 @@ sub _ReadConfig_lines_loop
             # Now load value
             if (exists $self->{v}{$self->_curr_sect}{$self->_curr_parm} &&
                 exists $self->{myparms}{$self->_curr_sect} &&
-                $self->_is_parm_in_sect($self->_curr_sect, $self->_curr_parm)) {
-                $self->push($self->_curr_sect, $self->_curr_parm, @val);
+                $self->_is_parm_in_sect($self->_curr_loc)) {
+                $self->push($self->_curr_loc, @val);
             } else {
                 # Loaded parameters shadow imported ones, instead of appending
                 # to them
-                $self->newval($self->_curr_sect, $self->_curr_parm, @val);
+                $self->newval($self->_curr_loc, @val);
             }
-            $self->SetParameterComment($self->_curr_sect, $self->_curr_parm, @cmts);
+            $self->SetParameterComment($self->_curr_loc, @cmts);
             @cmts = ( );
-            $self->SetParameterEOT($self->_curr_sect, $self->_curr_parm,$eotmark) if (defined $eotmark);
+            $self->SetParameterEOT($self->_curr_loc,$eotmark) if (defined $eotmark);
             # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
-            $self->SetParameterTrailingComment($self->_curr_sect, $self->_curr_parm, $end_comment);
+            $self->SetParameterTrailingComment($self->_curr_loc, $end_comment);
 
         } else {
             $self->_add_error(sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $self->_read_line_num(), $line));
