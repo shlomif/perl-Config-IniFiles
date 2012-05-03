@@ -1138,7 +1138,7 @@ sub DeleteSection {
     delete $self->{parms}{$sect};
     delete $self->{myparms}{$sect};
 
-    @{$self->{sects}} = grep !/^\Q$sect\E$/, @{$self->{sects}};
+    $self->{sects} = [grep {$_ ne $sect} @{$self->{sects}}];
     $self->_touch_section($sect);
 
     $self->RemoveGroupMember($sect);
