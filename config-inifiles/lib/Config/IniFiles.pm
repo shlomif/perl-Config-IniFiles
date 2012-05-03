@@ -1222,16 +1222,23 @@ sub RemoveGroupMember {
     my ($self, $sect) = @_;
 
     return undef if not defined $sect;
-    
-    return(1) unless $sect =~ /^(\S+)\s+\S+/;
-    
-    my $group = $1;
-    return unless exists $self->{group}{$group};
+ 
+    if (! (my ($group) = ($sect =~ /\A(\S+)\s+\S+/)))
+    {
+        return 1;
+    }
+    else
+    {
+        if (!exists $self->{group}{$group})
+        {
+            return;
+        }
 
-    $self->{group}{$group} =
-        [grep { $_ ne $sect } @{$self->{group}{$group}}];
+        $self->{group}{$group} =
+            [grep { $_ ne $sect } @{$self->{group}{$group}}];
 
-    return;
+        return;
+    }
 }
 
 =head2 GroupMembers ($group)
