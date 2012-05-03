@@ -812,6 +812,23 @@ sub _no_filename
     return not length $self->{cf};
 }
 
+# Reads the next line and removes the end of line from it.
+sub _read_next_line
+{
+    my ($self, $fh) = @_;
+
+    my $line = $self->_nextline($fh);
+    
+    if (! defined($line))
+    {
+        return undef;
+    }
+
+    # Remove line ending char(s)
+    $line =~ s/(\015\012?|\012|\025|\n)\z//;
+
+    return $line;
+}
 
 sub ReadConfig
 {
@@ -893,9 +910,8 @@ sub ReadConfig
 
     my $line_num = 0;
     LINES_LOOP :
-    while ( defined(my $line = $self->_nextline($fh)) )
+    while ( defined(my $line = $self->_read_next_line($fh)) )
     {
-        $line =~ s/(\015\012?|\012|\025|\n)$//;              # remove line ending char(s)
         $line_num++;
 
         if ($line =~ /\A\s*\z/) {              # ignore blank lines
@@ -949,9 +965,7 @@ sub ReadConfig
                 $eotmark  = $1;
                 my $foundeot = 0;
                 my $startline = $line_num;
-                while (defined( $line = $self->_nextline($fh) )) {
-                    # remove line ending char(s)
-                    $line =~ s/(\015\012?|\012|\025|\n)$//;                
+                while (defined( $line = $self->_read_next_line($fh) )) {
                     $line_num++;
                     if ($line eq $eotmark) {
                         $foundeot = 1;
@@ -972,8 +986,7 @@ sub ReadConfig
 
                 # process continuation lines, if any
                 while($self->{allowcontinue} && $val =~ s/\\$//) {
-                    $line = $self->_nextline($fh);
-                    $line =~ s/(\015\012?|\012|\025|\n)$//; # remove line ending char(s)
+                    $line = $self->_read_next_line($fh);
                     $line_num++;
                     $val .= $line;
                 }
