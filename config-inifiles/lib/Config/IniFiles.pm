@@ -857,7 +857,6 @@ sub ReadConfig
 {
     my $self = shift;
 
-    my($sect);
     my($group, $groupmem);
     my($parm, $val);
     my @cmts;
@@ -932,6 +931,10 @@ sub ReadConfig
     delete $self->{line_ends}; # Marks start of parsing for _nextline()
 
     $self->_read_line_num(0);
+
+    {
+    # The current section - a loop state variable.
+    my $sect;
     LINES_LOOP :
     while ( defined(my $line = $self->_read_next_line($fh)) )
     {
@@ -1041,6 +1044,7 @@ sub ReadConfig
             $self->_add_error(sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $self->_read_line_num(), $line));
         }
     } # End main parsing loop
+    }
 
     # Special case: return undef if file is empty. (suppress this line to
     # restore the more intuitive behaviour of accepting empty files)
