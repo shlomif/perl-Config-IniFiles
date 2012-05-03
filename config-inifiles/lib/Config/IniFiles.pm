@@ -1058,24 +1058,17 @@ the name that you're adding isn't in the list of sections already.
 
 =cut
 
-sub AddSection {
+sub _AddSection_Helper
+{
     my ($self, $sect) = @_;
-    
-    return undef if not defined $sect;
 
-    $self->_caseify(\$sect);
-
-    return if $self->SectionExists($sect);
     CORE::push @{$self->{sects}}, $sect;
     $self->_touch_section($sect);
 
     $self->SetGroupMember($sect);
     
     # Set up the parameter names and values lists
-    if (ref($self->{parms}{$sect}) ne 'ARRAY')
-    {
-        $self->{parms}{$sect} = [];
-    }
+    $self->{parms}{$sect} ||= [];
 
     if (!defined($self->{v}{$sect})) {
         $self->{sCMT}{$sect} = [];
@@ -1085,6 +1078,21 @@ sub AddSection {
     }
 
     return;
+}
+
+sub AddSection {
+    my ($self, $sect) = @_;
+    
+    return undef if not defined $sect;
+
+    $self->_caseify(\$sect);
+
+    if ( $self->SectionExists($sect))
+    {
+        return;
+    }
+
+    return $self->_AddSection_Helper($sect);
 }
 
 # Marks a section as modified by us (this includes deleted by us).
