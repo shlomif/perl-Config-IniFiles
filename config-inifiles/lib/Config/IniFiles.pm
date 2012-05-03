@@ -813,206 +813,209 @@ sub _no_filename
 }
 
 
-sub ReadConfig {
-  my $self = shift;
+sub ReadConfig
+{
+    my $self = shift;
 
-  my($lineno, $sect);
-  my($group, $groupmem);
-  my($parm, $val);
-  my @cmts;
-  my $end_comment;
+    my($lineno, $sect);
+    my($group, $groupmem);
+    my($parm, $val);
+    my @cmts;
+    my $end_comment;
 
-  @Config::IniFiles::errors = ( );
+    @Config::IniFiles::errors = ( );
 
-  # Initialize (and clear out) storage hashes
-  $self->{sects}  = [];
-  $self->{parms}  = {};
-  $self->{group}  = {};
-  $self->{v}      = {};
-  $self->{sCMT}   = {};
-  $self->{pCMT}   = {};
-  $self->{EOT}    = {};
-  $self->{mysects} = []; # A pair of hashes to remember which params are loaded
-  $self->{myparms} = {}; # or set using the API vs. imported - useful for
-  $self->{peCMT}  = {};  # this will store trailing comments at the end of single-lined params
-  # import shadowing, see below, and WriteConfig(-delta=>1)
+    # Initialize (and clear out) storage hashes
+    $self->{sects}  = [];
+    $self->{parms}  = {};
+    $self->{group}  = {};
+    $self->{v}      = {};
+    $self->{sCMT}   = {};
+    $self->{pCMT}   = {};
+    $self->{EOT}    = {};
+    $self->{mysects} = []; # A pair of hashes to remember which params are loaded
+    $self->{myparms} = {}; # or set using the API vs. imported - useful for
+    $self->{peCMT}  = {};  # this will store trailing comments at the end of single-lined params
+    # import shadowing, see below, and WriteConfig(-delta=>1)
 
-  if( defined $self->{imported} ) {
-      # Run up the import tree to the top, then reload coming
-      # back down, maintaining the imported file names and our 
-      # file name.
-      # This is only needed on a re-load though
-      $self->{imported}->ReadConfig() unless ($self->{firstload});
+    if( defined $self->{imported} ) {
+        # Run up the import tree to the top, then reload coming
+        # back down, maintaining the imported file names and our
+        # file name.
+        # This is only needed on a re-load though
+        $self->{imported}->ReadConfig() unless ($self->{firstload});
 
-      foreach my $field (qw(sects parms group v sCMT pCMT EOT)) {
-          $self->{$field} = _deepcopy($self->{imported}->{$field});
-      }
-  } # end if
-  
-  if ($self->_no_filename)
-  {
-      return 1;
-  }
-  
-  my $nocase = $self->_nocase;
-  my $end_commenthandle = $self->{handle_trailing_comment};
+        foreach my $field (qw(sects parms group v sCMT pCMT EOT)) {
+            $self->{$field} = _deepcopy($self->{imported}->{$field});
+        }
+    } # end if
 
-  # If this is a reload and we want warnings then send one to the STDERR log
-  unless( $self->{firstload} || !$self->{reloadwarn} ) {
-    my ($ss, $mm, $hh, $DD, $MM, $YY) = (localtime(time))[0..5];
-    printf STDERR
-      "PID %d reloading config file %s at %d.%02d.%02d %02d:%02d:%02d\n",
-      $$, $self->{cf}, $YY+1900, $MM+1, $DD, $hh, $mm, $ss;
-  }
-  
-  # Turn off. Future loads are reloads
-  $self->{firstload} = 0;
-
-  # Get a filehandle, allowing almost any type of 'file' parameter
-  my $fh = $self->_make_filehandle( $self->{cf} );
-  if (!$fh) {
-    carp "Failed to open $self->{cf}: $!";
-    return undef;
-  }
-  
-  # Get mod time of file so we can retain it (if not from STDIN)
-  # also check if it's a real file (could have been a filehandle made from a scalar).
-  if (ref($fh) ne "IO::Scalar" && -e $fh)
-  {
-    my @stats = stat $fh;
-    $self->{file_mode} = sprintf("%04o", $stats[2]) if defined $stats[2];
-  }
-  
-  
-  # The first lines of the file must be blank, comments or start with [
-  my $first = '';
-  my $allCmt = $self->{allowed_comment_char};
-  
-  local $_;
-  delete $self->{line_ends}; # Marks start of parsing for _nextline()
-  while ( defined($_ = $self->_nextline($fh)) ) {
-    s/(\015\012?|\012|\025|\n)$//;              # remove line ending char(s)
-    $lineno++;
-    if (/^\s*$/) {              # ignore blank lines
-      next;
+    if ($self->_no_filename)
+    {
+        return 1;
     }
-    elsif (/^\s*[$allCmt]/) {           # collect comments
-        if ($self->{negativedeltas} &&
-            m/^$self->{comment_char} (.*) is deleted$/) {
-            my $todelete=$1;
-            if ($todelete =~ m/^\[(.*)\]$/) {
-                $self->DeleteSection($1);
+
+    my $nocase = $self->_nocase;
+    my $end_commenthandle = $self->{handle_trailing_comment};
+
+    # If this is a reload and we want warnings then send one to the STDERR log
+    unless( $self->{firstload} || !$self->{reloadwarn} ) {
+        my ($ss, $mm, $hh, $DD, $MM, $YY) = (localtime(time))[0..5];
+        printf STDERR
+        "PID %d reloading config file %s at %d.%02d.%02d %02d:%02d:%02d\n",
+        $$, $self->{cf}, $YY+1900, $MM+1, $DD, $hh, $mm, $ss;
+    }
+
+    # Turn off. Future loads are reloads
+    $self->{firstload} = 0;
+
+    # Get a filehandle, allowing almost any type of 'file' parameter
+    my $fh = $self->_make_filehandle( $self->{cf} );
+    if (!$fh) {
+        carp "Failed to open $self->{cf}: $!";
+        return undef;
+    }
+
+    # Get mod time of file so we can retain it (if not from STDIN)
+    # also check if it's a real file (could have been a filehandle made from a scalar).
+    if (ref($fh) ne "IO::Scalar" && -e $fh)
+    {
+        my @stats = stat $fh;
+        $self->{file_mode} = sprintf("%04o", $stats[2]) if defined $stats[2];
+    }
+
+
+    # The first lines of the file must be blank, comments or start with [
+    my $first = '';
+    my $allCmt = $self->{allowed_comment_char};
+
+    local $_;
+    delete $self->{line_ends}; # Marks start of parsing for _nextline()
+    while ( defined($_ = $self->_nextline($fh)) )
+    {
+        s/(\015\012?|\012|\025|\n)$//;              # remove line ending char(s)
+        $lineno++;
+        if (/^\s*$/) {              # ignore blank lines
+            next;
+        }
+        elsif (/^\s*[$allCmt]/) {           # collect comments
+            if ($self->{negativedeltas} &&
+                m/^$self->{comment_char} (.*) is deleted$/) {
+                my $todelete=$1;
+                if ($todelete =~ m/^\[(.*)\]$/) {
+                    $self->DeleteSection($1);
+                } else {
+                    $self->delval($sect, $todelete);
+                }
             } else {
-                $self->delval($sect, $todelete);
+                CORE::push(@cmts, $_);
             }
+            next;
+        }
+        elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {       # New Section
+            $sect = $1;
+            $self->_caseify(\$sect);
+            $self->AddSection($sect);
+            $self->SetSectionComment($sect, @cmts);
+            @cmts = ();
+        }
+        elsif (($parm, $val) = /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {  # new parameter
+            if ((!defined($sect)) and defined($self->{fallback}))
+            {
+                $sect = $self->{fallback};
+                $self->{fallback_used}++;
+            }
+            if (!defined $sect) {
+                CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno,
+                        qq#parameter found outside a section#));
+                $self->_rollback($fh);
+                return undef;
+            }
+
+            $parm = lc($parm) if $nocase;
+            my @val = ( );
+            my $eotmark;
+            if ($val =~ /^<<(.*)$/) {         # "here" value
+                $eotmark  = $1;
+                my $foundeot = 0;
+                my $startline = $lineno;
+                while ( defined($_=$self->_nextline($fh)) ) {
+                    s/(\015\012?|\012|\025|\n)$//;                # remove line ending char(s)
+                    $lineno++;
+                    if ($_ eq $eotmark) {
+                        $foundeot = 1;
+                        last;
+                    } else {
+                        # Untaint
+                        /(.*)/ms;
+                        CORE::push(@val, $1);
+                    }
+                }
+                if (! $foundeot) {
+                    CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $startline,
+                            qq#no end marker ("$eotmark") found#));
+                    $self->_rollback();
+                    return undef;
+                }
+            } else { # no here value
+
+                # process continuation lines, if any
+                while($self->{allowcontinue} && $val =~ s/\\$//) {
+                    $_ = $self->_nextline($fh);
+                    s/(\015\012?|\012|\025|\n)$//; # remove line ending char(s)
+                    $lineno++;
+                    $val .= $_;
+                }
+
+                # we should split value and comments if there is any comment
+                if ($end_commenthandle &&
+                    $val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
+                    $val = $1;
+                    $end_comment = $2;
+                } else {
+                    $end_comment = "";
+                }
+
+                @val = $val;
+            }
+            # Now load value
+            if (exists $self->{v}{$sect}{$parm} &&
+                exists $self->{myparms}{$sect} &&
+                $self->_is_parm_in_sect($sect, $parm)) {
+                $self->push($sect, $parm, @val);
+            } else {
+                # Loaded parameters shadow imported ones, instead of appending
+                # to them
+                $self->newval($sect, $parm, @val);
+            }
+            $self->SetParameterComment($sect, $parm, @cmts);
+            @cmts = ( );
+            $self->SetParameterEOT($sect,$parm,$eotmark) if (defined $eotmark);
+            # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
+            $self->SetParameterTrailingComment($sect, $parm, $end_comment);
+
         } else {
-            CORE::push(@cmts, $_);
+            CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $lineno, $_));
         }
-        next;
+    } # End main parsing loop
+
+    # Special case: return undef if file is empty. (suppress this line to
+    # restore the more intuitive behaviour of accepting empty files)
+    if (! keys %{$self->{v}} && ! $self->{allowempty}) {
+        CORE::push @Config::IniFiles::errors, "Empty file treated as error";
+        $self->_rollback($fh);
+        return undef;
     }
-    elsif (/^\s*\[\s*(\S|\S.*\S)\s*\]\s*$/) {       # New Section
-      $sect = $1;
-      $self->_caseify(\$sect);
-      $self->AddSection($sect);
-      $self->SetSectionComment($sect, @cmts);
-      @cmts = ();
+
+    if ( defined (my $defaultsect=$self->{startup_settings}->{-default}) )
+    {
+        $self->AddSection($defaultsect);
     }
-    elsif (($parm, $val) = /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {  # new parameter
-        if ((!defined($sect)) and defined($self->{fallback}))
-        { 
-            $sect = $self->{fallback};
-            $self->{fallback_used}++;
-        }
-        if (!defined $sect) {
-            CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $lineno,
-                qq#parameter found outside a section#));
-            $self->_rollback($fh);
-            return undef;
-        }
 
-      $parm = lc($parm) if $nocase;
-      my @val = ( );
-      my $eotmark;
-      if ($val =~ /^<<(.*)$/) {         # "here" value
-       $eotmark  = $1;
-    my $foundeot = 0;
-    my $startline = $lineno;
-    while ( defined($_=$self->_nextline($fh)) ) {
-      s/(\015\012?|\012|\025|\n)$//;                # remove line ending char(s)
-      $lineno++;
-      if ($_ eq $eotmark) {
-        $foundeot = 1;
-        last;
-      } else {
-        # Untaint
-        /(.*)/ms; 
-        CORE::push(@val, $1);
-      }
-    }
-    if (! $foundeot) {
-      CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $startline,
-                  qq#no end marker ("$eotmark") found#));
-      $self->_rollback();
-      return undef;
-    }
-      } else { # no here value
+    $self->_SetEndComments(@cmts);
 
-        # process continuation lines, if any
-        while($self->{allowcontinue} && $val =~ s/\\$//) {
-          $_ = $self->_nextline($fh);
-      s/(\015\012?|\012|\025|\n)$//; # remove line ending char(s)
-      $lineno++;
-          $val .= $_;
-        }
-
-        # we should split value and comments if there is any comment
-        if ($end_commenthandle &&
-            $val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
-            $val = $1;
-            $end_comment = $2;
-        } else {
-            $end_comment = "";
-        }
-
-        @val = $val;
-      }
-        # Now load value
-        if (exists $self->{v}{$sect}{$parm} && 
-            exists $self->{myparms}{$sect} && 
-            $self->_is_parm_in_sect($sect, $parm)) {
-            $self->push($sect, $parm, @val);
-        } else {
-            # Loaded parameters shadow imported ones, instead of appending
-            # to them
-            $self->newval($sect, $parm, @val);
-        }
-        $self->SetParameterComment($sect, $parm, @cmts);
-        @cmts = ( );
-        $self->SetParameterEOT($sect,$parm,$eotmark) if (defined $eotmark);
-        # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
-        $self->SetParameterTrailingComment($sect, $parm, $end_comment);
-
-    } else {
-      CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $lineno, $_));
-    }
-  } # End main parsing loop
-
-  # Special case: return undef if file is empty. (suppress this line to
-  # restore the more intuitive behaviour of accepting empty files)
-  if (! keys %{$self->{v}} && ! $self->{allowempty}) {
-      CORE::push @Config::IniFiles::errors, "Empty file treated as error";
-      $self->_rollback($fh);
-      return undef;
-  }
-
-  if( defined (my $defaultsect=$self->{startup_settings}->{-default}) ) {
-      $self->AddSection($defaultsect);
-  } # end if
-
-  $self->_SetEndComments(@cmts);
-
-  $self->_rollback($fh);
-  return (@Config::IniFiles::errors ? undef : 1);
+    $self->_rollback($fh);
+    return (@Config::IniFiles::errors ? undef : 1);
 }
 
 
