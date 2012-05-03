@@ -844,6 +844,15 @@ sub _read_next_line
     return $line;
 }
 
+sub _add_error
+{
+    my ($self, $msg) = @_;
+
+    CORE::push(@Config::IniFiles::errors, $msg);
+
+    return;
+}
+
 sub ReadConfig
 {
     my $self = shift;
@@ -961,7 +970,7 @@ sub ReadConfig
                 $self->{fallback_used}++;
             }
             if (!defined $sect) {
-                CORE::push(@Config::IniFiles::errors, 
+                $self->_add_error(
                     sprintf('%d: %s', $self->_read_line_num(), 
                         qq#parameter found outside a section#
                     )
@@ -988,7 +997,7 @@ sub ReadConfig
                     }
                 }
                 if (! $foundeot) {
-                    CORE::push(@Config::IniFiles::errors, sprintf('%d: %s', $startline,
+                    $self->_add_error(sprintf('%d: %s', $startline,
                             qq#no end marker ("$eotmark") found#));
                     $self->_rollback();
                     return undef;
@@ -1029,14 +1038,14 @@ sub ReadConfig
             $self->SetParameterTrailingComment($sect, $parm, $end_comment);
 
         } else {
-            CORE::push(@Config::IniFiles::errors, sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $self->_read_line_num(), $line));
+            $self->_add_error(sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $self->_read_line_num(), $line));
         }
     } # End main parsing loop
 
     # Special case: return undef if file is empty. (suppress this line to
     # restore the more intuitive behaviour of accepting empty files)
     if (! keys %{$self->{v}} && ! $self->{allowempty}) {
-        CORE::push @Config::IniFiles::errors, "Empty file treated as error";
+        $self->_add_error("Empty file treated as error");
         $self->_rollback($fh);
         return undef;
     }
