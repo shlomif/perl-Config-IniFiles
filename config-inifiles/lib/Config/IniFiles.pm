@@ -1012,7 +1012,7 @@ sub ReadConfig {
   $self->_SetEndComments(@cmts);
 
   $self->_rollback($fh);
-  @Config::IniFiles::errors ? undef : 1;
+  return (@Config::IniFiles::errors ? undef : 1);
 }
 
 
