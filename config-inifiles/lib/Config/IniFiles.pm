@@ -1025,9 +1025,9 @@ created, the section names will be returned in lowercase.
 =cut
 
 sub Sections {
-  my $self = shift;
-  return @{$self->{sects}} if ref $self->{sects} eq 'ARRAY';
-  return ();
+    my $self = shift;
+
+    return @{_aref_or_empty($self->{sects})};
 }
 
 =head2 SectionExists ( $sect_name )
