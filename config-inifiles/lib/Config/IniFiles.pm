@@ -853,88 +853,17 @@ sub _add_error
     return;
 }
 
-sub ReadConfig
+sub _ReadConfig_lines_loop
 {
-    my $self = shift;
+    my ($self, $fh) = @_;
 
-    my($group, $groupmem);
-    my($parm, $val);
-    my @cmts;
-    my $end_comment;
+    # The current section - a loop state variable.
+    my ($sect, $val, @cmts, $parm);
 
-    @Config::IniFiles::errors = ( );
-
-    # Initialize (and clear out) storage hashes
-    $self->{sects}  = [];
-    $self->{parms}  = {};
-    $self->{group}  = {};
-    $self->{v}      = {};
-    $self->{sCMT}   = {};
-    $self->{pCMT}   = {};
-    $self->{EOT}    = {};
-    $self->{mysects} = []; # A pair of hashes to remember which params are loaded
-    $self->{myparms} = {}; # or set using the API vs. imported - useful for
-    $self->{peCMT}  = {};  # this will store trailing comments at the end of single-lined params
-    # import shadowing, see below, and WriteConfig(-delta=>1)
-
-    if( defined $self->{imported} ) {
-        # Run up the import tree to the top, then reload coming
-        # back down, maintaining the imported file names and our
-        # file name.
-        # This is only needed on a re-load though
-        $self->{imported}->ReadConfig() unless ($self->{firstload});
-
-        foreach my $field (qw(sects parms group v sCMT pCMT EOT)) {
-            $self->{$field} = _deepcopy($self->{imported}->{$field});
-        }
-    } # end if
-
-    if ($self->_no_filename)
-    {
-        return 1;
-    }
-
+    my $allCmt = $self->{allowed_comment_char};
     my $nocase = $self->_nocase;
     my $end_commenthandle = $self->{handle_trailing_comment};
 
-    # If this is a reload and we want warnings then send one to the STDERR log
-    unless( $self->{firstload} || !$self->{reloadwarn} ) {
-        my ($ss, $mm, $hh, $DD, $MM, $YY) = (localtime(time))[0..5];
-        printf STDERR
-        "PID %d reloading config file %s at %d.%02d.%02d %02d:%02d:%02d\n",
-        $$, $self->{cf}, $YY+1900, $MM+1, $DD, $hh, $mm, $ss;
-    }
-
-    # Turn off. Future loads are reloads
-    $self->{firstload} = 0;
-
-    # Get a filehandle, allowing almost any type of 'file' parameter
-    my $fh = $self->_make_filehandle( $self->{cf} );
-    if (!$fh) {
-        carp "Failed to open $self->{cf}: $!";
-        return undef;
-    }
-
-    # Get mod time of file so we can retain it (if not from STDIN)
-    # also check if it's a real file (could have been a filehandle made from a scalar).
-    if (ref($fh) ne "IO::Scalar" && -e $fh)
-    {
-        my @stats = stat $fh;
-        $self->{file_mode} = sprintf("%04o", $stats[2]) if defined $stats[2];
-    }
-
-
-    # The first lines of the file must be blank, comments or start with [
-    my $first = '';
-    my $allCmt = $self->{allowed_comment_char};
-
-    delete $self->{line_ends}; # Marks start of parsing for _nextline()
-
-    $self->_read_line_num(0);
-
-    {
-    # The current section - a loop state variable.
-    my $sect;
     LINES_LOOP :
     while ( defined(my $line = $self->_read_next_line($fh)) )
     {
@@ -966,7 +895,8 @@ sub ReadConfig
             @cmts = ();
         }
         # New parameter
-        elsif (($parm, $val) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {  
+        elsif (($parm, $val) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
+            my $end_comment;
             if ((!defined($sect)) and defined($self->{fallback}))
             {
                 $sect = $self->{fallback};
@@ -1044,6 +974,85 @@ sub ReadConfig
             $self->_add_error(sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $self->_read_line_num(), $line));
         }
     } # End main parsing loop
+
+    return { 'ret_code' => 1, 'cmts' => \@cmts, };   
+}
+
+sub ReadConfig
+{
+    my $self = shift;
+
+    @Config::IniFiles::errors = ( );
+
+    # Initialize (and clear out) storage hashes
+    $self->{sects}  = [];
+    $self->{parms}  = {};
+    $self->{group}  = {};
+    $self->{v}      = {};
+    $self->{sCMT}   = {};
+    $self->{pCMT}   = {};
+    $self->{EOT}    = {};
+    $self->{mysects} = []; # A pair of hashes to remember which params are loaded
+    $self->{myparms} = {}; # or set using the API vs. imported - useful for
+    $self->{peCMT}  = {};  # this will store trailing comments at the end of single-lined params
+    # import shadowing, see below, and WriteConfig(-delta=>1)
+
+    if( defined $self->{imported} ) {
+        # Run up the import tree to the top, then reload coming
+        # back down, maintaining the imported file names and our
+        # file name.
+        # This is only needed on a re-load though
+        $self->{imported}->ReadConfig() unless ($self->{firstload});
+
+        foreach my $field (qw(sects parms group v sCMT pCMT EOT)) {
+            $self->{$field} = _deepcopy($self->{imported}->{$field});
+        }
+    } # end if
+
+    if ($self->_no_filename)
+    {
+        return 1;
+    }
+
+    # If this is a reload and we want warnings then send one to the STDERR log
+    unless( $self->{firstload} || !$self->{reloadwarn} ) {
+        my ($ss, $mm, $hh, $DD, $MM, $YY) = (localtime(time))[0..5];
+        printf STDERR
+        "PID %d reloading config file %s at %d.%02d.%02d %02d:%02d:%02d\n",
+        $$, $self->{cf}, $YY+1900, $MM+1, $DD, $hh, $mm, $ss;
+    }
+
+    # Turn off. Future loads are reloads
+    $self->{firstload} = 0;
+
+    # Get a filehandle, allowing almost any type of 'file' parameter
+    my $fh = $self->_make_filehandle( $self->{cf} );
+    if (!$fh) {
+        carp "Failed to open $self->{cf}: $!";
+        return undef;
+    }
+
+    # Get mod time of file so we can retain it (if not from STDIN)
+    # also check if it's a real file (could have been a filehandle made from a scalar).
+    if (ref($fh) ne "IO::Scalar" && -e $fh)
+    {
+        my @stats = stat $fh;
+        $self->{file_mode} = sprintf("%04o", $stats[2]) if defined $stats[2];
+    }
+
+
+    # The first lines of the file must be blank, comments or start with [
+    my $first = '';
+
+    delete $self->{line_ends}; # Marks start of parsing for _nextline()
+
+    $self->_read_line_num(0);
+
+    my $loop_ret = $self->_ReadConfig_lines_loop($fh);
+
+    if (!defined($loop_ret))
+    {
+        return undef;
     }
 
     # Special case: return undef if file is empty. (suppress this line to
@@ -1059,7 +1068,7 @@ sub ReadConfig
         $self->AddSection($defaultsect);
     }
 
-    $self->_SetEndComments(@cmts);
+    $self->_SetEndComments(@{ $loop_ret->{cmts} });
 
     $self->_rollback($fh);
     return (@Config::IniFiles::errors ? undef : 1);
