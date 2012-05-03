@@ -887,16 +887,33 @@ sub _curr_loc
     return ($self->_curr_sect, $self->_curr_parm);
 }
 
+# The current value - used in parsing.
+sub _curr_val
+{
+    my $self = shift;
+
+    if (@_)
+    {
+        $self->{_curr_val} = shift;
+    }
+
+    return $self->{_curr_val};
+}
+
 sub _ReadConfig_lines_loop
 {
     my ($self, $fh) = @_;
 
     # The current section - a loop state variable.
-    my ($val, @cmts);
+    my (@cmts);
 
     my $allCmt = $self->{allowed_comment_char};
     my $nocase = $self->_nocase;
     my $end_commenthandle = $self->{handle_trailing_comment};
+
+    $self->_curr_sect(undef());
+    $self->_curr_parm(undef());
+    $self->_curr_val(undef());
 
     LINES_LOOP :
     while ( defined(my $line = $self->_read_next_line($fh)) )
@@ -930,7 +947,8 @@ sub _ReadConfig_lines_loop
             @cmts = ();
         }
         # New parameter
-        elsif (((my $parm), $val) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
+        elsif (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
+            $self->_curr_val($value_to_assign);
             my $end_comment;
             if ((!defined($self->_curr_sect)) and defined($self->{fallback}))
             {
@@ -951,7 +969,7 @@ sub _ReadConfig_lines_loop
             $self->_curr_parm($parm);
             my @val = ( );
             my $eotmark;
-            if ($val =~ /^<<(.*)$/) {         # "here" value
+            if ($self->_curr_val =~ /^<<(.*)$/) {         # "here" value
                 $eotmark  = $1;
                 my $foundeot = 0;
                 my $startline = $self->_read_line_num();
@@ -974,18 +992,18 @@ sub _ReadConfig_lines_loop
             } else { # no here value
 
                 # process continuation lines, if any
-                $self->_process_continue_val($fh, \$val);
+                $self->_process_continue_val($fh);
 
                 # we should split value and comments if there is any comment
-                if ($end_commenthandle &&
-                    $val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
-                    $val = $1;
-                    $end_comment = $2;
+                if ($end_commenthandle and
+                    my ($value_to_assign, $end_comment_to_assign) = $self->_curr_val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
+                    $self->_curr_val($value_to_assign);
+                    $end_comment = $end_comment_to_assign;
                 } else {
                     $end_comment = "";
                 }
 
-                @val = $val;
+                @val = ($self->_curr_val);
             }
             # Now load value
             if (exists $self->{v}{$self->_curr_sect}{$self->_curr_parm} &&
@@ -1685,16 +1703,20 @@ sub _output_comments
 
 sub _process_continue_val
 {
-    my ($self, $fh, $val_ref) = @_;
+    my ($self, $fh) = @_;
 
     if (not $self->{allowcontinue})
     {
         return;
     }
 
-    while(${$val_ref} =~ s/\\\z//) {
-        ${$val_ref} .= $self->_read_next_line($fh);
+    my $val = $self->_curr_val;
+
+    while($val =~ s/\\\z//) {
+        $val .= $self->_read_next_line($fh);
     }
+
+    $self->_curr_val($val);
 
     return;
 }
