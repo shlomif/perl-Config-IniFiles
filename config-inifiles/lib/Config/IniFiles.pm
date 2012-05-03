@@ -866,12 +866,25 @@ sub _curr_sect
     return $self->{_curr_sect};
 }
 
+# The current parameter - used for parsing.
+sub _curr_parm
+{
+    my $self = shift;
+
+    if (@_)
+    {
+        $self->{_curr_parm} = shift;
+    }
+
+    return $self->{_curr_parm};
+}
+
 sub _ReadConfig_lines_loop
 {
     my ($self, $fh) = @_;
 
     # The current section - a loop state variable.
-    my ($val, @cmts, $parm);
+    my ($val, @cmts);
 
     my $allCmt = $self->{allowed_comment_char};
     my $nocase = $self->_nocase;
@@ -909,7 +922,7 @@ sub _ReadConfig_lines_loop
             @cmts = ();
         }
         # New parameter
-        elsif (($parm, $val) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
+        elsif (((my $parm), $val) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
             my $end_comment;
             if ((!defined($self->_curr_sect)) and defined($self->{fallback}))
             {
@@ -927,6 +940,7 @@ sub _ReadConfig_lines_loop
             }
 
             $parm = lc($parm) if $nocase;
+            $self->_curr_parm($parm);
             my @val = ( );
             my $eotmark;
             if ($val =~ /^<<(.*)$/) {         # "here" value
@@ -966,20 +980,20 @@ sub _ReadConfig_lines_loop
                 @val = $val;
             }
             # Now load value
-            if (exists $self->{v}{$self->_curr_sect}{$parm} &&
+            if (exists $self->{v}{$self->_curr_sect}{$self->_curr_parm} &&
                 exists $self->{myparms}{$self->_curr_sect} &&
-                $self->_is_parm_in_sect($self->_curr_sect, $parm)) {
-                $self->push($self->_curr_sect, $parm, @val);
+                $self->_is_parm_in_sect($self->_curr_sect, $self->_curr_parm)) {
+                $self->push($self->_curr_sect, $self->_curr_parm, @val);
             } else {
                 # Loaded parameters shadow imported ones, instead of appending
                 # to them
-                $self->newval($self->_curr_sect, $parm, @val);
+                $self->newval($self->_curr_sect, $self->_curr_parm, @val);
             }
-            $self->SetParameterComment($self->_curr_sect, $parm, @cmts);
+            $self->SetParameterComment($self->_curr_sect, $self->_curr_parm, @cmts);
             @cmts = ( );
-            $self->SetParameterEOT($self->_curr_sect, $parm,$eotmark) if (defined $eotmark);
+            $self->SetParameterEOT($self->_curr_sect, $self->_curr_parm,$eotmark) if (defined $eotmark);
             # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
-            $self->SetParameterTrailingComment($self->_curr_sect, $parm, $end_comment);
+            $self->SetParameterTrailingComment($self->_curr_sect, $self->_curr_parm, $end_comment);
 
         } else {
             $self->_add_error(sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $self->_read_line_num(), $line));
