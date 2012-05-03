@@ -938,10 +938,7 @@ sub _ReadConfig_lines_loop
             } else { # no here value
 
                 # process continuation lines, if any
-                while($self->{allowcontinue} && $val =~ s/\\$//) {
-                    $line = $self->_read_next_line($fh);
-                    $val .= $line;
-                }
+                $self->_process_continue_val($fh, \$val);
 
                 # we should split value and comments if there is any comment
                 if ($end_commenthandle &&
@@ -1645,6 +1642,22 @@ sub _output_comments
         foreach my $comment (@$comments_aref) {
             $print_line->($comment);
         }
+    }
+
+    return;
+}
+
+sub _process_continue_val
+{
+    my ($self, $fh, $val_ref) = @_;
+
+    if (not $self->{allowcontinue})
+    {
+        return;
+    }
+
+    while(${$val_ref} =~ s/\\$//) {
+        ${$val_ref} .= $self->_read_next_line($fh);
     }
 
     return;
