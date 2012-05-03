@@ -900,12 +900,21 @@ sub _curr_val
     return $self->{_curr_val};
 }
 
+sub _curr_cmts
+{
+    my $self = shift;
+
+    if (@_)
+    {
+        $self->{_curr_cmts} = shift;
+    }
+
+    return $self->{_curr_cmts};
+}
+
 sub _ReadConfig_lines_loop
 {
     my ($self, $fh) = @_;
-
-    # The current section - a loop state variable.
-    my (@cmts);
 
     my $allCmt = $self->{allowed_comment_char};
     my $nocase = $self->_nocase;
@@ -914,6 +923,7 @@ sub _ReadConfig_lines_loop
     $self->_curr_sect(undef());
     $self->_curr_parm(undef());
     $self->_curr_val(undef());
+    $self->_curr_cmts([]);
 
     LINES_LOOP :
     while ( defined(my $line = $self->_read_next_line($fh)) )
@@ -932,7 +942,7 @@ sub _ReadConfig_lines_loop
                     $self->delval($self->_curr_sect, $todelete);
                 }
             } else {
-                CORE::push(@cmts, $line);
+                CORE::push(@{$self->_curr_cmts}, $line);
             }
             next LINES_LOOP;
         }
@@ -943,8 +953,8 @@ sub _ReadConfig_lines_loop
             $self->_caseify(\$sect);
             $self->_curr_sect($sect);
             $self->AddSection($self->_curr_sect);
-            $self->SetSectionComment($self->_curr_sect, @cmts);
-            @cmts = ();
+            $self->SetSectionComment($self->_curr_sect, @{$self->_curr_cmts});
+            $self->_curr_cmts([]);
         }
         # New parameter
         elsif (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
@@ -1015,8 +1025,8 @@ sub _ReadConfig_lines_loop
                 # to them
                 $self->newval($self->_curr_loc, @val);
             }
-            $self->SetParameterComment($self->_curr_loc, @cmts);
-            @cmts = ( );
+            $self->SetParameterComment($self->_curr_loc, @{ $self->_curr_cmts });
+            $self->_curr_cmts([]);
             $self->SetParameterEOT($self->_curr_loc,$eotmark) if (defined $eotmark);
             # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
             $self->SetParameterTrailingComment($self->_curr_loc, $end_comment);
@@ -1026,7 +1036,7 @@ sub _ReadConfig_lines_loop
         }
     } # End main parsing loop
 
-    return { 'ret_code' => 1, 'cmts' => \@cmts, };   
+    return 1;
 }
 
 sub ReadConfig
@@ -1099,9 +1109,7 @@ sub ReadConfig
 
     $self->_read_line_num(0);
 
-    my $loop_ret = $self->_ReadConfig_lines_loop($fh);
-
-    if (!defined($loop_ret))
+    if (!defined($self->_ReadConfig_lines_loop($fh)))
     {
         return undef;
     }
@@ -1119,7 +1127,7 @@ sub ReadConfig
         $self->AddSection($defaultsect);
     }
 
-    $self->_SetEndComments(@{ $loop_ret->{cmts} });
+    $self->_SetEndComments(@{ $self->_curr_cmts });
 
     $self->_rollback($fh);
     return (@Config::IniFiles::errors ? undef : 1);
