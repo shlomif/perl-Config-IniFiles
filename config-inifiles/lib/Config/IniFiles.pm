@@ -1062,7 +1062,7 @@ sub _ReadConfig_lines_loop
         {
             return undef;
         }
-    } # End main parsing loop
+    }
 
     return 1;
 }
