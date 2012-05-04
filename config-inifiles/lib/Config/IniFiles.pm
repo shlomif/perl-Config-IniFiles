@@ -912,6 +912,18 @@ sub _curr_cmts
     return $self->{_curr_cmts};
 }
 
+sub _curr_end_comment
+{
+    my $self = shift;
+
+    if (@_)
+    {
+        $self->{_curr_end_comment} = shift;
+    }
+
+    return $self->{_curr_end_comment};
+}
+
 my $RET_CONTINUE = 1;
 my $RET_BREAK;
 
@@ -954,6 +966,19 @@ sub _ReadConfig_new_section
     return $RET_CONTINUE;
 }
 
+sub _handle_fallback_sect
+{
+    my ($self) = @_;
+
+    if ((!defined($self->_curr_sect)) and defined($self->{fallback}))
+    {
+        $self->_curr_sect($self->{fallback});
+        $self->{fallback_used}++;
+    }
+
+    return;
+}
+
 sub _ReadConfig_param_assignment
 {
     my ($self, $fh, $line, $parm, $value_to_assign) = @_;
@@ -962,12 +987,10 @@ sub _ReadConfig_param_assignment
     my $end_commenthandle = $self->{handle_trailing_comment};
 
     $self->_curr_val($value_to_assign);
-    my $end_comment;
-    if ((!defined($self->_curr_sect)) and defined($self->{fallback}))
-    {
-        $self->_curr_sect($self->{fallback});
-        $self->{fallback_used}++;
-    }
+    $self->_curr_end_comment(undef());
+
+    $self->_handle_fallback_sect;
+
     if (!defined $self->_curr_sect) {
         $self->_add_error(
             sprintf('%d: %s', $self->_read_line_num(), 
@@ -980,6 +1003,7 @@ sub _ReadConfig_param_assignment
 
     $self->_caseify(\$parm);
     $self->_curr_parm($parm);
+
     my @val = ( );
     my $eotmark;
     if ($self->_curr_val =~ /^<<(.*)$/) {         # "here" value
@@ -1011,9 +1035,9 @@ sub _ReadConfig_param_assignment
         if ($end_commenthandle and
             my ($value_to_assign, $end_comment_to_assign) = $self->_curr_val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
             $self->_curr_val($value_to_assign);
-            $end_comment = $end_comment_to_assign;
+            $self->_curr_end_comment($end_comment_to_assign);
         } else {
-            $end_comment = "";
+            $self->_curr_end_comment(q{});
         }
 
         @val = ($self->_curr_val);
@@ -1032,7 +1056,7 @@ sub _ReadConfig_param_assignment
     $self->_curr_cmts([]);
     $self->SetParameterEOT($self->_curr_loc,$eotmark) if (defined $eotmark);
     # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
-    $self->SetParameterTrailingComment($self->_curr_loc, $end_comment);
+    $self->SetParameterTrailingComment($self->_curr_loc, $self->_curr_end_comment);
 
     return $RET_CONTINUE;
 }
