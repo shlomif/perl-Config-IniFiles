@@ -1068,7 +1068,7 @@ sub _ReadConfig_param_assignment
 
     $self->SetParameterComment($self->_curr_loc, @{ $self->_curr_cmts });
     $self->_curr_cmts([]);
-    $self->SetParameterEOT($self->_curr_loc,$eotmark) if (defined $eotmark);
+    $self->SetParameterEOT($self->_curr_loc, $eotmark) if (defined $eotmark);
     # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
     $self->SetParameterTrailingComment($self->_curr_loc, $self->_curr_end_comment);
 
