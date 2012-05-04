@@ -937,6 +937,20 @@ sub _ReadConfig_handle_comment
     return;
 }
 
+sub _ReadConfig_new_section
+{
+    my ($self, $sect) = @_;
+
+    $self->_caseify(\$sect);
+
+    $self->_curr_sect($sect);
+    $self->AddSection($self->_curr_sect);
+    $self->SetSectionComment($self->_curr_sect, @{$self->_curr_cmts});
+    $self->_curr_cmts([]);
+
+    return;
+}
+
 sub _ReadConfig_handle_line
 {
     my ($self, $fh, $line) = @_;
@@ -954,13 +968,8 @@ sub _ReadConfig_handle_line
     }
 
     # New Section
-    if ($line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/) {
-        my $sect = $1;
-        $self->_caseify(\$sect);
-        $self->_curr_sect($sect);
-        $self->AddSection($self->_curr_sect);
-        $self->SetSectionComment($self->_curr_sect, @{$self->_curr_cmts});
-        $self->_curr_cmts([]);
+    if (my ($sect) = $line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/) {
+        $self->_ReadConfig_new_section($sect);
     }
     # New parameter
     elsif (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
