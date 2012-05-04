@@ -1047,7 +1047,11 @@ sub _ReadConfig_handle_line
         $self->SetParameterTrailingComment($self->_curr_loc, $end_comment);
 
     } else {
-        $self->_add_error(sprintf("Line \%d in file " . $self->{cf} . " is mal-formed:\n\t\%s", $self->_read_line_num(), $line));
+        $self->_add_error(
+            sprintf("Line %d in file %s is mal-formed:\n\t\%s", 
+                $self->_read_line_num(), $self->GetFileName(), $line
+            )
+        );
     }
 
     return 1;
