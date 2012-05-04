@@ -912,6 +912,31 @@ sub _curr_cmts
     return $self->{_curr_cmts};
 }
 
+sub _ReadConfig_handle_comment
+{
+    my ($self, $line) = @_;
+
+    if ($self->{negativedeltas} and
+        my ($to_delete) = $line =~ m/\A$self->{comment_char} (.*) is deleted\z/
+    ) 
+    {
+        if (my ($sect) = $to_delete =~ m/\A\[(.*)\]\z/)
+        {
+            $self->DeleteSection($sect);
+        }
+        else
+        {
+            $self->delval($self->_curr_sect, $to_delete);
+        }
+    }
+    else
+    {
+        CORE::push(@{$self->_curr_cmts}, $line);
+    }
+
+    return;
+}
+
 sub _ReadConfig_handle_line
 {
     my ($self, $fh, $line) = @_;
@@ -924,18 +949,7 @@ sub _ReadConfig_handle_line
     }
 
     if ($line =~/\A\s*[$allCmt]/) {           # collect comments
-        if ($self->{negativedeltas} &&
-            $line =~ m/\A$self->{comment_char} (.*) is deleted\z/) {
-            my $todelete=$1;
-            if ($todelete =~ m/\A\[(.*)\]\z/) {
-                $self->DeleteSection($1);
-            } else {
-                $self->delval($self->_curr_sect, $todelete);
-            }
-        } else {
-            CORE::push(@{$self->_curr_cmts}, $line);
-        }
-
+        $self->_ReadConfig_handle_comment($line);
         return 1;
     }
 
