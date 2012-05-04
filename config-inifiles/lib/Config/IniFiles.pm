@@ -923,7 +923,7 @@ sub _ReadConfig_handle_line
         return 1;
     }
 
-    if ($line =~/^\s*[$allCmt]/) {           # collect comments
+    if ($line =~/\A\s*[$allCmt]/) {           # collect comments
         if ($self->{negativedeltas} &&
             $line =~ m/\A$self->{comment_char} (.*) is deleted\z/) {
             my $todelete=$1;
