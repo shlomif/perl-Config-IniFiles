@@ -979,6 +979,27 @@ sub _handle_fallback_sect
     return;
 }
 
+sub _ReadConfig_load_value
+{
+    my ($self, $val_aref) = @_;
+
+    # Now load value
+    if (exists $self->{v}{$self->_curr_sect}{$self->_curr_parm} &&
+        exists $self->{myparms}{$self->_curr_sect} &&
+        $self->_is_parm_in_sect($self->_curr_loc))
+    {
+        $self->push($self->_curr_loc, @$val_aref);
+    }
+    else
+    {
+        # Loaded parameters shadow imported ones, instead of appending
+        # to them
+        $self->newval($self->_curr_loc, @$val_aref);
+    }
+
+    return;
+}
+
 sub _ReadConfig_param_assignment
 {
     my ($self, $fh, $line, $parm, $value_to_assign) = @_;
@@ -1042,16 +1063,9 @@ sub _ReadConfig_param_assignment
 
         @val = ($self->_curr_val);
     }
-    # Now load value
-    if (exists $self->{v}{$self->_curr_sect}{$self->_curr_parm} &&
-        exists $self->{myparms}{$self->_curr_sect} &&
-        $self->_is_parm_in_sect($self->_curr_loc)) {
-        $self->push($self->_curr_loc, @val);
-    } else {
-        # Loaded parameters shadow imported ones, instead of appending
-        # to them
-        $self->newval($self->_curr_loc, @val);
-    }
+
+    $self->_ReadConfig_load_value(\@val);
+
     $self->SetParameterComment($self->_curr_loc, @{ $self->_curr_cmts });
     $self->_curr_cmts([]);
     $self->SetParameterEOT($self->_curr_loc,$eotmark) if (defined $eotmark);
