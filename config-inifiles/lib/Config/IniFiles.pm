@@ -951,110 +951,124 @@ sub _ReadConfig_new_section
     return;
 }
 
+sub _ReadConfig_param_assignment
+{
+    my ($self, $fh, $line, $parm, $value_to_assign) = @_;
+
+    my $allCmt = $self->{allowed_comment_char};
+    my $end_commenthandle = $self->{handle_trailing_comment};
+
+    $self->_curr_val($value_to_assign);
+    my $end_comment;
+    if ((!defined($self->_curr_sect)) and defined($self->{fallback}))
+    {
+        $self->_curr_sect($self->{fallback});
+        $self->{fallback_used}++;
+    }
+    if (!defined $self->_curr_sect) {
+        $self->_add_error(
+            sprintf('%d: %s', $self->_read_line_num(), 
+                qq#parameter found outside a section#
+            )
+        );
+        $self->_rollback($fh);
+        return undef;
+    }
+
+    $self->_caseify(\$parm);
+    $self->_curr_parm($parm);
+    my @val = ( );
+    my $eotmark;
+    if ($self->_curr_val =~ /^<<(.*)$/) {         # "here" value
+        $eotmark  = $1;
+        my $foundeot = 0;
+        my $startline = $self->_read_line_num();
+        while (defined( $line = $self->_read_next_line($fh) )) {
+            if ($line eq $eotmark) {
+                $foundeot = 1;
+                last;
+            } else {
+                # Untaint
+                $line =~ /(.*)/ms;
+                CORE::push(@val, $1);
+            }
+        }
+        if (! $foundeot) {
+            $self->_add_error(sprintf('%d: %s', $startline,
+                    qq#no end marker ("$eotmark") found#));
+            $self->_rollback();
+            return undef;
+        }
+    } else { # no here value
+
+        # process continuation lines, if any
+        $self->_process_continue_val($fh);
+
+        # we should split value and comments if there is any comment
+        if ($end_commenthandle and
+            my ($value_to_assign, $end_comment_to_assign) = $self->_curr_val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
+            $self->_curr_val($value_to_assign);
+            $end_comment = $end_comment_to_assign;
+        } else {
+            $end_comment = "";
+        }
+
+        @val = ($self->_curr_val);
+    }
+    # Now load value
+    if (exists $self->{v}{$self->_curr_sect}{$self->_curr_parm} &&
+        exists $self->{myparms}{$self->_curr_sect} &&
+        $self->_is_parm_in_sect($self->_curr_loc)) {
+        $self->push($self->_curr_loc, @val);
+    } else {
+        # Loaded parameters shadow imported ones, instead of appending
+        # to them
+        $self->newval($self->_curr_loc, @val);
+    }
+    $self->SetParameterComment($self->_curr_loc, @{ $self->_curr_cmts });
+    $self->_curr_cmts([]);
+    $self->SetParameterEOT($self->_curr_loc,$eotmark) if (defined $eotmark);
+    # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
+    $self->SetParameterTrailingComment($self->_curr_loc, $end_comment);
+
+    return 1;
+}
+
 sub _ReadConfig_handle_line
 {
     my ($self, $fh, $line) = @_;
 
     my $allCmt = $self->{allowed_comment_char};
-    my $end_commenthandle = $self->{handle_trailing_comment};
 
     if ($line =~ /\A\s*\z/) {              # ignore blank lines
         return 1;
     }
 
-    if ($line =~/\A\s*[$allCmt]/) {           # collect comments
+    if ($line =~/\A\s*[$allCmt]/) {          # collect comments 
         $self->_ReadConfig_handle_comment($line);
         return 1;
     }
 
     # New Section
-    if (my ($sect) = $line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/) {
+    if (my ($sect) = $line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/)
+    {
         $self->_ReadConfig_new_section($sect);
+        return 1;
     }
     # New parameter
-    elsif (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/) {
-        $self->_curr_val($value_to_assign);
-        my $end_comment;
-        if ((!defined($self->_curr_sect)) and defined($self->{fallback}))
-        {
-            $self->_curr_sect($self->{fallback});
-            $self->{fallback_used}++;
-        }
-        if (!defined $self->_curr_sect) {
-            $self->_add_error(
-                sprintf('%d: %s', $self->_read_line_num(), 
-                    qq#parameter found outside a section#
-                )
-            );
-            $self->_rollback($fh);
-            return undef;
-        }
-
-        $self->_caseify(\$parm);
-        $self->_curr_parm($parm);
-        my @val = ( );
-        my $eotmark;
-        if ($self->_curr_val =~ /^<<(.*)$/) {         # "here" value
-            $eotmark  = $1;
-            my $foundeot = 0;
-            my $startline = $self->_read_line_num();
-            while (defined( $line = $self->_read_next_line($fh) )) {
-                if ($line eq $eotmark) {
-                    $foundeot = 1;
-                    last;
-                } else {
-                    # Untaint
-                    $line =~ /(.*)/ms;
-                    CORE::push(@val, $1);
-                }
-            }
-            if (! $foundeot) {
-                $self->_add_error(sprintf('%d: %s', $startline,
-                        qq#no end marker ("$eotmark") found#));
-                $self->_rollback();
-                return undef;
-            }
-        } else { # no here value
-
-            # process continuation lines, if any
-            $self->_process_continue_val($fh);
-
-            # we should split value and comments if there is any comment
-            if ($end_commenthandle and
-                my ($value_to_assign, $end_comment_to_assign) = $self->_curr_val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
-                $self->_curr_val($value_to_assign);
-                $end_comment = $end_comment_to_assign;
-            } else {
-                $end_comment = "";
-            }
-
-            @val = ($self->_curr_val);
-        }
-        # Now load value
-        if (exists $self->{v}{$self->_curr_sect}{$self->_curr_parm} &&
-            exists $self->{myparms}{$self->_curr_sect} &&
-            $self->_is_parm_in_sect($self->_curr_loc)) {
-            $self->push($self->_curr_loc, @val);
-        } else {
-            # Loaded parameters shadow imported ones, instead of appending
-            # to them
-            $self->newval($self->_curr_loc, @val);
-        }
-        $self->SetParameterComment($self->_curr_loc, @{ $self->_curr_cmts });
-        $self->_curr_cmts([]);
-        $self->SetParameterEOT($self->_curr_loc,$eotmark) if (defined $eotmark);
-        # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
-        $self->SetParameterTrailingComment($self->_curr_loc, $end_comment);
-
-    } else {
+    elsif (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/)
+    {
+        return $self->_ReadConfig_param_assignment($fh, $line, $parm, $value_to_assign);
+    }
+    else
+    {
         $self->_add_error(
             sprintf("Line %d in file %s is mal-formed:\n\t\%s", 
                 $self->_read_line_num(), $self->GetFileName(), $line
             )
         );
+        return 1;
     }
-
-    return 1;
 }
 
 sub _ReadConfig_lines_loop
