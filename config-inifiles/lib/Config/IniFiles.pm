@@ -912,6 +912,9 @@ sub _curr_cmts
     return $self->{_curr_cmts};
 }
 
+my $RET_CONTINUE = 1;
+my $RET_BREAK;
+
 sub _ReadConfig_handle_comment
 {
     my ($self, $line) = @_;
@@ -934,7 +937,7 @@ sub _ReadConfig_handle_comment
         CORE::push(@{$self->_curr_cmts}, $line);
     }
 
-    return;
+    return $RET_CONTINUE;
 }
 
 sub _ReadConfig_new_section
@@ -948,7 +951,7 @@ sub _ReadConfig_new_section
     $self->SetSectionComment($self->_curr_sect, @{$self->_curr_cmts});
     $self->_curr_cmts([]);
 
-    return;
+    return $RET_CONTINUE;
 }
 
 sub _ReadConfig_param_assignment
@@ -972,7 +975,7 @@ sub _ReadConfig_param_assignment
             )
         );
         $self->_rollback($fh);
-        return undef;
+        return $RET_BREAK;
     }
 
     $self->_caseify(\$parm);
@@ -997,7 +1000,7 @@ sub _ReadConfig_param_assignment
             $self->_add_error(sprintf('%d: %s', $startline,
                     qq#no end marker ("$eotmark") found#));
             $self->_rollback();
-            return undef;
+            return $RET_BREAK;
         }
     } else { # no here value
 
@@ -1031,44 +1034,47 @@ sub _ReadConfig_param_assignment
     # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
     $self->SetParameterTrailingComment($self->_curr_loc, $end_comment);
 
-    return 1;
+    return $RET_CONTINUE;
 }
 
+# Return 1 to continue - undef to terminate the loop.
 sub _ReadConfig_handle_line
 {
     my ($self, $fh, $line) = @_;
 
     my $allCmt = $self->{allowed_comment_char};
 
-    if ($line =~ /\A\s*\z/) {              # ignore blank lines
-        return 1;
+    # ignore blank lines
+    if ($line =~ /\A\s*\z/)
+    {              
+        return $RET_CONTINUE;
     }
 
-    if ($line =~/\A\s*[$allCmt]/) {          # collect comments 
-        $self->_ReadConfig_handle_comment($line);
-        return 1;
+    # collect comments 
+    if ($line =~/\A\s*[$allCmt]/)
+    {          
+        return $self->_ReadConfig_handle_comment($line);
     }
 
     # New Section
     if (my ($sect) = $line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/)
     {
-        $self->_ReadConfig_new_section($sect);
-        return 1;
+        return $self->_ReadConfig_new_section($sect);
     }
+
     # New parameter
-    elsif (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/)
+    if (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/)
     {
         return $self->_ReadConfig_param_assignment($fh, $line, $parm, $value_to_assign);
     }
-    else
-    {
-        $self->_add_error(
-            sprintf("Line %d in file %s is mal-formed:\n\t\%s", 
-                $self->_read_line_num(), $self->GetFileName(), $line
-            )
-        );
-        return 1;
-    }
+
+    $self->_add_error(
+        sprintf("Line %d in file %s is mal-formed:\n\t\%s", 
+            $self->_read_line_num(), $self->GetFileName(), $line
+        )
+    );
+
+    return $RET_CONTINUE;
 }
 
 sub _ReadConfig_lines_loop
