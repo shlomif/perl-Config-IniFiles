@@ -576,8 +576,6 @@ sub val
     }
 }
 
-
-
 =head2 exists($section, $parameter)
 
 True if and only if there exists a section C<$section>, with 
