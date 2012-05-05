@@ -1,6 +1,13 @@
+Version 2.72    ( Sat May  5 19:19:09 IDT 2012 )
+------------------------------------------------
+
 * More refactoring.
 
 * Now requiring Fcntl (which is a core module) for SEEK_SET() and SEEK_CUR().
+
+* Update the contact information on the POD.
+
+* Maintainer’s special birthday (5-May) release.
 
 Version 2.71:   ( Wed May  2 10:59:04 IDT 2012 )
 ------------------------------------------------
