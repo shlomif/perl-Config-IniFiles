@@ -1614,7 +1614,7 @@ sub SetWriteMode
 {
     my ($self, $mode) = @_;
 
-    if (not (defined($mode) && ($mode =~ m/\A[0-7]{3}\z/)))
+    if (not (defined($mode) && ($mode =~ m/[0-7]{3}/)))
     {
         return undef;
     }
