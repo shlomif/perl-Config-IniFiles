@@ -3053,7 +3053,8 @@ data structure.
 
 The original code was written by Scott Hutton.
 Then handled for a time by Rich Bowen (thanks!),
-It is now managed by Jeremy Wadsack,
+and was later managed by Jeremy Wadsack (thanks!),
+and now is managed by Shlomi Fish ( L<http://www.shlomifish.org/> )
 with many contributions from various other people.
 
 In particular, special thanks go to (in roughly chronological order):
@@ -3068,13 +3069,14 @@ Geez, that's a lot of people. And apologies to the folks who were missed.
 
 If you want someone to bug about this, that would be:
 
-    Jeremy Wadsack <dgsupport at wadsack-allen dot com>
+    Shlomi Fish <shlomif@cpan.org>
 
 If you want more information, or want to participate, go to:
 
-    http://sourceforge.net/projects/config-inifiles/
+L<http://sourceforge.net/projects/config-inifiles/>
 
-Please send bug reports to config-inifiles-bugs@lists.sourceforge.net
+Please submit bug reports using the Request Tracker interface at
+L<https://rt.cpan.org/Public/Dist/Display.html?Name=Config-IniFiles> .
 
 Development discussion occurs on the mailing list
 config-inifiles-dev@lists.sourceforge.net, which you can subscribe
