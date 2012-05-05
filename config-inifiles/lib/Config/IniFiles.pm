@@ -1019,6 +1019,40 @@ sub _test_for_fallback_or_no_sect
     return $RET_CONTINUE;
 }
 
+sub _ReadConfig_handle_here_doc_param
+{
+    my ($self, $fh, $eotmark, $val_aref) = @_;
+
+    my $foundeot = 0;
+    my $startline = $self->_read_line_num();
+
+    HERE_DOC_LOOP:
+    while (defined( my $line = $self->_read_next_line($fh) ))
+    {
+        if ($line eq $eotmark)
+        {
+            $foundeot = 1;
+            last HERE_DOC_LOOP;
+        }
+        else
+        {
+            # Untaint
+            my ($contents) = $line =~ /(.*)/ms;
+            CORE::push(@$val_aref, $contents);
+        }
+    }
+
+    if (! $foundeot)
+    {
+        $self->_add_error(sprintf('%d: %s', $startline,
+                qq#no end marker ("$eotmark") found#));
+        $self->_rollback();
+        return $RET_BREAK;
+    }
+
+    return $RET_CONTINUE;
+}
+
 sub _ReadConfig_param_assignment
 {
     my ($self, $fh, $line, $parm, $value_to_assign) = @_;
@@ -1039,28 +1073,19 @@ sub _ReadConfig_param_assignment
 
     my @val = ( );
     my $eotmark;
-    if ($self->_curr_val =~ /^<<(.*)$/) {         # "here" value
-        $eotmark  = $1;
-        my $foundeot = 0;
-        my $startline = $self->_read_line_num();
-        while (defined( $line = $self->_read_next_line($fh) )) {
-            if ($line eq $eotmark) {
-                $foundeot = 1;
-                last;
-            } else {
-                # Untaint
-                $line =~ /(.*)/ms;
-                CORE::push(@val, $1);
-            }
-        }
-        if (! $foundeot) {
-            $self->_add_error(sprintf('%d: %s', $startline,
-                    qq#no end marker ("$eotmark") found#));
-            $self->_rollback();
+
+    if (($eotmark) = $self->_curr_val =~ /\A<<(.*)$/)
+    {
+        if (! defined($self->_ReadConfig_handle_here_doc_param(
+                    $fh, $eotmark, \@val
+                ))
+        )
+        {
             return $RET_BREAK;
         }
-    } else { # no here value
-
+    }
+    else
+    {
         # process continuation lines, if any
         $self->_process_continue_val($fh);
 
