@@ -1080,6 +1080,25 @@ sub _ReadConfig_handle_non_here_doc_param
     return;
 }
 
+
+sub _ReadConfig_populate_values
+{
+    my ($self, $val_aref, $eotmark) = @_;
+
+    $self->_ReadConfig_load_value($val_aref);
+
+    $self->SetParameterComment($self->_curr_loc, @{ $self->_curr_cmts });
+    $self->_curr_cmts([]);
+    if (defined $eotmark)
+    {
+        $self->SetParameterEOT($self->_curr_loc, $eotmark);
+    }
+    # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
+    $self->SetParameterTrailingComment($self->_curr_loc, $self->_curr_end_comment);
+
+    return;
+}
+
 sub _ReadConfig_param_assignment
 {
     my ($self, $fh, $line, $parm, $value_to_assign) = @_;
@@ -1113,16 +1132,7 @@ sub _ReadConfig_param_assignment
         $self->_ReadConfig_handle_non_here_doc_param( $fh, \@val );
     }
 
-    $self->_ReadConfig_load_value(\@val);
-
-    $self->SetParameterComment($self->_curr_loc, @{ $self->_curr_cmts });
-    $self->_curr_cmts([]);
-    if (defined $eotmark)
-    {
-        $self->SetParameterEOT($self->_curr_loc, $eotmark);
-    }
-    # if handle_trailing_comment is off, this line makes no sense, since all $end_comment=""
-    $self->SetParameterTrailingComment($self->_curr_loc, $self->_curr_end_comment);
+    $self->_ReadConfig_populate_values(\@val, $eotmark);
 
     return $RET_CONTINUE;
 }
