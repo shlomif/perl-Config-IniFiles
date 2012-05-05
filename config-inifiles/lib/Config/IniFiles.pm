@@ -1053,12 +1053,36 @@ sub _ReadConfig_handle_here_doc_param
     return $RET_CONTINUE;
 }
 
-sub _ReadConfig_param_assignment
+sub _ReadConfig_handle_non_here_doc_param
 {
-    my ($self, $fh, $line, $parm, $value_to_assign) = @_;
+    my ($self, $fh, $val_aref) = @_;
 
     my $allCmt = $self->{allowed_comment_char};
     my $end_commenthandle = $self->{handle_trailing_comment};
+
+    # process continuation lines, if any
+    $self->_process_continue_val($fh);
+
+    # we should split value and comments if there is any comment
+    if ($end_commenthandle and
+        my ($value_to_assign, $end_comment_to_assign) = $self->_curr_val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/)
+    {
+        $self->_curr_val($value_to_assign);
+        $self->_curr_end_comment($end_comment_to_assign);
+    }
+    else
+    {
+        $self->_curr_end_comment(q{});
+    }
+
+    @{$val_aref} = ($self->_curr_val);
+
+    return;
+}
+
+sub _ReadConfig_param_assignment
+{
+    my ($self, $fh, $line, $parm, $value_to_assign) = @_;
 
     $self->_curr_val($value_to_assign);
     $self->_curr_end_comment(undef());
@@ -1086,19 +1110,7 @@ sub _ReadConfig_param_assignment
     }
     else
     {
-        # process continuation lines, if any
-        $self->_process_continue_val($fh);
-
-        # we should split value and comments if there is any comment
-        if ($end_commenthandle and
-            my ($value_to_assign, $end_comment_to_assign) = $self->_curr_val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/) {
-            $self->_curr_val($value_to_assign);
-            $self->_curr_end_comment($end_comment_to_assign);
-        } else {
-            $self->_curr_end_comment(q{});
-        }
-
-        @val = ($self->_curr_val);
+        $self->_ReadConfig_handle_non_here_doc_param( $fh, \@val );
     }
 
     $self->_ReadConfig_load_value(\@val);
