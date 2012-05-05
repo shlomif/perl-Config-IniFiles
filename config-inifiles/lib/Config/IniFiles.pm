@@ -524,40 +524,56 @@ sub _caseify {
     return;
 }
 
-sub val {
-  my ($self, $sect, $parm, $def) = @_;
+sub val
+{
+    my ($self, $sect, $parm, $def) = @_;
 
-  # Always return undef on bad parameters
-  return if not defined $sect;
-  return if not defined $parm;
- 
-  $self->_caseify(\$sect, \$parm);
+    # Always return undef on bad parameters
+    if (not (defined($sect) && defined($parm)))
+    {
+        return;
+    }
 
-  my $val = defined($self->{v}{$sect}{$parm}) ?
-    $self->{v}{$sect}{$parm} :
-    $self->{v}{$self->{default}}{$parm};
-  
-  # If the value is undef, make it $def instead (which could just be undef)
-  $val = $def unless defined $val;
-  
-  # Return the value in the desired context
-  if (wantarray) {
-    if (ref($val) eq "ARRAY") {
-      return @$val;
-    } elsif (defined($val)) {
-      return $val;
-    } else {
-      return;
+    $self->_caseify(\$sect, \$parm);
+
+    my $val_sect =
+        defined($self->{v}{$sect}{$parm})
+            ? $sect
+            : $self->{default}
+            ;
+
+    my $val = $self->{v}{$val_sect}{$parm};
+
+    # If the value is undef, make it $def instead (which could just be undef)
+    if (!defined ($val))
+    {
+        $val = $def;
     }
-  } elsif (ref($val) eq "ARRAY") {
-    if (defined ($/)) {
-        return join "$/", @$val;
-    } else {
-        return join "\n", @$val;
+
+    # Return the value in the desired context
+    if (wantarray)
+    {
+        if (ref($val) eq "ARRAY")
+        {
+            return @$val;
+        }
+        elsif (defined($val))
+        {
+            return $val;
+        }
+        else
+        {
+            return;
+        }
     }
-  } else {
-    return $val;
-  }
+    elsif (ref($val) eq "ARRAY")
+    {
+        return join( (defined($/) ? $/ : "\n"), @$val);
+    }
+    else
+    {
+        return $val;
+    }
 }
 
 
