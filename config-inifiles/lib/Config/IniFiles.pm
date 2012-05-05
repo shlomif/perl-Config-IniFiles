@@ -1000,15 +1000,9 @@ sub _ReadConfig_load_value
     return;
 }
 
-sub _ReadConfig_param_assignment
+sub _test_for_fallback_or_no_sect
 {
-    my ($self, $fh, $line, $parm, $value_to_assign) = @_;
-
-    my $allCmt = $self->{allowed_comment_char};
-    my $end_commenthandle = $self->{handle_trailing_comment};
-
-    $self->_curr_val($value_to_assign);
-    $self->_curr_end_comment(undef());
+    my ($self, $fh) = @_;
 
     $self->_handle_fallback_sect;
 
@@ -1019,6 +1013,24 @@ sub _ReadConfig_param_assignment
             )
         );
         $self->_rollback($fh);
+        return $RET_BREAK;
+    }
+    
+    return $RET_CONTINUE;
+}
+
+sub _ReadConfig_param_assignment
+{
+    my ($self, $fh, $line, $parm, $value_to_assign) = @_;
+
+    my $allCmt = $self->{allowed_comment_char};
+    my $end_commenthandle = $self->{handle_trailing_comment};
+
+    $self->_curr_val($value_to_assign);
+    $self->_curr_end_comment(undef());
+
+    if (!defined( $self->_test_for_fallback_or_no_sect($fh) ))
+    {
         return $RET_BREAK;
     }
 
