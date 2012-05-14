@@ -1671,10 +1671,25 @@ sub _write_config_to_filename
         #carp "Using mode $self->{file_mode} for file $file";
     }
 
-    my ($fh, $new_file) = tempfile(
-        "temp.ini-XXXXXXXXXX",
-        DIR => dirname($filename)
-    );
+    my ($fh, $new_file);
+
+    # We need to trap the exception that tempfile() may throw and instead
+    # carp() and return undef() because that was the previous behaviour:
+    #
+    # See RT #77039 ( https://rt.cpan.org/Ticket/Display.html?id=77039 )
+    eval {
+        ($fh, $new_file) = tempfile(
+            "temp.ini-XXXXXXXXXX",
+            DIR => dirname($filename)
+        );
+    };
+
+    if ($@)
+    {
+        carp( "Unable to write temp config file: $!" );
+        return undef;
+    }
+
     $self->OutputConfigToFileHandle($fh, $parms{-delta});
     close($fh);
     if (!rename( $new_file, $filename )) {

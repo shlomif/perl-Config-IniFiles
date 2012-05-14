@@ -1,3 +1,9 @@
+* Regression bug fix: temporary file creation error should generate a warning
+and return undef() instead of throwing an exception.
+    - https://rt.cpan.org/Ticket/Display.html?id=77039
+    - Thanks to Adam D. Barrat for noticing that, and Gregor Herrmann
+    from Debian for reporting this issue.
+
 Version 2.72    ( Sat May  5 19:19:09 IDT 2012 )
 ------------------------------------------------
 
