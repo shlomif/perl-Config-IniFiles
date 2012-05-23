@@ -37,14 +37,14 @@ for my $s (1 .. 4)
     }
 }
 
-sub _slurp
+sub _bin_slurp
 {
     my $filename = shift;
 
     open my $in, '<', $filename
         or die "Cannot open '$filename' for slurping - $!";
 
-    binmode $in, 1;
+    binmode $in;
     local $/;
     my $contents = <$in>;
 
@@ -55,7 +55,7 @@ sub _slurp
 
 # TEST
 unlike(
-    scalar(_slurp($config_filename)),
+    scalar(_bin_slurp($config_filename)),
     qr/[^\x0D]\x0A/, # \x0D is CR ; \x0A is LF. See "man ascii".
     "Checking that all line feeds are preceded by carriage returns",
 );
