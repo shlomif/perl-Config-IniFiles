@@ -1682,6 +1682,10 @@ sub _write_config_to_filename
             "temp.ini-XXXXXXXXXX",
             DIR => dirname($filename)
         );
+
+        # Convert the filehandle to a "text" filehandle suitable for use
+        # on Windows (and other platforms).
+        binmode $fh;
     };
 
     if ($@)
