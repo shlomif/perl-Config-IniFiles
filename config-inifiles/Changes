@@ -1,3 +1,6 @@
+Version 2.74    ( Thu May 24 00:46:37 IDT 2012 )
+------------------------------------------------
+
 * Made sure .ini files are output on Win32 with CR-LF pairs.
     - Thanks to Ben Johnson for reporting the bug and for a preliminary
     test script.
