@@ -1685,7 +1685,13 @@ sub _write_config_to_filename
 
         # Convert the filehandle to a "text" filehandle suitable for use
         # on Windows (and other platforms).
-        binmode $fh;
+        # 
+        # This may break compatibility for ultra-old perls (ones before 5.6.0)
+        # so I say - Good Riddance!
+        if ($^O =~ m/\AMSWin/)
+        {
+            binmode $fh, ':crlf';
+        }
     };
 
     if ($@)
