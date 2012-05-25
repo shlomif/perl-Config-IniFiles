@@ -1,3 +1,6 @@
+Version 2.75    ( Fri May 25 15:25:29 IDT 2012 )
+------------------------------------------------
+
 * Add "=encoding utf8" to the POD of lib/Config/IniFiles.pm
     - The POD contained wide characters and it is now an error in
     with recent Test::Pod and Pod::Simple. 
