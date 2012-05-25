@@ -20,6 +20,8 @@ use File::Temp qw/ tempfile /;
 
 #   $Header: /home/shlomi/progs/perl/cpan/Config/IniFiles/config-inifiles-cvsbackup/config-inifiles/IniFiles.pm,v 2.41 2003-12-08 10:50:56 domq Exp $
 
+=encoding utf8
+
 =head1 NAME
 
 Config::IniFiles - A module for reading .ini-style configuration files.
