@@ -9,7 +9,7 @@ Version 2.75    ( Fri May 25 15:25:29 IDT 2012 )
 
 * Add "=encoding utf8" to the POD of lib/Config/IniFiles.pm
     - The POD contained wide characters and it is now an error in
-    with recent Test::Pod and Pod::Simple. 
+    with recent Test::Pod and Pod::Simple.
     - See for example: http://www.cpantesters.org/cpan/report/89000ebe-a5bc-11e1-a439-fa78ab6c2661
 
 Version 2.74    ( Thu May 24 00:46:37 IDT 2012 )
@@ -75,7 +75,7 @@ Version 2.69:   ( Thu Apr  5 12:05:46 IDT 2012 )
 * Add the method ->OutputConfigToFileHandle which is a more explicit and
 safer version of ->OutputConfig.
     - ->OutputConfig now uses it.
-    - all existing tests pass, and a new test was added to 
+    - all existing tests pass, and a new test was added to
     t/15store-and-retrieve-here-doc-terminator.t .
 
 * Started refactoring the code.
@@ -100,7 +100,7 @@ Version 2.66:   ( Sat Jan 29 18:28:53 IST 2011 )
 comments at the end of a param=value line.
     - Fixes https://rt.cpan.org/Public/Bug/Display.html?id=43843 .
     - Original patch by Peter Xu.
-    - Some comments and corrections of the patch by Shlomi Fish (the current 
+    - Some comments and corrections of the patch by Shlomi Fish (the current
     Config-IniFiles maintainer.)
 
 Version 2.65:   ( Thu Nov 25 12:00:00 IST 2010 )
@@ -124,7 +124,7 @@ Version 2.63:   ( Fri Nov 19 16:50:58 IST 2010 )
 * Fixed https://rt.cpan.org/Ticket/Display.html?id=63079 by
 refactoring/bug-fixing the main module into the _OutputParam method, which
 handles the output of multi-line and single-line parameters with all the edge
-cases. 
+cases.
     - The reported problem was that EOT was encountered again in certain cases
     in the output string, and now we make sure the program always avoid it. The
     reappearance of the bug was caused due to duplicate code, which was now
@@ -135,9 +135,9 @@ Version 2.62:   ( Fri Nov 19 15:31:36 IST 2010 )
 
 * Applied a modified version of Steven Haryanto's commit
 ac6ace8bf09fabba4e6ea3b2826ff13cd30507bc :
-    - When writing config with fallback section, also omit the fallback 
+    - When writing config with fallback section, also omit the fallback
     section header, like the original file. Also, change
-    t/19param-found-outside-section.t a bit to not require IO::Scalar and use 
+    t/19param-found-outside-section.t a bit to not require IO::Scalar and use
     File::Temp instead (we are testing WriteConfig anyway).
     - Shlomi Fish fixed unless'es to if's and converted a do { ... } if call to
     a block conditional, as well as made the open statements on t/19param
@@ -194,7 +194,7 @@ and code ("new Config::IniFiles") and replace it with Config::IniFiles->new().
 Version 2.57:   ( Mon Mar  1 15:49:54 IST 2010 )
 ------------------------------------------------
 
-* Fixed failure to read the ini file contents from a filehandle made out of a 
+* Fixed failure to read the ini file contents from a filehandle made out of a
   scalar
     - https://rt.cpan.org/Ticket/Display.html?id=45997
     - Applied a patch by Nicolas Mendoza - thanks!
@@ -295,8 +295,8 @@ Version 2.47:   ( Wed Jan 21 11:32:24 IST 2009 )
 - This was as opposed to the documentation.
 - added t/21multiline-values-in-tied.t and fixed some older tests.
 
-* Moved the eval'ed debugging code (_assert_invariants) to its own module, 
-without the eval so the perl-5.6.2 will be happy. Now explicitly use'ing it 
+* Moved the eval'ed debugging code (_assert_invariants) to its own module,
+without the eval so the perl-5.6.2 will be happy. Now explicitly use'ing it
 from t/lib where appropriate. See for example:
 - http://www.nntp.perl.org/group/perl.cpan.testers/2009/01/msg3101788.html
 
@@ -316,7 +316,7 @@ Version 2.46:   ( Sat Jan 17 16:31:52 IST 2009 )
 - Testing for allowedcommentchars.
 - the bug seems to be fixed in trunk.
 
-* Converted t/03comments.t to Test::More and did other cleanups in preparation 
+* Converted t/03comments.t to Test::More and did other cleanups in preparation
 of solving a few bugs.
 
 * Now GetSectionComment does the documented behaviour in scalar context and
@@ -333,7 +333,7 @@ Version 2.45:   ( Sat Dec 27 17:21:45 IST 2008 )
 * Fixed bug #1230339:
 - https://sourceforge.net/tracker/index.php?func=detail&aid=1230339&group_id=6926&atid=106926
 - Can't store and retrive "\nEOT\n"
-- Fixed by checking for the existence of the here-doc terminator in the 
+- Fixed by checking for the existence of the here-doc terminator in the
 string, and if so appending more characters.
 
 * Fixed bug #1565180
@@ -595,7 +595,7 @@ have to think about changing it ever again. Big version change
 should not be taken as a huge leap forward.
 
 0.12 September 13, 2000 by JW/WADG
-* Added documentation to clarify autovivification issues when 
+* Added documentation to clarify autovivification issues when
 creating new sections
 * Fixed version number (Oops!)
 
@@ -653,12 +653,12 @@ Sections and Parameters methods
 again.
 
 0.02 Tue Jun 13, 2000 by RBOW
-* Fixed bug reported by Bernie Cosell - Sections, Parameters, 
+* Fixed bug reported by Bernie Cosell - Sections, Parameters,
 and GroupMembers return undef if there are no sections,
 parameters, or group members. These functions now return
 () if the particular value is undefined.
 * Added some contributed documentation, from Alex Satrapa, explaining
-how the internal data structure works. 
+how the internal data structure works.
 * Set up a project on SourceForge. (Not a change, but worth
 noting).
 * Added Groups method to return a list of section groups.
