@@ -1,3 +1,9 @@
+* Correct the documentation regarding the syntax of calling ->WriteConfig(),
+which always accepts a mandatory filename and not just
+"->WriteConfig(-delta => 1)".
+    - Thanks to the Mageia Linux QA team at:
+        - https://bugs.mageia.org/show_bug.cgi?id=6024#c17
+
 Version 2.75    ( Fri May 25 15:25:29 IDT 2012 )
 ------------------------------------------------
 

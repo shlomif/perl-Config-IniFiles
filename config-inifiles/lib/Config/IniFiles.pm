@@ -276,7 +276,7 @@ or
 If set to 0 (the default if not importing), these comments are treated
 like ordinary ones.
 
-The L</WriteConfig|WriteConfig(-delta=>1)> form will output such
+The L</WriteConfig|WriteConfig($filename, -delta=>1)> form will output such
 comments to indicate deleted sections or parameters. This way,
 reloading a delta file using the same imported object produces the
 same results in memory again. See L<IMPORT / DELTA FEATURES> for more
@@ -1233,7 +1233,7 @@ sub ReadConfig
     $self->{mysects} = []; # A pair of hashes to remember which params are loaded
     $self->{myparms} = {}; # or set using the API vs. imported - useful for
     $self->{peCMT}  = {};  # this will store trailing comments at the end of single-lined params
-    # import shadowing, see below, and WriteConfig(-delta=>1)
+    # import shadowing, see below, and WriteConfig($fn, -delta=>1)
 
     if( defined $self->{imported} ) {
         # Run up the import tree to the top, then reload coming
@@ -1642,8 +1642,8 @@ sub GetWriteMode
 =head2 WriteConfig ($filename [, %options])
 
 Writes out a new copy of the configuration file.  A temporary file
-(ending in '-new') is written out and then renamed to the specified
-filename.  Also see B<BUGS> below.
+is written out and then renamed to the specified filename.  Also see
+B<BUGS> below.
 
 If C<-delta> is set to a true value in %options, and this object was
 imported from another (see L</new>), only the differences between this
@@ -2977,7 +2977,7 @@ is, if one calls
 
    $overlay->setval("section1", "arg1", "anotherval");
    $overlay->newval("section3", "arg3", "val3");
-   $overlay->WriteConfig(-delta=>1);
+   $overlay->WriteConfig('overlay.ini', -delta=>1);
 
 C<overlay.ini> would now contain
 
@@ -3004,7 +3004,7 @@ parameters like this,
 
    $overlay->DeleteSection("section2");
    $overlay->delval("section1", "arg0");
-   $overlay->WriteConfig(-delta=>1);
+   $overlay->WriteConfig('overlay.ini', -delta=>1);
 
 The I<overlay.ini> file would now read:
 
