@@ -2390,7 +2390,7 @@ Here's an example:
 
   use Config::IniFiles;
 
-  my %ini
+  my %ini;
   tie %ini, 'Config::IniFiles', ( -file => "/path/configfile.ini" );
 
   print "We have $ini{Section}{Parameter}." if $ini{Section}{Parameter};
