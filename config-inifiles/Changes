@@ -1,3 +1,6 @@
+Version 2.78    ( Sun 21 Oct 13:14:39 IST 2012 )
+------------------------------------------------
+
 * Fix https://rt.cpan.org/Public/Bug/Display.html?id=80259:
     - Warnings on undefined value in length in perl-5.10.x.
 
