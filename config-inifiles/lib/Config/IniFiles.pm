@@ -825,7 +825,9 @@ sub _no_filename
 {
     my $self = shift;
 
-    return not length $self->{cf};
+    my $fn = $self->{cf};
+
+    return (not (defined($fn) && length($fn)));
 }
 
 sub _read_line_num
