@@ -1,3 +1,9 @@
+Version 2.79    ( Mon  6 May 10:02:47 IDT 2013 )
+------------------------------------------------
+
+* Fix test failures with Pod-Simple-3.28:
+    - http://www.cpantesters.org/cpan/report/98f9d3a8-b557-11e2-9adc-3d5fc1508286
+
 Version 2.78    ( Sun 21 Oct 13:14:39 IST 2012 )
 ------------------------------------------------
 
