@@ -1,12 +1,13 @@
-
 Build.PL
 Changes
+MANIFEST
+META.json
+META.yml
+Makefile.PL
+README
 inc/Test/Run/Builder.pm
 lib/Config/IniFiles.pm
-Makefile.PL
-MANIFEST
-META.yml
-README
+scripts/tag-release.pl
 t/00load.t
 t/01basic.t
 t/02weird.t
@@ -39,7 +40,6 @@ t/29end-of-line-comment.t
 t/30parameters-with-empty-values.t
 t/31comments_with_spaces.t
 t/32mswin-outputs-contain-crs.t
-tag-release.pl
 t/allowed-comment-chars.ini
 t/array.ini
 t/bad.ini
@@ -49,8 +49,8 @@ t/ca.ini
 t/case-sensitive-default.ini
 t/case-sensitive.ini
 t/cmt.ini
-t/end-of-line-comment.ini
 t/en.ini
+t/end-of-line-comment.ini
 t/es.ini
 t/for-27-empty.ini
 t/lib/Config/IniFiles/Debug.pm
@@ -60,4 +60,3 @@ t/pod-coverage.t
 t/pod.t
 t/test.ini
 t/trailing-comments.ini
-META.json
