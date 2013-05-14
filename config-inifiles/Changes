@@ -1,3 +1,9 @@
+Version 2.80    ( Tue 14 May 22:22:55 IDT 2013 )
+------------------------------------------------
+
+* Add the RenameSection method to rename a section.
+    - Thanks to James Rouzier.
+
 Version 2.79    ( Mon  6 May 10:02:47 IDT 2013 )
 ------------------------------------------------
 
