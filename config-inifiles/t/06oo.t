@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 # Originally: 9
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 use Config::IniFiles;
 
@@ -80,6 +80,13 @@ $ini->DeleteSection( 'Section1' );
 ok( ! $ini->Parameters( 'Section1' ), "DeleteSection was successful." );
 
 # test 9
+# DeleteSection
+$ini->newval("Section1", "Parameter1", "Value1");
+$ini->RenameSection( 'Section1', 'Section2' );
+# TEST
+ok( ! $ini->Parameters( 'Section1' ) && $ini->Parameters( 'Section2' ), "Rename Section1 to Section2 was successful." );
+
+# test 10
 # Delete entire config
 $ini->Delete();
 # TEST
