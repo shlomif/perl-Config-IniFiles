@@ -1453,6 +1453,38 @@ sub DeleteSection {
     return 1;
 } # end DeleteSection
 
+=head2 RenameSection ( $old_section_name, $new_section_name)
+
+Renames a section if it does not already exists
+
+=cut
+
+sub RenameSection {
+    my $self = shift;
+    my $old_sect = shift;
+    my $new_sect = shift;
+
+    if (not defined $old_sect or
+        not defined $new_sect or
+        !$self->SectionExists($old_sect) or
+        $self->SectionExists($new_sect)) {
+        return undef;
+    }
+
+    $self->_caseify(\$new_sect);
+    $self->_AddSection_Helper($new_sect);
+
+    # This is done the fast way, change if data structure changes!!
+    foreach my $key (qw(v sCMT pCMT EOT parms myparms group)) {
+        next unless exists $self->{$key}{$old_sect};
+        $self->{$key}{$new_sect} = $self->{$key}{$old_sect};
+    }
+
+    $self->DeleteSection($old_sect);
+
+    return 1;
+} # end RenameSection
+
 =head2 Parameters ($sect_name)
 
 Returns an array containing the parameters contained in the specified
