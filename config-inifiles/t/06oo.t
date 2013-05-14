@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 # Originally: 9
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 use Config::IniFiles;
 
@@ -74,19 +74,24 @@ ok(!defined($ini->GetSectionComment("Section1")),
     "DeleteSectionComment was successful.");
 
 # test 8
+# CopySection
+$ini->CopySection( 'Section1', 'Section2' );
+# TEST
+ok( $ini->Parameters( 'Section2' ), "CopySection was successful." );
+
+# test 9
 # DeleteSection
 $ini->DeleteSection( 'Section1' );
 # TEST
 ok( ! $ini->Parameters( 'Section1' ), "DeleteSection was successful." );
 
-# test 9
-# RenameSection
-$ini->newval("Section1", "Parameter1", "Value1");
-$ini->RenameSection( 'Section1', 'Section2' );
-# TEST
-ok( ! $ini->Parameters( 'Section1' ) && $ini->Parameters( 'Section2' ) && $ini->val('Section2','Parameter1') eq 'Value1'  , "RenameSection was successful." );
-
 # test 10
+# RenameSection
+$ini->RenameSection( 'Section2', 'Section1' );
+# TEST
+ok( ! $ini->Parameters( 'Section2' ) && $ini->Parameters( 'Section1' ) && $ini->val('Section1','Parameter1') eq 'Value1'  , "RenameSection was successful." );
+
+# test 11
 # Delete entire config
 $ini->Delete();
 # TEST
