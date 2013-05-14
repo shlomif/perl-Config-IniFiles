@@ -1453,9 +1453,9 @@ sub DeleteSection {
     return 1;
 } # end DeleteSection
 
-=head2 RenameSection ( $old_section_name, $new_section_name)
+=head2 RenameSection ( $old_section_name, $new_section_name, $include_groupmembers)
 
-Renames a section if it does not already exists
+Renames a section if it does not already exists optionally including groupmembers
 
 =cut
 
@@ -1463,6 +1463,23 @@ sub RenameSection {
     my $self = shift;
     my $old_sect = shift;
     my $new_sect = shift;
+    my $include_groupmembers = shift;
+    return undef unless $self->CopySection($old_sect,$new_sect,$include_groupmembers);
+    return $self->DeleteSection($old_sect);
+
+} # end RenameSection
+
+=head2 CopySection ( $old_section_name, $new_section_name, $include_groupmembers)
+
+Copies one section to another optionally including groupmembers
+
+=cut
+
+sub CopySection {
+    my $self = shift;
+    my $old_sect = shift;
+    my $new_sect = shift;
+    my $include_groupmembers = shift;
 
     if (not defined $old_sect or
         not defined $new_sect or
@@ -1475,15 +1492,21 @@ sub RenameSection {
     $self->_AddSection_Helper($new_sect);
 
     # This is done the fast way, change if data structure changes!!
-    foreach my $key (qw(v sCMT pCMT EOT parms myparms group)) {
+    foreach my $key (qw(v sCMT pCMT EOT parms myparms)) {
         next unless exists $self->{$key}{$old_sect};
-        $self->{$key}{$new_sect} = $self->{$key}{$old_sect};
+        $self->{$key}{$new_sect} = Config::IniFiles::_deepcopy($self->{$key}{$old_sect});
     }
 
-    $self->DeleteSection($old_sect);
+    if($include_groupmembers) {
+        foreach my $old_groupmember ($self->GroupMembers($old_sect)) {
+            my $new_groupmember = $old_groupmember;
+            $new_groupmember =~ s/\A\Q$old_sect\E/$new_sect/;
+            $self->CopySection($old_groupmember,$new_groupmember);
+        }
+    }
 
     return 1;
-} # end RenameSection
+} # end CopySection
 
 =head2 Parameters ($sect_name)
 
