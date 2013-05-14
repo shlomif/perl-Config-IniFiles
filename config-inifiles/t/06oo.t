@@ -80,11 +80,11 @@ $ini->DeleteSection( 'Section1' );
 ok( ! $ini->Parameters( 'Section1' ), "DeleteSection was successful." );
 
 # test 9
-# DeleteSection
+# RenameSection
 $ini->newval("Section1", "Parameter1", "Value1");
 $ini->RenameSection( 'Section1', 'Section2' );
 # TEST
-ok( ! $ini->Parameters( 'Section1' ) && $ini->Parameters( 'Section2' ), "Rename Section1 to Section2 was successful." );
+ok( ! $ini->Parameters( 'Section1' ) && $ini->Parameters( 'Section2' ) && $ini->val('Section2','Parameter1') eq 'Value1'  , "RenameSection was successful." );
 
 # test 10
 # Delete entire config
