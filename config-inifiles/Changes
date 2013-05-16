@@ -1,3 +1,9 @@
+Version 2.81    ( Thu 16 May 13:31:34 IDT 2013 )
+------------------------------------------------
+
+* Add the CopySection method to copy a section.
+    - Thanks to James Rouzier.
+
 Version 2.80    ( Tue 14 May 22:22:55 IDT 2013 )
 ------------------------------------------------
 
