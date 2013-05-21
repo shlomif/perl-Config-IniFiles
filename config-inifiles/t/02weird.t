@@ -46,13 +46,13 @@ is(
 
 # Test 3/4
 # Make sure whitespace after parameter name is not included in name
-# TEST 
+# TEST
 is( $ini->val( 'test7', 'criterion' ),
     'price <= maximum' ,
     "Make sure whitespace after parameter name is not included in name",
 );
 # TEST
-ok( 
+ok(
     ! defined $ini->val( 'test7', 'criterion ' ),
     "For criterion containing whitespace returns undef.",
 );
@@ -61,21 +61,21 @@ ok(
 # Build a file from scratch with tied interface for testing
 my %test;
 # TEST
-ok( (tie %test, 'Config::IniFiles'), "Tying is successful" ); 
-tied(%test)->SetFileName(t_file('test02.ini')); 
+ok( (tie %test, 'Config::IniFiles'), "Tying is successful" );
+tied(%test)->SetFileName(t_file('test02.ini'));
 
 # Test 6
 # Also with pipes when using tied interface using vlaue of 0
-$test{'2'}={}; 
+$test{'2'}={};
 tied(%test)->_assert_invariants();
-$test{'2'}{'test'}="sleep"; 
+$test{'2'}{'test'}="sleep";
 tied(%test)->_assert_invariants();
-my $sectionheader="0|2"; 
-$test{$sectionheader}={}; 
+my $sectionheader="0|2";
+$test{$sectionheader}={};
 tied(%test)->_assert_invariants();
 $test{$sectionheader}{'vacation'}=0;
 tied(%test)->_assert_invariants();
-tied(%test)->RewriteConfig(); 
+tied(%test)->RewriteConfig();
 tied(%test)->ReadConfig;
 # TEST
 ok(

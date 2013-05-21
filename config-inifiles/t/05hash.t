@@ -22,7 +22,7 @@ t_unlink("test05.ini");
 # Tying a hash.
 # TEST
 ok (
-    (tie %ini, 'Config::IniFiles', 
+    (tie %ini, 'Config::IniFiles',
     ( -file => t_file("test.ini"), -default => 'test1', -nocase => 1 )
     ),
     "Tie to test.ini was succesful."
@@ -43,7 +43,7 @@ is($value, 'value1',
 # Retrieve array reference
 $value = $ini{test1}{mult};
 # TEST
-is (ref($value), 'ARRAY', "test1/mult is an array."); 
+is (ref($value), 'ARRAY', "test1/mult is an array.");
 
 # Test 4
 # Creating a scalar value using tied hash
@@ -145,7 +145,7 @@ tied(%ini)->RewriteConfig;
 tied(%ini)->ReadConfig;
 @value = @{$ini{test1}{multi_2}};
 # TEST
-is_deeply ( \@value, ['line 1', 'line 2'], 
+is_deeply ( \@value, ['line 1', 'line 2'],
     "Writing 2 line multilvalue and returing it"
 );
 
