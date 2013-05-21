@@ -1,3 +1,9 @@
+Version 2.82    ( Tue 21 May 18:32:23 IDT 2013 )
+------------------------------------------------
+
+* Add t/style-trailing-space.t .
+    - Remove trailing space.
+
 Version 2.81    ( Thu 16 May 13:31:34 IDT 2013 )
 ------------------------------------------------
 
