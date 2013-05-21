@@ -5,3 +5,7 @@ config-inifiles/MYMETA.json
 config-inifiles/MYMETA.yml
 config-inifiles/_build
 config-inifiles/blib
+
+syntax:regexp
+
+^config-inifiles/Config-IniFiles-\d+.\d+(/|\.tar.gz$)
