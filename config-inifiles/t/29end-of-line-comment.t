@@ -23,11 +23,11 @@ my $writefile = "end-trailing-comment-writeback.ini";
             "end-of-line-comment.ini"), -handle_trailing_comment => 1);
 
     # TEST
-    is($ini->val("section1", "param1"), "value1", 
+    is($ini->val("section1", "param1"), "value1",
         "Comments after ';' should be omitted when tailing comment enabled");
 
     # TEST
-    is($ini->GetParameterTrailingComment("section1", "param1"), 
+    is($ini->GetParameterTrailingComment("section1", "param1"),
         "comment1", "Test GetParameterTrailingComment()");
 
     # Test write back
@@ -47,32 +47,32 @@ my $writefile = "end-trailing-comment-writeback.ini";
 
     # Test set()
     # TEST
-    ok($ini->SetParameterTrailingComment("section1", "param1", 
+    ok($ini->SetParameterTrailingComment("section1", "param1",
             "changed comment1"), "Test SetParameterTrailingComment() returns.");
     # TEST
-    is($ini->GetParameterTrailingComment("section1", "param1"), 
+    is($ini->GetParameterTrailingComment("section1", "param1"),
         "changed comment1", "Test whether SetParameterTrailingComments() works.");
 }
 
 # Test of handle_trailing_comment disabled
 {
     my $ini = Config::IniFiles->new( -file => t_file(
-            "end-of-line-comment.ini"), -handle_trailing_comment => 0); 
+            "end-of-line-comment.ini"), -handle_trailing_comment => 0);
     # TEST
-    is($ini->val("section1", "param1"), "value1;comment1", 
+    is($ini->val("section1", "param1"), "value1;comment1",
         "Comments after ';' should be kept when tailing comment disabled");
     # TEST
-    is($ini->GetParameterTrailingComment("section1", "param1"), 
+    is($ini->GetParameterTrailingComment("section1", "param1"),
         "", "Test whether SetParameterTrailingComments() works.");
 }
 
 # Test of default handle_trailing_comment
 {
     # The default handle_trailing_comment param should be off
-    my $ini = Config::IniFiles->new( -file => 
-        t_file("end-of-line-comment.ini") ); 
+    my $ini = Config::IniFiles->new( -file =>
+        t_file("end-of-line-comment.ini") );
     # TEST
-    is($ini->val("section1", "param1"), "value1;comment1", 
+    is($ini->val("section1", "param1"), "value1;comment1",
         "Test default trailing comment, which should be off.");
 }
 

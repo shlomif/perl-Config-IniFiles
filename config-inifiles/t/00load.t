@@ -61,7 +61,7 @@ if( my $fh = IO::File->new( t_file("test.ini") )) {
 } # endif
 
 
-# TEST 
+# TEST
 # Reread on an open handle
 if( open( CONFIG, "<", t_file("test.ini") ) ) {
   $ini = Config::IniFiles->new(-file => \*CONFIG);
@@ -121,9 +121,9 @@ ok (!$@ && defined($ini),
 );
 
 # Try a file with utf-8 encoding (has a Byte-Order-Mark at the start)
-# TEST 
+# TEST
 $ini = Config::IniFiles->new(-file => t_file("en.ini"));
-ok ($ini, 
+ok ($ini,
     "Try a file with utf-8 encoding (has a Byte-Order-Mark at the start)"
 );
 
@@ -171,7 +171,7 @@ t_unlink("test01.ini");
 
 __END__
 ; File that has comments in the first line
-; Comments are marked with ';'. 
+; Comments are marked with ';'.
 ; This should not fail when checking if the file is valid
 [section]
 parameter=value

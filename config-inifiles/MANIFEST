@@ -58,5 +58,6 @@ t/lib/Config/IniFiles/TestPaths.pm
 t/non-contiguous-groups.ini
 t/pod-coverage.t
 t/pod.t
+t/style-trailing-space.t
 t/test.ini
 t/trailing-comments.ini

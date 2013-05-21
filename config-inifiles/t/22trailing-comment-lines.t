@@ -40,7 +40,7 @@ use Config::IniFiles;
         "WriteConfig() Preserved end comments."
     );
 
-    # Remove the generated files so they won't pollute the filesystem / 
+    # Remove the generated files so they won't pollute the filesystem /
     # working-copy.
     unlink($new_file);
 }

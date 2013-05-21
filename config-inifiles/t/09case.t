@@ -132,7 +132,7 @@ ok (first { index($_, "parameter") >= 0 } @members, "parameter exists");
     my @values = $ini->val("Section", "parameter");
 
     # TEST
-    is_deeply (\@values, ["Title Case"], 
+    is_deeply (\@values, ["Title Case"],
         "case-insensitive version returns one value"
     );
 }
@@ -170,7 +170,7 @@ is ( scalar($ini->val('TEST2', 'four')),
 
 # TEST
 is (
-    scalar($ini->val('mixedcasesect', 'mixedcaseparam')), 
+    scalar($ini->val('mixedcasesect', 'mixedcaseparam')),
     'MixedCaseVal',
     "Mixed case val.",
 );

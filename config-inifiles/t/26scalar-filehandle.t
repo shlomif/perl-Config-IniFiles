@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 # This script is a regression test for:
-# 
+#
 # https://rt.cpan.org/Ticket/Display.html?id=54997
 #
 # Failure to read the ini file contents from a filehandle made out of a scalar
 #
-# <<< [patch] stat() on unopened filehandle warning thrown when using 
+# <<< [patch] stat() on unopened filehandle warning thrown when using
 # filehandle made from a scalar. >>>
 
 use Test::More;
@@ -45,7 +45,7 @@ EOF
     ok(!$EVAL_ERROR, "Object was initialised from filehandle made out of a scalar.");
 
     # TEST
-    is ($conf->val("section1", "key"), 
+    is ($conf->val("section1", "key"),
         "val",
         "Object works."
     );

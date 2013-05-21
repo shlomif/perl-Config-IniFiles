@@ -25,7 +25,7 @@ my $empty_fn = File::Spec->catfile(File::Spec->curdir(), "t", "for-27-empty.ini"
 
     # TEST
     is_deeply (
-        \@Groups, 
+        \@Groups,
         [],
         "Groups is empty."
     );

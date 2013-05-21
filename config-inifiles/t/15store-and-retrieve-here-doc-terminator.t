@@ -19,7 +19,7 @@ my @file_write_subs =
 (
     sub {
         my ($cfg) = @_;
-    
+
         $cfg->WriteConfig($filename);
 
         return;

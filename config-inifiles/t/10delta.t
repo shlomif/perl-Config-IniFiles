@@ -44,7 +44,7 @@ my $es = Config::IniFiles->new( -file => t_file('es.ini'), -import => $en );
 # TEST
 ok( $es, "Es was instantiated." );
 
-my $estext=slurp(t_file("es.ini")); 
+my $estext=slurp(t_file("es.ini"));
 $estext =~ s/\s*//g;
 
 # test 3
@@ -53,7 +53,7 @@ $estext =~ s/\s*//g;
 t_unlink('delta.ini');
 $es->WriteConfig(t_file('delta.ini'), -delta=>1);
 
-my $deltatext=slurp(t_file('delta.ini')); 
+my $deltatext=slurp(t_file('delta.ini'));
 $deltatext =~ s/\s*//g;
 
 # TEST
