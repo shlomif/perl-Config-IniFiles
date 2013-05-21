@@ -57,7 +57,7 @@ plan tests => 7;
     # TEST
     ok($ini->exists('GENERAL', 'wrong'),
        "(-fallback) Fallback section catches parameter");
-       
+
     # TEST
     my $newfilename = File::Spec->catfile($dir_name, "new.ini");
     my $content;

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # This script attempts to reproduce:
-# https://rt.cpan.org/Ticket/Display.html?id=46721 
+# https://rt.cpan.org/Ticket/Display.html?id=46721
 #
 # #46721: $config->exists() does not pay attention to -nocase => 1
 
@@ -16,19 +16,19 @@ use Config::IniFiles;
 
 {
     my $conf = Config::IniFiles->new(
-        -file => File::Spec->catfile(File::Spec->curdir(), 
+        -file => File::Spec->catfile(File::Spec->curdir(),
             't', 'case-sensitive.ini'
         ),
         -nocase => 1
     );
 
     # TEST
-    ok (scalar($conf->exists('FOO', 'BAR')), 
+    ok (scalar($conf->exists('FOO', 'BAR')),
         "->exists() Handles case well"
     );
-    
+
     # TEST
-    is (scalar($conf->val('FOO', 'BAR')), "goodness", 
+    is (scalar($conf->val('FOO', 'BAR')), "goodness",
         "->val() Handles case well"
     );
 }

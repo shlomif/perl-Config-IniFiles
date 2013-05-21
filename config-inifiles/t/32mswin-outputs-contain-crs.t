@@ -76,12 +76,12 @@ sub writeIni
 {
     my ($userConfig_fn, $section, $param, $value) = @_;
 
-	my $usrCfg = Config::IniFiles->new( -file => $userConfig_fn ) 
+	my $usrCfg = Config::IniFiles->new( -file => $userConfig_fn )
 		or die "Failed! Could not open $userConfig_fn with error @Config::IniFiles::errors\n" ;
 
-	$usrCfg->newval($section, $param, $value) 
+	$usrCfg->newval($section, $param, $value)
 		or die "Could not set newval in writeIni for $section, $param -> $value\n";
-	
+
     my $c = 0;
 
     while ($c < 6)
@@ -92,7 +92,7 @@ sub writeIni
             print "Writing [$section] $param -> $value\n";
         }
         else
-        { 
+        {
             warn "Error: could not write $param=$value to $userConfig_fn\n";
             sleep 1;
             $c++;

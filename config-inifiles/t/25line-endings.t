@@ -22,7 +22,7 @@ my $ini_filename =
 {
 
     # being pedantic, we don't take line breaks from this or an external file for granted
-    my $sample_ini = 
+    my $sample_ini =
     "<eol>
     <sol># this is a sample file for testing the proper detection of line endings in Config::Inifiles<eol>
     <sol><eol>
@@ -54,7 +54,7 @@ my $ini_filename =
 
         # TEST
         ok($cfg, "Loading from a '$lf_print'-separated file");
-        
+
         # TEST
         my $value = $cfg->val('single values', 'firstval');
         is (

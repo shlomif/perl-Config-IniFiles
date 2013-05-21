@@ -41,6 +41,6 @@ is( $ini->GetParameterTrailingComment('section','value1'), 'My Comment');
 # TEST
 is( $ini->val('section','value2'), 'xxx' );
 # TEST
-is( $ini->GetParameterTrailingComment('section','value2'), 'My_Comment'); 
+is( $ini->GetParameterTrailingComment('section','value2'), 'My_Comment');
 
 unlink( $ini_filename );

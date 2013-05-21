@@ -34,7 +34,7 @@ EOF
     ok ($conf, "Object was initialised from reference to scalar.");
 
     # TEST
-    is ($conf->val("section1", "key"), 
+    is ($conf->val("section1", "key"),
         "val",
         "Object works."
     );

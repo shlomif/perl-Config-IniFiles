@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # This script attempts to reproduce:
-# https://rt.cpan.org/Ticket/Display.html?id=36309 
+# https://rt.cpan.org/Ticket/Display.html?id=36309
 
 use strict;
 use warnings;
@@ -16,9 +16,9 @@ my $filename = File::Spec->catfile(
 );
 
 {
-    my $cfg = 
+    my $cfg =
         Config::IniFiles->new(
-            -file => $filename, 
+            -file => $filename,
             -allowedcommentchars => '};',
         );
 

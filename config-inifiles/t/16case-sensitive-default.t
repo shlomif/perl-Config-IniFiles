@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # This script attempts to reproduce:
-# https://sourceforge.net/tracker/index.php?func=detail&aid=1565180&group_id=6926&atid=106926 
+# https://sourceforge.net/tracker/index.php?func=detail&aid=1565180&group_id=6926&atid=106926
 
 use strict;
 use warnings;
