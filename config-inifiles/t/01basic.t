@@ -39,7 +39,7 @@ is ($value[0], 'value1', "Reading a single value in list context");
 
 $value = $ini->val('test1', 'mult');
 # TEST
-is ($value, "one$/two$/three", 
+is ($value, "one$/two$/three",
     "Reading a multiple value in scalar context"
 );
 

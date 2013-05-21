@@ -96,7 +96,7 @@ ok(
 # TEST
 ok (
     $ini->SetParameterComment(
-        'foo', 'bar', 'This is a parameter comment', 
+        'foo', 'bar', 'This is a parameter comment',
         'This comment takes two lines!'
     ),
     "SetParameterCount was successful",
