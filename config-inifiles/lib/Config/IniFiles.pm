@@ -3166,6 +3166,8 @@ Development discussion occurs on the mailing list
 config-inifiles-dev@lists.sourceforge.net, which you can subscribe
 to by going to the project web site (link above).
 
+=head1 LICENSE
+
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
