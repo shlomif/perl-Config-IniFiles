@@ -3168,8 +3168,11 @@ to by going to the project web site (link above).
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
+This software is copyright (c) 2000 by Scott Hutton and the rest of the
+Config::IniFiles contributors.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
