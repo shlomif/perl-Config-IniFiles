@@ -4,7 +4,7 @@ use vars qw($VERSION);
 
 $VERSION = '2.82';
 
-require 5.004;
+require 5.008;
 use strict;
 use warnings;
 use Carp;
