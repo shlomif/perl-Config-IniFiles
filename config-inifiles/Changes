@@ -4,6 +4,9 @@ Version 2.83    ( Mon 27 Jan 10:51:14 IST 2014 )
 * Add a LICENSE file and section.
     - Kwalitee.
 
+* Minimum version is now perl-5.8.0.
+    - CPANTS Kwalitee.
+
 Version 2.82    ( Tue 21 May 18:32:23 IDT 2013 )
 ------------------------------------------------
 

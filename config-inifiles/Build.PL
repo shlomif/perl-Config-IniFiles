@@ -28,6 +28,7 @@ my $builder = Test::Run::Builder->new(
     'requires' =>
     {
         'strict' => 0,
+        'perl' => '5.008',
         'Carp' => 0,
         'Symbol' => 0,
         'warnings' => 0,
