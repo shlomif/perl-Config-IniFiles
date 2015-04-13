@@ -1,3 +1,10 @@
+Version 2.84    ( Mon 13 Apr 21:24:07 IDT 2015 )
+------------------------------------------------
+
+* Fix https://rt.cpan.org/Public/Bug/Display.html?id=103496
+    - Improperly update while using _write_config_with_a_made_fh
+    - Thanks to JORISD for the report, a proposed patch and a test case.
+
 Version 2.83    ( Mon 27 Jan 10:51:14 IST 2014 )
 ------------------------------------------------
 
