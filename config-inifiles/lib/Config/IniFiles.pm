@@ -1784,6 +1784,10 @@ sub _write_config_with_a_made_fh
     else
     {
         seek( $fh, 0, SEEK_SET() );
+        # Make sure to keep the previous junk out.
+        # See:
+        # https://rt.cpan.org/Public/Bug/Display.html?id=103496
+        truncate( $fh, 0 );
         $self->OutputConfigToFileHandle($fh, $parms{-delta});
         seek( $fh, 0, SEEK_SET() );
     } # end if

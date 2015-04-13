@@ -41,6 +41,7 @@ t/29end-of-line-comment.t
 t/30parameters-with-empty-values.t
 t/31comments_with_spaces.t
 t/32mswin-outputs-contain-crs.t
+t/33update-using-tied-fh-w-shorter-names.t
 t/allowed-comment-chars.ini
 t/array.ini
 t/bad.ini

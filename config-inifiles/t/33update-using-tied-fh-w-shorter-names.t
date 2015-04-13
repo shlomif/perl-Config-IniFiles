@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+# This script is a regression test for:
+#
+# https://rt.cpan.org/Ticket/Display.html?id=45997
+#
+# Failure to read the ini file contents from a filehandle made out of a scalar
+
+use Test::More tests => 1;
+
+use strict;
+use warnings;
+
+use Config::IniFiles;
+use File::Spec;
+
+eval "use File::Temp qw(tempdir)";
+plan skip_all => "File::Temp required for testing" if $@;
+
+my $dirname = tempdir(CLEANUP => 1);
+my $filename = File::Spec->catfile($dirname, 'toto.ini');
+
+sub _slurp
+{
+    my $filename = shift;
+
+    open my $in, '<', $filename
+        or die "Cannot open '$filename' for slurping - $!";
+
+    local $/;
+    my $contents = <$in>;
+
+    close($in);
+
+    return $contents;
+}
+
+{
+    {
+        open my $fh, '>', $filename;
+        print {$fh} <<'EOF';
+[toto]
+tata=verylongstringtoreplacewithashorterone
+
+[section3]
+arg3=valf
+EOF
+        close($fh);
+    }
+    {
+        my %ini;
+
+        my $fh = IO::File->new( $filename , 'r+' );
+        die "Couldn't open file ${filename}: $!" if not defined $fh;
+        tie %ini, 'Config::IniFiles', ( -file => $fh, -allowempty => 1 );
+
+
+        tied( %ini )->delval("toto", "tata");
+        tied( %ini )->RewriteConfig;
+
+        $ini{toto}{tata} = 'short';
+        tied( %ini )->RewriteConfig;
+
+        $fh->close;
+        untie %ini;
+    }
+
+    # TEST
+    is (
+        scalar (_slurp($filename)),
+        <<'EOF',
+[toto]
+tata=short
+
+[section3]
+arg3=valf
+EOF
+        "Test that the value was properly shortened.",
+    );
+}
