@@ -5,6 +5,7 @@ MANIFEST
 META.json
 META.yml
 Makefile.PL
+OLD-Changes.txt
 README
 inc/Test/Run/Builder.pm
 lib/Config/IniFiles.pm
@@ -51,6 +52,7 @@ t/ca.ini
 t/case-sensitive-default.ini
 t/case-sensitive.ini
 t/cmt.ini
+t/cpan-changes.t
 t/en.ini
 t/end-of-line-comment.ini
 t/es.ini
