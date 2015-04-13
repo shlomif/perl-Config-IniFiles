@@ -10,6 +10,9 @@ use Test::More tests => 1;
 use strict;
 use warnings;
 
+use lib "./t/lib";
+use Config::IniFiles::Slurp qw( slurp );
+
 use Config::IniFiles;
 use File::Spec;
 
@@ -18,21 +21,6 @@ plan skip_all => "File::Temp required for testing" if $@;
 
 my $dirname = tempdir(CLEANUP => 1);
 my $filename = File::Spec->catfile($dirname, 'toto.ini');
-
-sub _slurp
-{
-    my $filename = shift;
-
-    open my $in, '<', $filename
-        or die "Cannot open '$filename' for slurping - $!";
-
-    local $/;
-    my $contents = <$in>;
-
-    close($in);
-
-    return $contents;
-}
 
 {
     {
@@ -66,7 +54,7 @@ EOF
 
     # TEST
     is (
-        scalar (_slurp($filename)),
+        scalar (slurp($filename)),
         <<'EOF',
 [toto]
 tata=short

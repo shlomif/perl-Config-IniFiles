@@ -13,6 +13,7 @@ use Config::IniFiles;
 use lib "./t/lib";
 
 use Config::IniFiles::TestPaths;
+use Config::IniFiles::Slurp qw( slurp );
 
 my $ors = $\ || "\n";
 my $irs = $/ || "\n";
@@ -27,17 +28,6 @@ $ini->RewriteConfig;
 $ini->ReadConfig;
 # TEST
 ok($ini, "ini is still initialised");
-
-sub slurp
-{
-    my $fn = shift;
-    my $ret = "";
-    local $/;
-    open my $in, "<", $fn;
-    $ret = <$in>;
-    close($in);
-    return $ret;
-}
 
 sub t_slurp
 {

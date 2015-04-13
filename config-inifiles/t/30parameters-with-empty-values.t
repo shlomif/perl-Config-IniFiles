@@ -16,21 +16,7 @@ use Config::IniFiles;
 use lib "./t/lib";
 
 use Config::IniFiles::TestPaths;
-
-sub slurp
-{
-    my ($filename)=@_;
-
-    local *SLURP;
-
-    open(SLURP, '<', $filename) or die "Cannot open $filename: $!";
-
-    local $/;
-    my $retval = <SLURP>;
-    close(SLURP);
-
-    return $retval;
-}
+use Config::IniFiles::Slurp qw( slurp );
 
 {
     my $filename = t_file('params_30.ini');

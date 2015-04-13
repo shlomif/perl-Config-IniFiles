@@ -56,6 +56,7 @@ t/end-of-line-comment.ini
 t/es.ini
 t/for-27-empty.ini
 t/lib/Config/IniFiles/Debug.pm
+t/lib/Config/IniFiles/Slurp.pm
 t/lib/Config/IniFiles/TestPaths.pm
 t/non-contiguous-groups.ini
 t/pod-coverage.t

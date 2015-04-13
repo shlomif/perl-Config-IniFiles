@@ -9,6 +9,9 @@
 use strict;
 use warnings;
 
+use lib "./t/lib";
+use Config::IniFiles::Slurp qw( bin_slurp );
+
 use Test::More;
 
 if ($^O !~ m/\AMSWin/)
@@ -37,25 +40,10 @@ for my $s (1 .. 4)
     }
 }
 
-sub _bin_slurp
-{
-    my $filename = shift;
-
-    open my $in, '<', $filename
-        or die "Cannot open '$filename' for slurping - $!";
-
-    binmode $in;
-    local $/;
-    my $contents = <$in>;
-
-    close($in);
-
-    return $contents;
-}
 
 # TEST
 unlike(
-    scalar(_bin_slurp($config_filename)),
+    scalar(bin_slurp($config_filename)),
     qr/[^\x0D]\x0A/, # \x0D is CR ; \x0A is LF. See "man ascii".
     "Checking that all line feeds are preceded by carriage returns",
 );

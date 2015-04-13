@@ -10,19 +10,7 @@ use Config::IniFiles;
 use lib "./t/lib";
 
 use Config::IniFiles::TestPaths;
-
-sub slurp
-{
-    my ($filename)=@_;
-
-    open(my $SLURP, '<', $filename) || die "Cannot open $filename: $!";
-
-    local $/;
-    my $retval = <$SLURP>;
-    close($SLURP);
-
-    return $retval;
-}
+use Config::IniFiles::Slurp qw( slurp );
 
 my $ors = $\ || "\n";
 my ($ini,$value);
