@@ -1,3 +1,9 @@
+2.86   2015-04-14
+    * Hopefully fix tests in perls less than 5.14
+        - Failed on CPAN Tester reports such as:
+        - http://www.cpantesters.org/cpan/report/88707ece-e22d-11e4-a1d1-8536eb4f9f07
+        - Thanks to Slaven Rezic for pointing it to me.
+
 2.85   2015-04-13
     * Convert "Changes" (= this file) to CPAN::Changes.
         - Added t/cpan-changes.t in the process.
