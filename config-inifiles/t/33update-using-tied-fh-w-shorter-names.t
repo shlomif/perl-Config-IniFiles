@@ -10,6 +10,8 @@ use Test::More tests => 1;
 use strict;
 use warnings;
 
+use IO::File;
+
 use lib "./t/lib";
 use Config::IniFiles::Slurp qw( slurp );
 
