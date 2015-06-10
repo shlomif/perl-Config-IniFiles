@@ -1,3 +1,8 @@
+2.87        2015-06-10
+    * Replace List::MoreUtils with List::Util-1.33-or-above.
+        - We only used for any() and none() which exist in List::Util too now.
+        - https://rt.cpan.org/Public/Bug/Display.html?id=104764
+
 2.86        2015-04-14
     * Hopefully fix tests in perls less than 5.14
         - Failed on CPAN Tester reports such as:
