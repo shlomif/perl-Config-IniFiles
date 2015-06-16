@@ -2,7 +2,7 @@ package Config::IniFiles;
 
 use vars qw($VERSION);
 
-$VERSION = '2.86';
+$VERSION = '2.87';
 
 require 5.008;
 use strict;
