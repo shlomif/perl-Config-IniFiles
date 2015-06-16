@@ -1,7 +1,12 @@
-2.87        2015-06-10
+2.87        2015-06-16
     * Replace List::MoreUtils with List::Util-1.33-or-above.
-        - We only used for any() and none() which exist in List::Util too now.
+        - We only used any() and none() which exist in List::Util too now.
         - https://rt.cpan.org/Public/Bug/Display.html?id=104764
+        - Thanks to DBOOK for the report.
+    * Fix handling of trailing comments which contain their delimiters twice.
+        - E.g: "key=val ; comment ; further comment".
+        - https://rt.cpan.org/Ticket/Display.html?id=105255
+        - Thanks to Rohan Carly for the report and a test case.
 
 2.86        2015-04-14
     * Hopefully fix tests in perls less than 5.14
