@@ -1083,7 +1083,7 @@ sub _ReadConfig_handle_non_here_doc_param
 
     # we should split value and comments if there is any comment
     if ($end_commenthandle and
-        my ($value_to_assign, $end_comment_to_assign) = $self->_curr_val =~ /(.*?)\s*[$allCmt]\s*([^$allCmt]*)$/)
+        my ($value_to_assign, $end_comment_to_assign) = $self->_curr_val =~ /(.*?)\s*[$allCmt]\s*(.*)$/)
     {
         $self->_curr_val($value_to_assign);
         $self->_curr_end_comment($end_comment_to_assign);
