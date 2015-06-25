@@ -81,7 +81,7 @@ if( open( CONFIG, "<", t_file("test.ini") ) ) {
   # Now test opening and re-write to the same handle
   chmod(0644, t_file("test01.ini"));
   if(! open( CONFIG, "+<", t_file("test01.ini" ) )) {
-    die "Could not open " . t_file("test01.ini") . "read/write";
+    die "Could not open " . t_file("test01.ini") . " for read/write";
   }
   $ini = Config::IniFiles->new(-file => \*CONFIG);
   my $badname = scalar(\*CONFIG);
