@@ -1,3 +1,8 @@
+2.88        Unknown
+    * Apply speedup patch from James Rouzier.
+        - https://bitbucket.org/shlomif/perl-config-inifiles/pull-request/4/avoid-searching-through-all-the-sections/commits
+        - Avoids it being O(n^2).
+
 2.87        2015-06-16
     * Replace List::MoreUtils with List::Util-1.33-or-above.
         - We only used any() and none() which exist in List::Util too now.
