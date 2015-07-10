@@ -1235,6 +1235,8 @@ sub ReadConfig
     $self->{mysects} = []; # A pair of hashes to remember which params are loaded
     $self->{myparms} = {}; # or set using the API vs. imported - useful for
     $self->{peCMT}  = {};  # this will store trailing comments at the end of single-lined params
+    $self->{e}      = {};  # If a section is already exists
+    $self->{mye}    = {};  # If a section is already exists
     # import shadowing, see below, and WriteConfig($fn, -delta=>1)
 
     if( defined $self->{imported} ) {
@@ -1244,7 +1246,7 @@ sub ReadConfig
         # This is only needed on a re-load though
         $self->{imported}->ReadConfig() unless ($self->{firstload});
 
-        foreach my $field (qw(sects parms group v sCMT pCMT EOT)) {
+        foreach my $field (qw(sects parms group v sCMT pCMT EOT e)) {
             $self->{$field} = _deepcopy($self->{imported}->{$field});
         }
     } # end if
@@ -1341,7 +1343,7 @@ sub SectionExists {
 
     $self->_caseify(\$sect);
 
-    return ((any { $_ eq $sect } @{$self->{sects}}) ? 1 : 0);
+    return ((exists $self->{e}{$sect}) ? 1 : 0);
 }
 
 =head2 AddSection ( $sect_name )
@@ -1358,7 +1360,7 @@ the name that you're adding isn't in the list of sections already.
 sub _AddSection_Helper
 {
     my ($self, $sect) = @_;
-
+    $self->{e}{$sect} = 1;
     CORE::push @{$self->{sects}}, $sect;
     $self->_touch_section($sect);
 
@@ -1398,9 +1400,10 @@ sub _touch_section {
 
     $self->{mysects} ||= [];
 
-    if (none { $_ eq $sect } @{$self->{mysects}})
+    unless (exists $self->{mye}{$sect})
     {
         CORE::push @{$self->{mysects}}, $sect;
+        $self->{mye}{$sect} = 1;
     }
 
     return;
@@ -1444,6 +1447,7 @@ sub DeleteSection {
     delete $self->{EOT}{$sect};
     delete $self->{parms}{$sect};
     delete $self->{myparms}{$sect};
+    delete $self->{e}{$sect};
 
     $self->{sects} = [grep {$_ ne $sect} @{$self->{sects}}];
     $self->_touch_section($sect);
@@ -1492,7 +1496,7 @@ sub CopySection {
     $self->_AddSection_Helper($new_sect);
 
     # This is done the fast way, change if data structure changes!!
-    foreach my $key (qw(v sCMT pCMT EOT parms myparms)) {
+    foreach my $key (qw(v sCMT pCMT EOT parms myparms e)) {
         next unless exists $self->{$key}{$old_sect};
         $self->{$key}{$new_sect} = Config::IniFiles::_deepcopy($self->{$key}{$old_sect});
     }
@@ -3136,6 +3140,8 @@ data structure.
           ->{EOT}{$sect}{$parm} = "end of text string"
           ->{pCMT}{$sect}{$parm} = \@comment_lines
           ->{v}{$sect}{$parm} = $value   OR  \@values
+          ->{e}{$sect} = 1 OR does not exist
+          ->{mye}{$sect} = 1 OR does not exists
 
 =head1 AUTHOR and ACKNOWLEDGEMENTS
 
