@@ -1,4 +1,5 @@
 config-inifiles/Build
+config-inifiles/Makefile.PL
 config-inifiles/META.json
 config-inifiles/META.yml
 config-inifiles/MYMETA.json
