@@ -1,4 +1,4 @@
-2.88        Unknown
+2.88        2015-07-10
     * Apply speedup patch from James Rouzier.
         - https://bitbucket.org/shlomif/perl-config-inifiles/pull-request/4/avoid-searching-through-all-the-sections/commits
         - Avoids it being O(n^2).
