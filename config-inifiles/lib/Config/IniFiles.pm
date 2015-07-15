@@ -189,7 +189,7 @@ If you create your Config::IniFiles object with a default section of "all" like 
 
    $cfg = Config::IniFiles->new( -file => "file.ini", -default => "all" );
 
-Then requsting a value for a "permissions" in the [joe] section will
+Then requesting a value for a "permissions" in the [joe] section will
 check for a value from [all] before returning undef.
 
    $permissions = $cfg->val( "joe", "permissions");   // returns "Nothing"
