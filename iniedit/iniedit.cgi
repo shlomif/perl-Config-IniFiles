@@ -38,7 +38,7 @@ for $section ($cfg->Sections)	{
 		$input = $cgi->textfield(-name=>$name,
 						-value=>$value,
 						-size=>$length);
-		$row = $cgi->td({-align=>'RIGHT'},$param) . 
+		$row = $cgi->td({-align=>'RIGHT'},$param) .
 		       $cgi->td({-align=>'LEFT'},$input);
  		print $cgi->Tr($row);
 	} # End for param
@@ -52,7 +52,7 @@ print $cgi->end_html();
 sub MakeChanges	{
 	my ($cgi, $cfg) = @_;
 	my ($key, $section, $param, @fields, $field);
-	
+
 	@fields = $cgi->param;
 	for $field (@fields)	{
 		if ($field =~ /___/)	{
