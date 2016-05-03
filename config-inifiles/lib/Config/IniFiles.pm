@@ -2066,7 +2066,11 @@ sub OutputConfigToFileHandle {
     my ($self, $fh, $delta) = @_;
 
     my $ors = $self->{line_ends} || $\ || "\n"; # $\ is normally unset, but use input by default
-    my $print_line = sub { print {$fh} (@_, $ors); };
+    my $print_line = sub {
+        print {$fh} (@_, $ors)
+            or die "Config-IniFiles cannot print to filehandle (out-of-space?). Aborting!";
+        return;
+    };
     my $split_val = sub {
         my ($val) = @_;
 

@@ -1,3 +1,8 @@
+2.89        2016-05-03
+    * Abort if print returns false.
+        - See https://rt.cpan.org/Ticket/Display.html?id=114140
+            - "WriteConfig nullifies the file in case of no space left on disk"
+
 2.88        2015-07-10
     * Apply speedup patch from James Rouzier.
         - https://bitbucket.org/shlomif/perl-config-inifiles/pull-request/4/avoid-searching-through-all-the-sections/commits
