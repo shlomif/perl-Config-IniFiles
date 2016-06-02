@@ -798,7 +798,7 @@ sub _nextline {
         # If there's a UTF BOM (Byte-Order-Mark) in the first
         # character of the first line then remove it before processing
         # ( http://www.unicode.org/unicode/faq/utf_bom.html#22 )
-        s/^﻿//;
+        s/^ï»¿//;
 
         return $_;
     } else {
@@ -3160,7 +3160,7 @@ In particular, special thanks go to (in roughly chronological order):
 Bernie Cosell, Alan Young, Alex Satrapa, Mike Blazer, Wilbert van de Pieterman,
 Steve Campbell, Robert Konigsberg, Scott Dellinger, R. Bernstein,
 Daniel Winkelmann, Pires Claudio, Adrian Phillips,
-Marek Rouchal, Luc St Louis, Adam Fischler, Kay R�pke, Matt Wilson,
+Marek Rouchal, Luc St Louis, Adam Fischler, Kay Röpke, Matt Wilson,
 Raviraj Murdeshwar and Slaven Rezic, Florian Pfaff
 
 Geez, that's a lot of people. And apologies to the folks who were missed.

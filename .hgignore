@@ -1,9 +1,10 @@
+config-inifiles/.build
 config-inifiles/Build
-config-inifiles/Makefile.PL
 config-inifiles/META.json
 config-inifiles/META.yml
 config-inifiles/MYMETA.json
 config-inifiles/MYMETA.yml
+config-inifiles/Makefile.PL
 config-inifiles/_build
 config-inifiles/blib
 
