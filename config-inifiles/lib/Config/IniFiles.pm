@@ -11,7 +11,7 @@ use Carp;
 use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 use Fcntl qw( SEEK_SET SEEK_CUR );
 
-use List::Util qw(any none);
+use List::Util 1.33 qw(any none);
 
 use File::Basename qw( dirname );
 use File::Temp qw/ tempfile /;
