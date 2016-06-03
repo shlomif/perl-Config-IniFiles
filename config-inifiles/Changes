@@ -1,3 +1,7 @@
+2.91        2016-06-03
+    * Set minimal version of List::Util in the requires and in the code.
+        - Reported by some CPAN testers.
+
 2.90        2016-06-02
     * Convert to Dist-Zilla with some induced enhancements.
 
