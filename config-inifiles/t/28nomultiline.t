@@ -14,9 +14,11 @@ use File::Temp qw(tempdir);
     my $dir_name = tempdir(CLEANUP => 1);
     my $filename = File::Spec->catfile($dir_name, "foo.ini");
     my $data = join "", <DATA>;
-    open F, '>', $filename;
-    print F $data;
-    close F;
+    {
+        open my $out, '>', $filename;
+        print {$out} $data;
+        close( $out );
+    }
 
     my $ini = Config::IniFiles->new(-file => $filename, -nomultiline => 1);
 
