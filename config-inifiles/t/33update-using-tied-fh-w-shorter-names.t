@@ -18,8 +18,7 @@ use Config::IniFiles::Slurp qw( slurp );
 use Config::IniFiles;
 use File::Spec;
 
-eval "use File::Temp qw(tempdir)";
-plan skip_all => "File::Temp required for testing" if $@;
+use File::Temp qw(tempdir);
 
 my $dirname = tempdir(CLEANUP => 1);
 my $filename = File::Spec->catfile($dirname, 'toto.ini');
