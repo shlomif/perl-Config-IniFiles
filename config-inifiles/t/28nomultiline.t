@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use Test::More;
+use Test::More tests => 2;
 
 use strict;
 use warnings;
@@ -8,11 +8,7 @@ use warnings;
 use Config::IniFiles;
 use File::Spec;
 
-eval "use File::Temp qw(tempdir)";
-
-plan skip_all => "File::Temp required for testing" if $@;
-
-plan tests => 2;
+use File::Temp qw(tempdir);
 
 {
     my $dir_name = tempdir(CLEANUP => 1);

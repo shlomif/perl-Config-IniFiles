@@ -11,9 +11,7 @@ use File::Spec;
 use lib "./t/lib";
 use Config::IniFiles::TestPaths;
 
-eval "use File::Temp qw(tempdir)";
-plan skip_all => "File::Temp required for testing" if $@;
-
+use File::Temp qw(tempdir);
 
 my $writefile = "end-trailing-comment-writeback.ini";
 

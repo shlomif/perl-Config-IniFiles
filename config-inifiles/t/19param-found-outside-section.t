@@ -9,16 +9,12 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 7;
 
 use Config::IniFiles;
 use File::Spec;
 
-eval "use File::Temp qw(tempdir)";
-
-plan skip_all => "File::Temp required for testing" if $@;
-
-plan tests => 7;
+use File::Temp qw(tempdir);
 
 {
     my $dir_name = tempdir(CLEANUP => 1);
