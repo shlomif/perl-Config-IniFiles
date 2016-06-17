@@ -18,7 +18,7 @@ use English qw(-no_match_vars);
 
 use Config::IniFiles;
 
-if ( ! eval "require 5.008;" )
+if ( ! eval { require 5.008; } )
 {
     plan skip_all => "We need filehandles made from scalar which is a feature of Perl above 5.8.x";
 }
