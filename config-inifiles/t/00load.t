@@ -72,16 +72,21 @@ if( open( CONFIG, "<", t_file("test.ini") ) ) {
 }
 
 
+use File::Temp qw(tempdir);
+use File::Spec ();
+
+my $dir_name = tempdir(CLEANUP => 1);
+my $test01_fn = File::Spec->catfile($dir_name, 'test01.ini');
+
 # TEST
 if( open( CONFIG, "<", t_file("test.ini") ) ) {
   $ini = Config::IniFiles->new(-file => \*CONFIG);
-  $ini->SetFileName( t_file('test01.ini') );
+  $ini->SetFileName( $test01_fn );
   $ini->RewriteConfig();
   close CONFIG;
   # Now test opening and re-write to the same handle
-  chmod(0644, t_file("test01.ini"));
-  if(! open( CONFIG, "+<", t_file("test01.ini" ) )) {
-    die "Could not open " . t_file("test01.ini") . " for read/write";
+  if(! open( CONFIG, "+<", $test01_fn )) {
+    die "Could not open " . $test01_fn . " for read/write";
   }
   $ini = Config::IniFiles->new(-file => \*CONFIG);
   my $badname = scalar(\*CONFIG);
@@ -165,9 +170,6 @@ eval { $ini = Config::IniFiles->new(-file => t_file('bad.ini')); };
 ok((!$@ && !defined($ini) && @Config::IniFiles::errors),
     "A malformed file should throw an error message",
 );
-
-# Clean up when we're done
-t_unlink("test01.ini");
 
 __END__
 ; File that has comments in the first line
