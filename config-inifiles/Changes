@@ -1,3 +1,8 @@
+2.93        2016-07-24
+    * Add [MetaJSON] and META.json to the distribution.
+        - Pull-request by Kent Fredric - thanks!
+            - https://bitbucket.org/shlomif/perl-config-inifiles/pull-requests/5/ship-metajson-with-metajson/diff
+
 2.92        2016-06-17
     * Hopefully fix tests with read/write test01.ini:
         - http://www.cpantesters.org/cpan/report/121523be-341c-11e6-9fc5-14bfbd15da07
