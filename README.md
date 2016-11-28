@@ -1,6 +1,7 @@
 # Config::IniFiles - A module for reading and writing .ini-style configuration files.
 
 [![Travis-CI Build Status](https://travis-ci.org/shlomif/perl-Config-IniFiles.svg?branch=master)](https://travis-ci.org/shlomif/perl-Config-IniFiles)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/s8pk6x85m69mhuod/branch/master?svg=true)](https://ci.appveyor.com/project/shlomif/perl-config-inifiles/branch/master)
 
 ## Motivation
 
