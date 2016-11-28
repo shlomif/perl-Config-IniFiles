@@ -1,8 +1,6 @@
 package Config::IniFiles;
 
-use vars qw($VERSION);
-
-$VERSION = '2.93';
+our $VERSION = '2.93';
 
 require 5.008;
 use strict;
