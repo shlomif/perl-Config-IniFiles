@@ -1,3 +1,7 @@
+2.94        Unknown
+    * Move to GitHub.
+        - for better visibility, collaboration, and CI options.
+
 2.93        2016-07-24
     * Add [MetaJSON] and META.json to the distribution.
         - Pull-request by Kent Fredric - thanks!
