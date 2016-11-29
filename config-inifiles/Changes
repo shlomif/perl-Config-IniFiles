@@ -1,4 +1,4 @@
-2.94        Unknown
+2.94        2016-11-29
     * Move to GitHub.
         - for better visibility, collaboration, and CI options.
     * Apply a patch/pull-request from Peter from Debian with some corrections

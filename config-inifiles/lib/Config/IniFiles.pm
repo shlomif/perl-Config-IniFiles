@@ -1,10 +1,10 @@
 package Config::IniFiles;
 
-our $VERSION = '2.93';
-
 require 5.008;
 use strict;
 use warnings;
+
+our $VERSION = '2.94';
 use Carp;
 use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 use Fcntl qw( SEEK_SET SEEK_CUR );
