@@ -1,6 +1,11 @@
 2.94        Unknown
     * Move to GitHub.
         - for better visibility, collaboration, and CI options.
+    * Apply a patch/pull-request from Peter from Debian with some corrections
+    for typos:
+        - https://github.com/shlomif/perl-Config-IniFiles/pull/1
+        - https://rt.cpan.org/Ticket/Display.html?id=119001
+        - Thanks!
 
 2.93        2016-07-24
     * Add [MetaJSON] and META.json to the distribution.
