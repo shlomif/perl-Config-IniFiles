@@ -214,7 +214,7 @@ will be assumed as:
    name=Joseph
 
 Note that Config::IniFiles will also omit the fallback section header when
-outputing such configuration.
+outputting such configuration.
 
 =item I<-nocase> 0|1
 
@@ -329,7 +329,7 @@ instead of the default:
  value2
  EOT
 
-As the later might not be compatible with all applications.
+As the latter might not be compatible with all applications.
 
 =item I<-handle_trailing_comment> 0|1
 
@@ -475,7 +475,7 @@ sub new {
 
   $self->{_comments_at_end_of_file} = [];
 
-  # Any other parameters are unkown
+  # Any other parameters are unknown
   while (($k, $v) = each %parms) {
     carp "Unknown named parameter $k=>$v";
     $errs++;
@@ -668,7 +668,7 @@ sub setval {
 
 =head2 newval($section, $parameter, $value [, $value2, ...])
 
-Assignes a new value, C<$value> (or set of values) to the
+Assigns a new value, C<$value> (or set of values) to the
 parameter C<$parameter> in section C<$section> in the configuration
 file.
 
@@ -741,7 +741,7 @@ problem is in the file.
 
 =cut
 
-# Auxillary function to make deep (aliasing-free) copies of data
+# Auxiliary function to make deep (aliasing-free) copies of data
 # structures.  Ignores blessed objects in tree (could be taught not
 # to, if needed)
 sub _deepcopy {
@@ -1185,7 +1185,7 @@ sub _ReadConfig_handle_line
     }
 
     $self->_add_error(
-        sprintf("Line %d in file %s is mal-formed:\n\t\%s",
+        sprintf("Line %d in file %s is malformed:\n\t\%s",
             $self->_read_line_num(), $self->GetFileName(), $line
         )
     );
@@ -1232,16 +1232,16 @@ sub ReadConfig
     $self->{EOT}    = {};
     $self->{mysects} = []; # A pair of hashes to remember which params are loaded
     $self->{myparms} = {}; # or set using the API vs. imported - useful for
-    $self->{peCMT}  = {};  # this will store trailing comments at the end of single-lined params
-    $self->{e}      = {};  # If a section is already exists
-    $self->{mye}    = {};  # If a section is already exists
+    $self->{peCMT}  = {};  # this will store trailing comments at the end of single-line params
+    $self->{e}      = {};  # If a section already exists
+    $self->{mye}    = {};  # If a section already exists
     # import shadowing, see below, and WriteConfig($fn, -delta=>1)
 
     if( defined $self->{imported} ) {
         # Run up the import tree to the top, then reload coming
         # back down, maintaining the imported file names and our
         # file name.
-        # This is only needed on a re-load though
+        # This is only needed on a reload though
         $self->{imported}->ReadConfig() unless ($self->{firstload});
 
         foreach my $field (qw(sects parms group v sCMT pCMT EOT e)) {
@@ -1457,7 +1457,7 @@ sub DeleteSection {
 
 =head2 RenameSection ( $old_section_name, $new_section_name, $include_groupmembers)
 
-Renames a section if it does not already exists optionally including groupmembers
+Renames a section if it does not already exist, optionally including groupmembers
 
 =cut
 
@@ -1898,7 +1898,7 @@ C<OutputConfig()> and one is encouraged to use it instead.
 
 Writes OutputConfig to STDOUT. Use select() to redirect STDOUT to
 the output target before calling this function. Optional argument
-should be set to 1 if writing only delta. Also see OutputConfigToFileHandle
+should be set to 1 if writing only a delta. Also see OutputConfigToFileHandle
 
 =cut
 
@@ -2404,7 +2404,7 @@ sub SetParameterTrailingComment
 
 An accessor method to read the trailing comment after the parameter.
 The trailing comment will be returned if there is one. A null string
-will be returned if the parameter exists but no comment for it.
+will be returned if the parameter exists but there is no comment for it.
 otherwise, L<undef> will be returned.
 
 =cut
@@ -2485,7 +2485,7 @@ context.
 
 Sets the value of C<$parameter> in C<$section> to C<$value>.
 
-To set a multiline or multiv-alue parameter just assign an
+To set a multiline or multi-value parameter just assign an
 array reference to the hash entry, like this:
 
  $ini{$section}{$parameter} = [$value1, $value2, ...];
@@ -2591,7 +2591,7 @@ section is defined in the file.
 # These methods allow you to tie a hash to the
 # Config::IniFiles object. Note that, when tied, the
 # user wants to look at thinks like $ini{sec}{parm}, but the
-# TIEHASH only provides one level of hash interace, so the
+# TIEHASH only provides one level of hash interface, so the
 # root object gets asked for a $ini{sec}, which this
 # implements. To further tie the {parm} hash, the internal
 # class Config::IniFiles::_section, is provided, below.
@@ -2743,9 +2743,9 @@ sub DESTROY {
 # Args: $thing
 #   $thing  An input source
 #
-# Description: Takes an input source of a filehandle,
+# Description: Takes an input source - a filehandle,
 # filehandle glob, reference to a filehandle glob, IO::File
-# object or scalar filename and returns a file handle to
+# object or scalar filename - and returns a file handle to
 # read from it with.
 # ----------------------------------------------------------
 # Date      Modification                              Author
@@ -2794,7 +2794,7 @@ sub _make_filehandle {
 # This package is used to provide a single-level TIEHASH
 # interface to the sections in the IniFile. When tied, the
 # user wants to look at thinks like $ini{sec}{parm}, but the
-# TIEHASH only provides one level of hash interace, so the
+# TIEHASH only provides one level of hash interface, so the
 # root object gets asked for a $ini{sec} and must return a
 # has reference that accurately covers the '{parm}' part.
 #
@@ -2955,7 +2955,7 @@ sub FIRSTKEY {
 # Sub: Config::IniFiles::_section::NEXTKEY
 #
 # Args: $last
-#   $last   The last key accessed by the interator
+#   $last   The last key accessed by the iterator
 #
 # Description: Returns the next key in line
 # ----------------------------------------------------------

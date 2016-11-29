@@ -25,7 +25,7 @@ ok (
     (tie %ini, 'Config::IniFiles',
     ( -file => t_file("test.ini"), -default => 'test1', -nocase => 1 )
     ),
-    "Tie to test.ini was succesful."
+    "Tie to test.ini was successful."
 );
 
 tied(%ini)->SetFileName(t_file("test05.ini"));
@@ -138,7 +138,7 @@ $value = $ini{newsect}{four};
 is ($value, 'value4', "Store new section in hash");
 
 # Test 16
-# Writing 2 line multilvalue and returing it
+# Writing 2 line multivalue and returning it
 $ini{newsect} = {};
 $ini{test1}{multi_2} = ['line 1', 'line 2'];
 tied(%ini)->RewriteConfig;
@@ -146,7 +146,7 @@ tied(%ini)->ReadConfig;
 @value = @{$ini{test1}{multi_2}};
 # TEST
 is_deeply ( \@value, ['line 1', 'line 2'],
-    "Writing 2 line multilvalue and returing it"
+    "Writing 2 line multivalue and returning it"
 );
 
 # Test 17

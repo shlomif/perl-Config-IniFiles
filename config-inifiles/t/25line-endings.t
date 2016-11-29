@@ -24,7 +24,7 @@ my $ini_filename =
     # being pedantic, we don't take line breaks from this or an external file for granted
     my $sample_ini =
     "<eol>
-    <sol># this is a sample file for testing the proper detection of line endings in Config::Inifiles<eol>
+    <sol># this is a sample file for testing the proper detection of line endings in Config::IniFiles<eol>
     <sol><eol>
     <sol>[single values]<eol>
     <sol>firstval = first value<eol>
@@ -32,7 +32,7 @@ my $ini_filename =
     <sol><eol>
     <sol># in v2.52 on linux multi values with crlf lines are failing<eol>
     <sol>[multi value]<eol>
-    <sol>Pathes=<<EOT<eol>
+    <sol>Paths=<<EOT<eol>
     <sol>path1<eol>
     <sol>path2<eol>
     <sol>EOT<eol>
@@ -69,7 +69,7 @@ my $ini_filename =
             "Reading a single value from a '$lf_print'-separated file"
         );
 
-        my @vals = $cfg->val("multi value", "Pathes");
+        my @vals = $cfg->val("multi value", "Paths");
 
         # TEST
         is_deeply(
