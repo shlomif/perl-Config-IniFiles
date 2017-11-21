@@ -4,7 +4,7 @@
 # https://rt.cpan.org/Ticket/Display.html?id=36584
 
 # Written by Shlomi Fish.
-# This file is licensed under the MIT/X11 License.
+# This file is licensed under the MIT/Expat License.
 
 use strict;
 use warnings;
@@ -21,10 +21,19 @@ use File::Temp qw(tempdir);
 {
     my $dir_name = tempdir( CLEANUP => 1 );
     my $filename = File::Spec->catfile( $dir_name, "foo.ini" );
-    my $data = join "", <DATA>;
     {
         open my $fh, '>', $filename;
-        print {$fh} $data;
+        print {$fh} <<'EOF';
+
+; This is a malformed ini file with a key/value outside a section
+
+wrong = wronger
+
+[section]
+
+right = more right
+
+EOF
         close($fh);
     }
 
@@ -64,14 +73,3 @@ use File::Temp qw(tempdir);
         "(-fallback) Outputting fallback section without section header"
     );
 }
-
-__DATA__
-
-; This is a malformed ini file with a key/value outside a scrtion
-
-wrong = wronger
-
-[section]
-
-right = more right
-
