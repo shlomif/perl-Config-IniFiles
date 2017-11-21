@@ -13,6 +13,7 @@ install:
     - SET PERL_MM_OPT=INSTALL_BASE=C:/Perl5
     - cpanm -n Dist::Zilla
     - cpanm -n Dist::Zilla::Plugin::PodWeaver
+    - cpanm -n Perl::Tidy
     - cpanm -n Pod::Coverage::TrustPod
     - cpanm -n Pod::Weaver::Section::Support
     - cpanm -n Test::Pod
