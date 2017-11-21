@@ -14,10 +14,14 @@ use Config::IniFiles::Slurp qw( slurp );
 {
     my $dir_name = tempdir( CLEANUP => 1 );
     my $filename = File::Spec->catfile( $dir_name, "foo.ini" );
-    my $data = join "", <DATA>;
     {
         open my $out, '>', $filename;
-        print {$out} $data;
+        print {$out} <<'EOF';
+[section]
+a = 1
+a = 2
+
+EOF
         close($out);
     }
 
@@ -31,9 +35,3 @@ use Config::IniFiles::Slurp qw( slurp );
     ok( $content !~ /EOT/ && $content =~ /^a=1/m && $content =~ /^a=2/m,
         "No multiline is output" );
 }
-
-__DATA__
-[section]
-a = 1
-a = 2
-
