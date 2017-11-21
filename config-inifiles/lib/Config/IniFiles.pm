@@ -410,7 +410,6 @@ sub new
 
     # Parse options
     my ( $k, $v );
-    local $_;
     $self->_nocase(0);
 
     # Handle known parameters first in this order,
@@ -815,7 +814,7 @@ sub _deepcopy
 sub _nextline
 {
     my ( $self, $fh ) = @_;
-    local $_;
+    my $s = '';
     if ( !exists $self->{line_ends} )
     {
         # no $self->{line_ends} is a hint set by caller that we are at
@@ -827,8 +826,8 @@ sub _nextline
             {
                 $nextchar = <$fh>;
                 return undef if ( !defined $nextchar );
-                $_ .= $nextchar;
-            } until (m/((\015|\012|\025|\n)$)/s);
+                $s .= $nextchar;
+            } until ($s =~ m/((\015|\012|\025|\n)$)/s);
             $self->{line_ends} = $1;
             if ( $nextchar eq "\x0d" )
             {
@@ -848,9 +847,9 @@ sub _nextline
         # If there's a UTF BOM (Byte-Order-Mark) in the first
         # character of the first line then remove it before processing
         # ( http://www.unicode.org/unicode/faq/utf_bom.html#22 )
-        s/^ï»¿//;
+        $s =~ s/\Aï»¿//;
 
-        return $_;
+        return $s;
     }
     else
     {
