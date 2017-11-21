@@ -1,3 +1,6 @@
+2.95        Unknown
+    * Make use of perltidy and test for it.
+
 2.94        2016-11-29
     * Move to GitHub.
         - for better visibility, collaboration, and CI options.

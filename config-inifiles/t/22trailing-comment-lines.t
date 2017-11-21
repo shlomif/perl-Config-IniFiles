@@ -16,12 +16,13 @@ use Config::IniFiles;
 
 {
     my $conf = Config::IniFiles->new(
-        -file => File::Spec->catfile(File::Spec->curdir(), 't', 'trailing-comments.ini')
+        -file => File::Spec->catfile(
+            File::Spec->curdir(), 't', 'trailing-comments.ini'
+        )
     );
 
-    my $new_file = File::Spec->catfile(
-        File::Spec->curdir(), 't', 'new-trail.ini'
-    );
+    my $new_file =
+        File::Spec->catfile( File::Spec->curdir(), 't', 'new-trail.ini' );
 
     $conf->WriteConfig($new_file);
 

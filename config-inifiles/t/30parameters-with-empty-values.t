@@ -25,7 +25,7 @@ use Config::IniFiles::Slurp qw( slurp );
 
     my $ini = Config::IniFiles->new();
 
-    $ini->newval('MySection', 'MyParam', '');
+    $ini->newval( 'MySection', 'MyParam', '' );
 
     $ini->WriteConfig($filename);
 
@@ -34,7 +34,7 @@ use Config::IniFiles::Slurp qw( slurp );
     unlink($filename);
 
     # TEST
-    like ($contents, qr{^MyParam=$}ms, 'Empty parameter was written.');
+    like( $contents, qr{^MyParam=$}ms, 'Empty parameter was written.' );
 }
 
 =head1 COPYRIGHT & LICENSE

@@ -17,45 +17,44 @@ use File::Spec;
 use File::Temp qw(tempdir);
 
 {
-    my $dir_name = tempdir(CLEANUP => 1);
-    my $filename = File::Spec->catfile($dir_name, "foo.ini");
+    my $dir_name = tempdir( CLEANUP => 1 );
+    my $filename = File::Spec->catfile( $dir_name, "foo.ini" );
     my $data = join "", <DATA>;
     {
         open my $fh, '>', $filename;
         print {$fh} $data;
-        close ($fh);
+        close($fh);
     }
 
-    my $ini = Config::IniFiles->new(-file => $filename);
+    my $ini = Config::IniFiles->new( -file => $filename );
 
     # TEST
-    ok(!defined($ini), "Ini was not initialised");
+    ok( !defined($ini), "Ini was not initialised" );
 
     # TEST
-    is (scalar(@Config::IniFiles::errors), 1,
-        "There is one error."
-    );
+    is( scalar(@Config::IniFiles::errors), 1, "There is one error." );
 
     # TEST
-    like ($Config::IniFiles::errors[0],
+    like(
+        $Config::IniFiles::errors[0],
         qr/parameter found outside a section/,
         "Error was correct - 'parameter found outside a section'",
     );
 
-    $ini = Config::IniFiles->new(-file => $filename, -fallback => 'GENERAL');
+    $ini = Config::IniFiles->new( -file => $filename, -fallback => 'GENERAL' );
 
     # TEST
-    ok(defined($ini), "(-fallback) Ini was initialised");
+    ok( defined($ini), "(-fallback) Ini was initialised" );
 
     # TEST
-    ok($ini->SectionExists('GENERAL'), "(-fallback) Fallback section exists");
+    ok( $ini->SectionExists('GENERAL'), "(-fallback) Fallback section exists" );
 
     # TEST
-    ok($ini->exists('GENERAL', 'wrong'),
-       "(-fallback) Fallback section catches parameter");
+    ok( $ini->exists( 'GENERAL', 'wrong' ),
+        "(-fallback) Fallback section catches parameter" );
 
     # TEST
-    my $newfilename = File::Spec->catfile($dir_name, "new.ini");
+    my $newfilename = File::Spec->catfile( $dir_name, "new.ini" );
     my $content;
     $ini->WriteConfig($newfilename);
     {
@@ -63,8 +62,10 @@ use File::Temp qw(tempdir);
         open my $fh, '<', $newfilename;
         $content = <$fh>;
     }
-    ok($content =~ /^wrong/m && $content !~ /^\[GENERAL\]/m,
-       "(-fallback) Outputting fallback section without section header");
+    ok(
+        $content =~ /^wrong/m && $content !~ /^\[GENERAL\]/m,
+        "(-fallback) Outputting fallback section without section header"
+    );
 }
 
 __DATA__
