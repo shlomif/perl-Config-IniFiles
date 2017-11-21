@@ -14,16 +14,14 @@ use Config::IniFiles;
 my $ini_filename =
     File::Spec->catfile( File::Spec->curdir(), "t", 'test31.ini' );
 
-my $content = <<'EOT';
+{
+    open my $ini_fh, '>', $ini_filename
+        or die "Cannot open '$ini_filename' - $!";
+    print {$ini_fh} <<'EOT';
 [section]
 value1 = xxx ; My Comment
 value2 = xxx ; My_Comment
 EOT
-
-{
-    open my $ini_fh, '>', $ini_filename
-        or die "Cannot open '$ini_filename' - $!";
-    print {$ini_fh} $content;
     close($ini_fh);
 }
 

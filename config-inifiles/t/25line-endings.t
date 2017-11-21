@@ -43,7 +43,7 @@ my $ini_filename =
 
         open my $INI, '>', $ini_filename or die $!;
         binmode $INI;
-        print $INI $ini;
+        print {$INI} $ini;
         close $INI;
 
         my $lf_print =

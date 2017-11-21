@@ -13,8 +13,6 @@ use Config::IniFiles::TestPaths;
 
 use File::Temp qw(tempdir);
 
-my $writefile = "end-trailing-comment-writeback.ini";
-
 # Test of handle_trailing_comment enabled
 {
     my $ini = Config::IniFiles->new(
@@ -33,7 +31,8 @@ my $writefile = "end-trailing-comment-writeback.ini";
 
     # Test write back
     my $dirname = tempdir( CLEANUP => 1 );
-    my $filename = File::Spec->catfile( $dirname, $writefile );
+    my $filename =
+        File::Spec->catfile( $dirname, "end-trailing-comment-writeback.ini" );
 
     # TEST
     ok( $ini->WriteConfig($filename), "Write trailing comments back" );
