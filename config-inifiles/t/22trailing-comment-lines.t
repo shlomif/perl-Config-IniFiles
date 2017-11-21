@@ -10,9 +10,10 @@ use Test::More tests => 1;
 use strict;
 use warnings;
 
+use lib "./t/lib";
 use File::Spec;
-
 use Config::IniFiles;
+use Config::IniFiles::Slurp qw( slurp );
 
 {
     my $conf = Config::IniFiles->new(
@@ -26,17 +27,9 @@ use Config::IniFiles;
 
     $conf->WriteConfig($new_file);
 
-    my $buffer;
-    {
-        local $/;
-        open my $fh, "<", $new_file;
-        $buffer = <$fh>;
-        close($fh);
-    }
-
     # TEST
     like(
-        $buffer,
+        scalar( slurp($new_file) ),
         qr{; End Comment 1\n; End Comment 2\n+\z}ms,
         "WriteConfig() Preserved end comments."
     );

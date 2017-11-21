@@ -7,8 +7,9 @@ use warnings;
 
 use Config::IniFiles;
 use File::Spec;
-
 use File::Temp qw(tempdir);
+use lib "./t/lib";
+use Config::IniFiles::Slurp qw( slurp );
 
 {
     my $dir_name = tempdir( CLEANUP => 1 );
@@ -26,12 +27,7 @@ use File::Temp qw(tempdir);
     ok( defined($ini), "Ini was initialised" );
 
     $ini->RewriteConfig;
-    my $content;
-    {
-        open my $fh, '<', $filename;
-        local $/;
-        $content = <$fh>;
-    }
+    my $content = slurp($filename);
     ok( $content !~ /EOT/ && $content =~ /^a=1/m && $content =~ /^a=2/m,
         "No multiline is output" );
 }

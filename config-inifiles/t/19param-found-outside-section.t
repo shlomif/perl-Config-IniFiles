@@ -11,8 +11,10 @@ use warnings;
 
 use Test::More tests => 7;
 
+use lib "./t/lib";
 use Config::IniFiles;
 use File::Spec;
+use Config::IniFiles::Slurp qw( slurp );
 
 use File::Temp qw(tempdir);
 
@@ -55,13 +57,8 @@ use File::Temp qw(tempdir);
 
     # TEST
     my $newfilename = File::Spec->catfile( $dir_name, "new.ini" );
-    my $content;
     $ini->WriteConfig($newfilename);
-    {
-        local $/;
-        open my $fh, '<', $newfilename;
-        $content = <$fh>;
-    }
+    my $content = slurp($newfilename);
     ok(
         $content =~ /^wrong/m && $content !~ /^\[GENERAL\]/m,
         "(-fallback) Outputting fallback section without section header"
