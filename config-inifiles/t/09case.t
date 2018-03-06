@@ -84,7 +84,7 @@ ok( first { index( $_, "parameter" ) >= 0 } @members, "parameter exists" );
     my $parameters_case_check_pass = 1;
     $parameters_case_check_pass = 0 unless scalar(@parameter_list) == 1;
     $parameters_case_check_pass = 0 unless $parameter_list[0] eq "Parameter";
-    @parameter_list = $ini->Parameters("Section");
+    @parameter_list             = $ini->Parameters("Section");
     $parameters_case_check_pass = 0 unless scalar(@parameter_list) == 2;
     my $parameters = join " ", @parameter_list;
     $parameters_case_check_pass = 0 unless ( $parameters =~ /PaRaMeTeR/ );
