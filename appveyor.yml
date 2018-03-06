@@ -16,6 +16,7 @@ install:
     - cpanm -n Perl::Tidy
     - cpanm -n Pod::Coverage::TrustPod
     - cpanm -n Pod::Weaver::Section::Support
+    - cpanm -n Test::Code::TidyAll
     - cpanm -n Test::Pod
     - cpanm -n Test::Pod::Coverage
     - cd config-inifiles
