@@ -19,6 +19,7 @@ install:
     - cpanm -n Test::Code::TidyAll
     - cpanm -n Test::Pod
     - cpanm -n Test::Pod::Coverage
+    - cpanm -n Test::TrailingSpace
     - cd config-inifiles
     - dzil authordeps --missing | cpanm -n
     - dzil listdeps   --missing | cpanm -n
