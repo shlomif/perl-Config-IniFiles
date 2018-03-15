@@ -387,7 +387,6 @@ sub new
         imported                => undef,
         v                       => {},
         cf                      => undef,
-        firstload               => 1,
         nomultiline             => 0,
         handle_trailing_comment => 0,
     }, $class;
@@ -1309,34 +1308,25 @@ sub ReadConfig
 
     if ( defined $self->{imported} )
     {
-        # Run up the import tree to the top, then reload coming
-        # back down, maintaining the imported file names and our
-        # file name.
-        # This is only needed on a reload though
-        $self->{imported}->ReadConfig() unless ( $self->{firstload} );
-
         foreach my $field (qw(sects parms group v sCMT pCMT EOT e))
         {
             $self->{$field} = _deepcopy( $self->{imported}->{$field} );
         }
-    }    # end if
+    }
 
     if ( $self->_no_filename )
     {
         return 1;
     }
 
-    # If this is a reload and we want warnings then send one to the STDERR log
-    unless ( $self->{firstload} || !$self->{reloadwarn} )
+    # If we want warnings, then send one to the STDERR log
+    if ( $self->{reloadwarn} )
     {
         my ( $ss, $mm, $hh, $DD, $MM, $YY ) = ( localtime(time) )[ 0 .. 5 ];
         printf STDERR
             "PID %d reloading config file %s at %d.%02d.%02d %02d:%02d:%02d\n",
             $$, $self->{cf}, $YY + 1900, $MM + 1, $DD, $hh, $mm, $ss;
     }
-
-    # Turn off. Future loads are reloads
-    $self->{firstload} = 0;
 
     # Get a filehandle, allowing almost any type of 'file' parameter
     my $fh = $self->_make_filehandle( $self->{cf} );
@@ -3262,7 +3252,6 @@ data structure.
 
   $iniconf->{cf} = "config_file_name"
           ->{startup_settings} = \%orginal_object_parameters
-          ->{firstload} = 0 OR 1
           ->{imported} = $object WHERE $object->isa("Config::IniFiles")
           ->{nocase} = 0
           ->{reloadwarn} = 0
