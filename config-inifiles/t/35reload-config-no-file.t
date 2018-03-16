@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Config::IniFiles;
-use Test::More;
+use Test::More tests => 8;
 use File::Temp 'tempfile';
 
 my $config_nofile = Config::IniFiles->new( -allowempty => 1 );
@@ -13,13 +13,18 @@ my ( $fh, $filename ) = tempfile;
 my $config =
     Config::IniFiles->new( -import => $config_nofile, -allowempty => 1 );
 
+# TEST
 ok( $config->val( 'section', 'param' ), 'Configuration is imported' );
 
 $config->SetFileName($filename);
 $config->ReadConfig;
+
+# TEST
 ok( $config->val( 'section', 'param' ), 'Configuration is still imported' );
 
 $config->ReadConfig;
+
+# TEST
 ok( $config->val( 'section', 'param' ), 'Configuration is still imported' );
 
 ## Import config that has already been imported
@@ -29,6 +34,7 @@ $config = Config::IniFiles->new(
     -file       => $filename
 );
 
+# TEST
 ok( $config->val( 'section', 'param' ), 'Configuration is imported again' );
 
 $config_nofile = Config::IniFiles->new;
@@ -41,9 +47,12 @@ $config = Config::IniFiles->new(
     -file       => $filename
 );
 
+# TEST
 ok( $config->val( 'section', 'param' ), 'Configuration is imported' );
 
 $config->ReadConfig;
+
+# TEST
 ok( $config->val( 'section', 'param' ), 'Configuration is still imported' );
 
 ## Import config that is written to file, but with parameters not written to file, then read again
@@ -61,9 +70,10 @@ $config = Config::IniFiles->new(
     -file       => $filename
 );
 
+# TEST
 ok( $config->val( 'section', 'param' ), 'Configuration is imported' );
 
 $config->ReadConfig;
-ok( $config->val( 'section', 'param' ), 'Configuration is still imported' );
 
-done_testing;
+# TEST
+ok( $config->val( 'section', 'param' ), 'Configuration is still imported' );
