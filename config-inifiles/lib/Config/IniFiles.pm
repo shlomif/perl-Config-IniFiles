@@ -2734,12 +2734,16 @@ sub FETCH
     my $self = shift;
     my ($key) = @_;
 
+    $self->{_section_cache} ||= {};
+
     $self->_caseify( \$key );
     return if ( !$self->{v}{$key} );
 
+    return $self->{_section_cache}->{$key} if exists $self->{_section_cache}->{$key};
+
     my %retval;
     tie %retval, 'Config::IniFiles::_section', $self, $key;
-    return \%retval;
+    return $self->{_section_cache}->{$key} = \%retval;
 
 }    # end FETCH
 
