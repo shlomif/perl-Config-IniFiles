@@ -349,6 +349,34 @@ I<param1>.
 Set and get methods for trailing comments are provided as
 L</SetParameterTrailingComment> and L</GetParameterTrailingComment>.
 
+=item I<-php_compat> 0|1
+
+Set -php_compat => 1 to enable support for PHP like configfiles.
+
+The differences between parse_ini_file and Config::IniFiles are:
+
+ # parse_ini_file
+ [group]
+ val1="value"
+ val2[]=1
+ val2[]=2
+
+ vs
+
+ # Config::IniFiles
+ [group]
+ val1=value
+ val2=1
+ val2=2
+
+This option only affect parsing, not writing new configfiles.
+
+Some features from parse_ini_file are not compatible:
+
+ [group]
+ val1="val"'ue'
+ val1[key]=1
+
 =back
 
 =cut
@@ -487,6 +515,10 @@ sub new
     {
         $self->{handle_trailing_comment} = $v ? 1 : 0;
     }
+    if ( defined( $v = delete $parms{'-php_compat'} ) )
+    {
+        $self->{php_compat} = $v ? 1 : 0;
+    }
 
     $self->{comment_char} = '#' unless exists $self->{comment_char};
     $self->{allowed_comment_char} = ';'
@@ -534,18 +566,37 @@ otherwise the values will be joined using \n.
 
 =cut
 
-sub _caseify
+sub _assimilate
 {
     my ( $self, @refs ) = @_;
 
-    if ( not $self->_nocase )
+    if ( $self->_nocase )
     {
-        return;
+        foreach my $ref (grep { defined } @refs[0..1])
+        {
+            ${$ref} = lc( ${$ref} );
+        }
     }
 
-    foreach my $ref (@refs)
+    if ( $self->{php_compat} )
     {
-        ${$ref} = lc( ${$ref} );
+        foreach my $ref (grep { defined } @refs[1..1])
+        {
+            ${$ref} =~ s{\[\]$}{};
+        }
+        foreach my $ref (grep { defined } @refs[2..$#refs])
+        {
+            if (length(${$ref}) >= 2)
+            {
+                my $quote = substr(${$ref}, 0, 1);
+                if (($quote eq q{"} or $quote eq q{'}) and substr(${$ref}, -1, 1) eq $quote)
+                {
+                    ${$ref} = substr(${$ref}, 1, -1);
+                    ${$ref} =~ s{$quote$quote}{}g;
+                    ${$ref} =~ s{\\$quote}{$quote}g if $quote eq q{"};
+                }
+            }
+        }
     }
 
     return;
@@ -561,7 +612,7 @@ sub val
         return;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     my $val_sect =
         defined( $self->{v}{$sect}{$parm} )
@@ -613,7 +664,7 @@ sub exists
 {
     my ( $self, $sect, $parm ) = @_;
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     return ( exists $self->{v}{$sect}{$parm} );
 }
@@ -637,7 +688,7 @@ sub push
     return undef if not defined $sect;
     return undef if not defined $parm;
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     return undef if ( !defined( $self->{v}{$sect}{$parm} ) );
 
@@ -677,7 +728,7 @@ sub setval
     return undef if not defined $sect;
     return undef if not defined $parm;
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     if ( defined( $self->{v}{$sect}{$parm} ) )
     {
@@ -717,7 +768,7 @@ sub newval
     return undef if not defined $sect;
     return undef if not defined $parm;
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     $self->AddSection($sect);
 
@@ -757,7 +808,7 @@ sub delval
     return undef if not defined $sect;
     return undef if not defined $parm;
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     $self->{parms}{$sect} = [ grep { $_ ne $parm } @{ $self->{parms}{$sect} } ];
     $self->_touch_parameter( $sect, $parm );
@@ -1029,7 +1080,7 @@ sub _ReadConfig_new_section
 {
     my ( $self, $sect ) = @_;
 
-    $self->_caseify( \$sect );
+    $self->_assimilate( undef, \$sect );
 
     $self->_curr_sect($sect);
     $self->AddSection( $self->_curr_sect );
@@ -1181,15 +1232,17 @@ sub _ReadConfig_param_assignment
 {
     my ( $self, $fh, $line, $parm, $value_to_assign ) = @_;
 
+    $self->_assimilate( undef, \$parm, \$value_to_assign );
+
     $self->_curr_val($value_to_assign);
     $self->_curr_end_comment( undef() );
 
     if ( !defined( $self->_test_for_fallback_or_no_sect($fh) ) )
     {
+
         return $RET_BREAK;
     }
 
-    $self->_caseify( \$parm );
     $self->_curr_parm($parm);
 
     my @val = ();
@@ -1404,7 +1457,7 @@ sub SectionExists
 
     return undef if not defined $sect;
 
-    $self->_caseify( \$sect );
+    $self->_assimilate( \$sect );
 
     return ( ( exists $self->{e}{$sect} ) ? 1 : 0 );
 }
@@ -1449,7 +1502,7 @@ sub AddSection
 
     return undef if not defined $sect;
 
-    $self->_caseify( \$sect );
+    $self->_assimilate( \$sect );
 
     if ( $self->SectionExists($sect) )
     {
@@ -1505,7 +1558,7 @@ sub DeleteSection
 
     return undef if not defined $sect;
 
-    $self->_caseify( \$sect );
+    $self->_assimilate( \$sect );
 
     # This is done the fast way, change if data structure changes!!
     delete $self->{v}{$sect};
@@ -1564,7 +1617,7 @@ sub CopySection
         return undef;
     }
 
-    $self->_caseify( \$new_sect );
+    $self->_assimilate( \$new_sect );
     $self->_AddSection_Helper($new_sect);
 
     # This is done the fast way, change if data structure changes!!
@@ -1609,7 +1662,7 @@ sub Parameters
 
     return undef if not defined $sect;
 
-    $self->_caseify( \$sect );
+    $self->_assimilate( \$sect );
 
     return @{ _aref_or_empty( $self->{parms}{$sect} ) };
 }
@@ -1743,7 +1796,7 @@ sub GroupMembers
 
     return undef if not defined $group;
 
-    $self->_caseify( \$group );
+    $self->_assimilate( \$group );
 
     return @{ _aref_or_empty( $self->{group}{$group} ) };
 }
@@ -2223,7 +2276,7 @@ sub SetSectionComment
         return undef;
     }
 
-    $self->_caseify( \$sect );
+    $self->_assimilate( \$sect );
 
     $self->_touch_section($sect);
 
@@ -2275,7 +2328,7 @@ sub GetSectionComment
 
     return undef if not defined $sect;
 
-    $self->_caseify( \$sect );
+    $self->_assimilate( \$sect );
 
     if ( !exists $self->{sCMT}{$sect} )
     {
@@ -2298,7 +2351,7 @@ sub DeleteSectionComment
 
     return undef if not defined $sect;
 
-    $self->_caseify( \$sect );
+    $self->_assimilate( \$sect );
     $self->_touch_section($sect);
 
     delete $self->{sCMT}{$sect};
@@ -2324,7 +2377,7 @@ sub SetParameterComment
         return undef;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     $self->_touch_parameter( $sect, $parm );
 
@@ -2368,7 +2421,7 @@ sub GetParameterComment
         return undef;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     if (
         not(   exists( $self->{pCMT}{$sect} )
@@ -2396,7 +2449,7 @@ sub DeleteParameterComment
         return undef;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     # If the parameter doesn't exist, our goal has already been achieved
     if (   exists( $self->{pCMT}{$sect} )
@@ -2424,7 +2477,7 @@ sub GetParameterEOT
         return undef;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     return $self->{EOT}{$sect}{$parm};
 }
@@ -2446,7 +2499,7 @@ sub SetParameterEOT
         return undef;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     $self->_touch_parameter( $sect, $parm );
 
@@ -2472,7 +2525,7 @@ sub DeleteParameterEOT
         return undef;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     $self->_touch_parameter( $sect, $parm );
     delete $self->{EOT}{$sect}{$parm};
@@ -2500,7 +2553,7 @@ sub SetParameterTrailingComment
         return undef;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     # confirm the parameter exist
     return undef if not exists $self->{v}{$sect}{$parm};
@@ -2529,7 +2582,7 @@ sub GetParameterTrailingComment
         return undef;
     }
 
-    $self->_caseify( \$sect, \$parm );
+    $self->_assimilate( \$sect, \$parm );
 
     # confirm the parameter exist
     return undef if not exists $self->{v}{$sect}{$parm};
@@ -2736,7 +2789,7 @@ sub FETCH
 
     $self->{_section_cache} ||= {};
 
-    $self->_caseify( \$key );
+    $self->_assimilate( \$key );
     return if ( !$self->{v}{$key} );
 
     return $self->{_section_cache}->{$key} if exists $self->{_section_cache}->{$key};
@@ -2761,7 +2814,7 @@ sub STORE
 
     return undef unless ref($ref) eq 'HASH';
 
-    $self->_caseify( \$key );
+    $self->_assimilate( \$key );
 
     $self->AddSection($key);
     $self->{v}{$key}       = {%$ref};
