@@ -4,7 +4,7 @@ require 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '2.96';
+our $VERSION = '2.97';
 use Carp;
 use Symbol 'gensym', 'qualify_to_ref';    # For the 'any data type' hack
 use Fcntl qw( SEEK_SET SEEK_CUR );
