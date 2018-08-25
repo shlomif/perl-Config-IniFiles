@@ -3200,9 +3200,9 @@ and
 
    ; overlay.ini
    [section1]
-   arg1=overriden
+   arg1=overridden
 
-Then C<< $overlay->val("section1", "arg1") >> is "overriden", while
+Then C<< $overlay->val("section1", "arg1") >> is "overridden", while
 C<< $overlay->val("section1", "arg0") >> is "unchanged from
 master.ini".
 
