@@ -1,3 +1,9 @@
+3.000000    2018-09-13
+    * Fix typos
+        - https://github.com/shlomif/perl-Config-IniFiles/pull/5
+        - Thanks to @ppentchev
+    * Resubmit with new version to please CPAN/metacpan/etc.
+
 2.99        2018-07-12
     * Fix the link to the repository
         - https://github.com/shlomif/perl-Config-IniFiles/issues/4
