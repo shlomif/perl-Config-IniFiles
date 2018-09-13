@@ -44,7 +44,7 @@ install:
     - cpanm -nq Module::Build
     - cpanm -nq Dist::Zilla
     # Module files for this distribution are not in root
-    - cmd: "cd iniedit"
+    - cmd: "cd config-inifiles"
     - dzil authordeps | cpanm -nq
     - dzil listdeps   | cpanm -nq
     - cpanm -nq Test::EOL Test::NoTabs Test::Pod Test::Pod::Coverage Pod::Coverage::TrustPod
