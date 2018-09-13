@@ -42,7 +42,7 @@ install:
     - cpanm -nq Getopt::Long::Descriptive
     - cpanm -nq Log::Dispatch::Output Software::LicenseUtils Config::MVP::Reader::INI Config::MVP::Assembler Text::Template Data::Section App::Cmd::Tester Log::Dispatchouli MooseX::Types::Perl String::Formatter MooseX::SetOnce CPAN::Uploader Config::MVP::Section Perl::PrereqScanner App::Cmd::Setup Config::MVP::Reader Software::License Config::MVP::Reader::Findable::ByExtension Config::MVP::Reader::Finder Pod::Eventual Mixin::Linewise::Readers Config::MVP::Assembler::WithBundles App::Cmd::Command::version Config::INI::Reader App::Cmd::Tester::CaptureExternal Term::Encoding
     - cpanm -nq Module::Build
-    - cpanm -nq Dist::Zilla Pod::Weaver::Section::Support
+    - cpanm -nq Dist::Zilla Pod::Weaver::Section::Support Perl::Critic Perl::Tidy Test::Code::TidyAll
     # Module files for this distribution are not in root
     - cmd: "cd config-inifiles"
     - dzil authordeps | cpanm -nq

@@ -29,7 +29,7 @@ before_install:
     - cpanm local::lib
     - eval "$(perl -Mlocal::lib=$HOME/perl_modules)"
 install:
-    - cpanm --quiet --skip-satisfied Dist::Zilla Pod::Weaver::Section::Support
+    - cpanm --quiet --skip-satisfied Dist::Zilla Pod::Weaver::Section::Support Perl::Critic Perl::Tidy Test::Code::TidyAll
     - "(cd config-inifiles && dzil authordeps          --missing | grep -vP '[^\\w:]' | xargs -n 5 -P 10 cpanm --quiet)"
     - "(cd config-inifiles && dzil listdeps   --author --missing | grep -vP '[^\\w:]' | cpanm --verbose)"
 script:
