@@ -2434,7 +2434,7 @@ sub GetParameterComment
     return $self->_return_comment( $self->{pCMT}{$sect}{$parm} );
 }
 
-=head2 DeleteParameterComment ($section, $parmeter)
+=head2 DeleteParameterComment ($section, $parameter)
 
 Deletes the comment attached to a parameter.
 
@@ -2508,7 +2508,7 @@ sub SetParameterEOT
     return;
 }
 
-=head2 DeleteParameterEOT ($section, $parmeter)
+=head2 DeleteParameterEOT ($section, $parameter)
 
 Removes the EOT marker for the given section and parameter.
 When writing a configuration file, if no EOT marker is defined
