@@ -1173,7 +1173,7 @@ HERE_DOC_LOOP:
             sprintf( '%d: %s',
                 $startline, qq#no end marker ("$eotmark") found# )
         );
-        $self->_rollback();
+        $self->_rollback($fh);
         return $RET_BREAK;
     }
 
