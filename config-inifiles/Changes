@@ -1,3 +1,8 @@
+3.000003    Unknown
+    * Fix stray non-ASCII characters in the versions in the Changes log.
+        - https://rt.cpan.org/Ticket/Display.html?id=125161
+        - Thanks to SREZIC.
+
 3.000002    2019-03-14
     * Fix error with missing here doc end marker
         - Thanks to Igor Korchynskyi .
@@ -13,18 +18,18 @@
         - Thanks to @ppentchev
     * Resubmit with new version to please CPAN/metacpan/etc.
 
-2.99        2018-07-12
+2.99        2018-07-12
     * Fix the link to the repository
         - https://github.com/shlomif/perl-Config-IniFiles/issues/4
         - Thanks to @bessarabov for the report.
 
-2.98        2018-04-21
+2.98        2018-04-21
     * Remove old author-only test scripts.
         - https://rt.cpan.org/Ticket/Display.html?id=125161
         - Thanks to SREZIC for the report.
 
-2.97        2018-04-21
-    * Apply pull-request to implement -php_compat
+2.97        2018-04-21
+    * Apply pull-request to implement -php_compat
         - https://github.com/shlomif/perl-Config-IniFiles/pull/3
         - https://rt.cpan.org/Ticket/Display.html?id=102339
         - Thanks to @Sadrak !
