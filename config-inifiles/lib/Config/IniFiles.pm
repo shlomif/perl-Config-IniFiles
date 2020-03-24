@@ -1394,8 +1394,12 @@ sub ReadConfig
 # also check if it's a real file (could have been a filehandle made from a scalar).
     if ( ref($fh) ne "IO::Scalar" && -e $fh )
     {
-        my @stats = stat $fh;
-        $self->{file_mode} = sprintf( "%04o", $stats[2] ) if defined $stats[2];
+        if ( not exists $self->{file_mode} )
+        {
+            my @stats = stat $fh;
+            $self->{file_mode} = sprintf( "%04o", $stats[2] )
+                if defined $stats[2];
+        }
     }
 
     # The first lines of the file must be blank, comments or start with [
@@ -1867,8 +1871,11 @@ sub _write_config_to_filename
             #carp "File $filename is not writable.  Refusing to write config";
             return undef;
         }
-        my $mode = ( stat $filename )[2];
-        $self->{file_mode} = sprintf "%04o", ( $mode & 0777 );
+        if ( not exists $self->{file_mode} )
+        {
+            my $mode = ( stat $filename )[2];
+            $self->{file_mode} = sprintf "%04o", ( $mode & 0777 );
+        }
 
         #carp "Using mode $self->{file_mode} for file $file";
     }
@@ -1909,7 +1916,10 @@ sub _write_config_to_filename
     }
     if ( exists $self->{file_mode} )
     {
-        chmod oct( $self->{file_mode} ), $filename;
+        if ( not chmod( oct( $self->{file_mode} ), $filename ) )
+        {
+            carp "Unable to chmod $filename!";
+        }
     }
 
     return 1;
