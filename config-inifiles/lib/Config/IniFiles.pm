@@ -520,7 +520,7 @@ sub new
         $self->{php_compat} = $v ? 1 : 0;
     }
 
-    $self->{comment_char} = '#' unless exists $self->{comment_char};
+    $self->{comment_char}         = '#' unless exists $self->{comment_char};
     $self->{allowed_comment_char} = ';'
         unless exists $self->{allowed_comment_char};
 
@@ -572,7 +572,7 @@ sub _caseify
 
     if ( $self->_nocase )
     {
-        foreach my $ref (grep { defined } @refs[0..1])
+        foreach my $ref ( grep { defined } @refs[ 0 .. 1 ] )
         {
             ${$ref} = lc( ${$ref} );
         }
@@ -580,18 +580,19 @@ sub _caseify
 
     if ( $self->{php_compat} )
     {
-        foreach my $ref (grep { defined } @refs[1..1])
+        foreach my $ref ( grep { defined } @refs[ 1 .. 1 ] )
         {
             ${$ref} =~ s{\[\]$}{};
         }
-        foreach my $ref (grep { defined } @refs[2..$#refs])
+        foreach my $ref ( grep { defined } @refs[ 2 .. $#refs ] )
         {
-            if (length(${$ref}) >= 2)
+            if ( length( ${$ref} ) >= 2 )
             {
-                my $quote = substr(${$ref}, 0, 1);
-                if (($quote eq q{"} or $quote eq q{'}) and substr(${$ref}, -1, 1) eq $quote)
+                my $quote = substr( ${$ref}, 0, 1 );
+                if ( ( $quote eq q{"} or $quote eq q{'} )
+                    and substr( ${$ref}, -1, 1 ) eq $quote )
                 {
-                    ${$ref} = substr(${$ref}, 1, -1);
+                    ${$ref} = substr( ${$ref}, 1, -1 );
                     ${$ref} =~ s{$quote$quote}{}g;
                     ${$ref} =~ s{\\$quote}{$quote}g if $quote eq q{"};
                 }
@@ -877,7 +878,7 @@ sub _nextline
                 $nextchar = <$fh>;
                 return undef if ( !defined $nextchar );
                 $s .= $nextchar;
-            } until ($s =~ m/((\015|\012|\025|\n)$)/s);
+            } until ( $s =~ m/((\015|\012|\025|\n)$)/s );
             $self->{line_ends} = $1;
             if ( $nextchar eq "\x0d" )
             {
@@ -918,7 +919,7 @@ sub _rollback
     # an open handle, then just roll back to the start
     if ( !ref( $self->{cf} ) )
     {
-        close($fh);
+        close($fh) or Carp::confess("close failed: $!");
     }
     else
     {
@@ -1900,7 +1901,7 @@ sub _write_config_to_filename
     }
 
     $self->OutputConfigToFileHandle( $fh, $parms{-delta} );
-    close($fh);
+    close($fh) or Carp::confess("close failed: $!");
     if ( !rename( $new_file, $filename ) )
     {
         carp "Unable to rename temp config file ($new_file) to ${filename}: $!";
@@ -2057,7 +2058,7 @@ sub _calc_eot_mark
     my $eotmark = $self->{EOT}{$sect}{$parm} || 'EOT';
 
     # Make sure the $eotmark does not occur inside the string.
-    my @letters = ( 'A' .. 'Z' );
+    my @letters    = ( 'A' .. 'Z' );
     my $joined_val = join( q{ }, @$val );
     while ( index( $joined_val, $eotmark ) >= 0 )
     {
@@ -2195,7 +2196,7 @@ sub _output_section
         }
         return;
     }
-    return if not defined $self->{v}{$sect};
+    return          if not defined $self->{v}{$sect};
     $print_line->() if ( $position > 0 );
     $self->_output_comments( $print_line, $self->{sCMT}{$sect} );
 
@@ -2792,7 +2793,8 @@ sub FETCH
     $self->_caseify( \$key );
     return if ( !$self->{v}{$key} );
 
-    return $self->{_section_cache}->{$key} if exists $self->{_section_cache}->{$key};
+    return $self->{_section_cache}->{$key}
+        if exists $self->{_section_cache}->{$key};
 
     my %retval;
     tie %retval, 'Config::IniFiles::_section', $self, $key;

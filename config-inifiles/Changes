@@ -2,6 +2,9 @@
     * Fix stray non-ASCII characters in the versions in the Changes log.
         - https://rt.cpan.org/Ticket/Display.html?id=125161
         - Thanks to SREZIC.
+    * Throw an error on failed close() before rename() to overwrite the file.
+        - https://rt.cpan.org/Ticket/Display.html?id=114140
+        - Thanks to SREZIC and fschlich.
 
 3.000002    2019-03-14
     * Fix error with missing here doc end marker
