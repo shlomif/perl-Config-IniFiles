@@ -1358,7 +1358,7 @@ sub ReadConfig
         {}; # this will store trailing comments at the end of single-line params
     $self->{e}   = {};    # If a section already exists
     $self->{mye} = {};    # If a section already exists
-         # import shadowing, see below, and WriteConfig($fn, -delta=>1)
+        # import shadowing, see below, and WriteConfig($fn, -delta=>1)
 
     if ( defined $self->{imported} )
     {
