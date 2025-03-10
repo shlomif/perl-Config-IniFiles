@@ -12,7 +12,7 @@ use Fcntl qw( SEEK_SET SEEK_CUR );
 use List::Util 1.33 qw(any none);
 
 use File::Basename qw( dirname );
-use File::Temp qw/ tempfile /;
+use File::Temp     qw/ tempfile /;
 
 @Config::IniFiles::errors = ();
 
