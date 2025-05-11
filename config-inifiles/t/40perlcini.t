@@ -8,7 +8,7 @@ use File::Temp qw(tempdir);
 
 my $test    = $0;
 my $inifile = "$0.ini";
-my $exec    = 'perl -Mlib=lib scripts/perlcini';
+my $exec    = 'perl -Mlib=lib bin/perlcini';
 
 #perlcini get        inifile section parameter default
 {
