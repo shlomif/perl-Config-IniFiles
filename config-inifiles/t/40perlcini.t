@@ -15,21 +15,33 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     my $get  = qx{$exec get $inifile my_section_1 my_parameter_1};
     my $code = $?;
     chomp $get;
+
+    # TEST
     is( $get, 'my_value_1', 'my_section_1 my_parameter_1' );
+
+    # TEST
     ok( !$code );
 }
 {
     my $get  = qx{cat $inifile | $exec get - my_section_1 my_parameter_1};
     my $code = $?;
     chomp $get;
+
+    # TEST
     is( $get, 'my_value_1', 'my_section_1 my_parameter_1' );
+
+    # TEST
     ok( !$code );
 }
 {
     my $get  = qx{$exec get $inifile my_section_1 not_my_parameter not_found};
     my $code = $?;
     chomp $get;
+
+    # TEST
     is( $get, 'not_found', 'my_section_1 my_parameter_1' );
+
+    # TEST
     ok( !$code );
 }
 {
@@ -37,7 +49,11 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
         qx{cat $inifile | $exec get - my_section_1 not_my_parameter not_found};
     my $code = $?;
     chomp $get;
+
+    # TEST
     is( $get, 'not_found', 'my_section_1 my_parameter_1' );
+
+    # TEST
     ok( !$code );
 }
 
@@ -46,21 +62,33 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     my $exists = qx{$exec exists $inifile my_section_1 my_parameter_1};
     my $code   = $?;
     chomp $exists;
+
+    # TEST
     is( $exists, '1', 'my_section_1 my_parameter_1' );
+
+    # TEST
     ok( !$code );
 }
 {
     my $exists = qx{cat $inifile | $exec exists - my_section_1 my_parameter_1};
     my $code   = $?;
     chomp $exists;
+
+    # TEST
     is( $exists, '1', 'my_section_1 my_parameter_1' );
+
+    # TEST
     ok( !$code );
 }
 {
     my $exists = qx{$exec exists $inifile my_section_1 not_my_parameter};
     my $code   = $?;
     chomp $exists;
+
+    # TEST
     is( $exists, '', 'my_section_1 my_parameter_1' );
+
+    # TEST
     ok($code);
 }
 {
@@ -68,7 +96,11 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
         qx{cat $inifile | $exec exists - my_section_1 not_my_parameter};
     my $code = $?;
     chomp $exists;
+
+    # TEST
     is( $exists, '', 'my_section_1 my_parameter_1' );
+
+    # TEST
     ok($code);
 }
 
@@ -77,18 +109,34 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     my @parameters = qx{$exec parameters $inifile "my section 2"};
     my $code       = $?;
     chomp @parameters;
+
+    # TEST
     is( scalar(@parameters), 2, 'my_section_1' );
+
+    # TEST
     ok( !$code );
+
+    # TEST
     is( $parameters[0], 'my parameter 2' );
+
+    # TEST
     is( $parameters[1], 'my parameter 2 whitespace' );
 }
 {
     my @parameters = qx{cat $inifile | $exec parameters - "my section 2"};
     my $code       = $?;
     chomp @parameters;
+
+    # TEST
     is( scalar(@parameters), 2, 'my_section_1' );
+
+    # TEST
     ok( !$code );
+
+    # TEST
     is( $parameters[0], 'my parameter 2' );
+
+    # TEST
     is( $parameters[1], 'my parameter 2 whitespace' );
 }
 {
@@ -96,7 +144,11 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     my @parameters = qx{$exec parameters $inifile not_my_section};
     my $code       = $?;
     chomp @parameters;
+
+    # TEST
     is( scalar(@parameters), 0, 'my_section_1' );
+
+    # TEST
     ok($code);
 }
 
@@ -105,9 +157,17 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     my @sections = qx{$exec sections $inifile};
     my $code     = $?;
     chomp @sections;
+
+    # TEST
     is( scalar(@sections), 2, 'my_section_1' );
+
+    # TEST
     ok( !$code );
+
+    # TEST
     is( $sections[0], 'my_section_1' );
+
+    # TEST
     is( $sections[1], 'my section 2' );
 }
 
@@ -132,14 +192,22 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
         #   diag(`cat $copy`);
         my $code = $?;
         chomp $return;
+
+        # TEST
         is( $return, '' );
+
+        # TEST
         ok( !$code );
     }
     {
         my $return = qx{$exec get $copy my_section_1 my_parameter_1 error};
         my $code   = $?;
         chomp $return;
+
+        # TEST
         is( $return, 'new_value' );
+
+        # TEST
         ok( !$code );
     }
 
@@ -158,14 +226,22 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
         #   diag(`cat $copy`);
         my $code = $?;
         chomp $return;
+
+        # TEST
         is( $return, '' );
+
+        # TEST
         ok( !$code );
     }
     {
         my $return = qx{$exec exists $copy my_section_1 my_parameter_1};
         my $code   = $?;
         chomp $return;
+
+        # TEST
         is( $return, '' );
+
+        # TEST
         ok($code);
     }
 }
