@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Config::IniFiles ();
+use Config::IniFiles::App::Perlcini ();
 
 my $syntax = "Syntax: perlcini command inifile section parameter value
 
@@ -16,115 +16,4 @@ Example:
     perlcini sections   inifile
 ";
 
-sub _main
-{
-    my ($argv) = @_;
-
-    my $command = shift(@$argv) || '';
-    die($syntax)
-        unless $command =~ m/\A(get|set|delete|exists|parameters|sections)\Z/;
-
-    my $inifile = shift(@$argv) || '';
-    die("Error: INI File not defined\n$syntax") unless $inifile;
-    die("Error: INI file $inifile is not readable")
-        if ( $inifile ne '-' and not -r $inifile );
-
-    my $section   = shift(@$argv);
-    my $parameter = shift(@$argv);
-    my @values    = @$argv;          #newal if set, defaultval if get
-
-    my $cfg =
-        $inifile eq "-"
-        ? Config::IniFiles->new( -file => \*STDIN )
-        : Config::IniFiles->new( -file => $inifile );
-
-    die( 'Error: ' . join( ", ", @Config::IniFiles::errors ) )
-        unless defined $cfg;
-
-    if ( $command eq 'get' )
-    {
-        die("Error: section not defined\n$syntax")   unless defined $section;
-        die("Error: parameter not defined\n$syntax") unless defined $parameter;
-        my $default = $values[0];
-        $default = '' unless defined $default;
-        my $value = $cfg->val( $section, $parameter, $default );
-        print "$value\n";
-    }
-    elsif ( $command eq 'set' )
-    {
-        die("Error: STDIN is readonly") if $inifile eq "-";
-        die("Error: section not defined\n$syntax")   unless defined $section;
-        die("Error: parameter not defined\n$syntax") unless defined $parameter;
-        die("Error: values not defined\n$syntax")    unless @values;
-        my $exists = $cfg->exists( $section, $parameter );
-        if ($exists)
-        {
-            $cfg->setval( $section, $parameter, @values );
-            $cfg->RewriteConfig;
-            die( join "\n", @Config::IniFiles::errors )
-                if @Config::IniFiles::errors;
-        }
-        else
-        {
-            $cfg->newval( $section, $parameter, @values );
-            $cfg->RewriteConfig;
-            die( join "\n", @Config::IniFiles::errors )
-                if @Config::IniFiles::errors;
-        }
-        print "\n";
-    }
-    elsif ( $command eq 'delete' )
-    {
-        die("Error: STDIN is readonly") if $inifile eq "-";
-        die("Error: section not defined\n$syntax")   unless defined $section;
-        die("Error: parameter not defined\n$syntax") unless defined $parameter;
-        $cfg->delval( $section, $parameter );
-        $cfg->RewriteConfig;
-        die( join "\n", @Config::IniFiles::errors )
-            if @Config::IniFiles::errors;
-        print "\n";
-    }
-    elsif ( $command eq 'exists' )
-    {
-        die("Error: section not defined\n$syntax")   unless defined $section;
-        die("Error: parameter not defined\n$syntax") unless defined $parameter;
-        my $exists = $cfg->exists( $section, $parameter );
-        print "$exists\n";
-        exit 1 unless $exists;
-    }
-    elsif ( $command eq 'parameters' )
-    {
-        die("Error: section not defined\n$syntax") unless defined $section;
-        my $exists = $cfg->SectionExists($section);
-        if ($exists)
-        {
-            my @list = $cfg->Parameters($section);
-            print "$_\n" foreach @list;
-        }
-        else
-        {    #Is this the correct behavior
-            warn(qq{Warning: section "$section" does not exists});
-            exit 1;
-        }
-    }
-    elsif ( $command eq 'sections' )
-    {
-        my @list = $cfg->Sections();
-        if (@list)
-        {
-            print "$_\n" foreach @list;
-        }
-        else
-        {
-            exit 1;
-        }
-    }
-    else
-    {
-        die("Note: command not configured");
-    }
-
-    return;
-}
-
-_main( [@ARGV] );
+Config::IniFiles::App::Perlcini::_main( [@ARGV] );
