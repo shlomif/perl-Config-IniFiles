@@ -41,10 +41,10 @@ my $CAT     = "$^X scripts/perl-based-cat.pl";
     chomp $get;
 
     # TEST
-    is( $get, 'not_found', 'my_section_1 my_parameter_1' );
+    is( $get, 'not_found', 'get-s default value' );
 
     # TEST
-    ok( !$code );
+    ok( !$code, "get-s exitcode with a default value." );
 }
 {
     my $get =
