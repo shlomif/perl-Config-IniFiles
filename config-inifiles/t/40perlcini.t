@@ -25,7 +25,7 @@ my $CAT     = "$^X scripts/perl-based-cat.pl";
     ok( !$code, 'get my_section_1 my_parameter_1 : exit code' );
 }
 {
-    my $get  = qx{cat $inifile | $exec get - my_section_1 my_parameter_1};
+    my $get  = qx{$CAT $inifile | $exec get - my_section_1 my_parameter_1};
     my $code = $?;
     chomp $get;
 
