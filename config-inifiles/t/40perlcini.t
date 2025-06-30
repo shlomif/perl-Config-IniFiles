@@ -20,7 +20,7 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     is( $get, 'my_value_1', 'my_section_1 my_parameter_1' );
 
     # TEST
-    ok( !$code );
+    ok( !$code, 'get my_section_1 my_parameter_1 : exit code' );
 }
 {
     my $get  = qx{cat $inifile | $exec get - my_section_1 my_parameter_1};
