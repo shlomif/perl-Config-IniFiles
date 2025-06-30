@@ -10,6 +10,7 @@ use File::Temp qw(tempdir);
 my $test    = $0;
 my $inifile = "$0.ini";
 my $exec    = 'perl -Mlib=lib bin/perlcini';
+my $CAT     = "$^X scripts/perl-based-cat.pl";
 
 #perlcini get        inifile section parameter default
 {
@@ -47,7 +48,7 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
 }
 {
     my $get =
-        qx{cat $inifile | $exec get - my_section_1 not_my_parameter not_found};
+        qx{$CAT $inifile | $exec get - my_section_1 not_my_parameter not_found};
     my $code = $?;
     chomp $get;
 
@@ -71,7 +72,7 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     ok( !$code );
 }
 {
-    my $exists = qx{cat $inifile | $exec exists - my_section_1 my_parameter_1};
+    my $exists = qx{$CAT $inifile | $exec exists - my_section_1 my_parameter_1};
     my $code   = $?;
     chomp $exists;
 
@@ -94,7 +95,7 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
 }
 {
     my $exists =
-        qx{cat $inifile | $exec exists - my_section_1 not_my_parameter};
+        qx{$CAT $inifile | $exec exists - my_section_1 not_my_parameter};
     my $code = $?;
     chomp $exists;
 
@@ -124,7 +125,7 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     is( $parameters[1], 'my parameter 2 whitespace' );
 }
 {
-    my @parameters = qx{cat $inifile | $exec parameters - "my section 2"};
+    my @parameters = qx{$CAT $inifile | $exec parameters - "my section 2"};
     my $code       = $?;
     chomp @parameters;
 
