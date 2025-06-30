@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+
 use strict;
 use warnings;
 
@@ -17,7 +18,7 @@ my $exec    = 'perl -Mlib=lib bin/perlcini';
     chomp $get;
 
     # TEST
-    is( $get, 'my_value_1', 'my_section_1 my_parameter_1' );
+    is( $get, 'my_value_1', 'get my_section_1 my_parameter_1' );
 
     # TEST
     ok( !$code, 'get my_section_1 my_parameter_1 : exit code' );
