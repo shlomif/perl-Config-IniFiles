@@ -30,10 +30,10 @@ my $CAT     = "$^X scripts/perl-based-cat.pl";
     chomp $get;
 
     # TEST
-    is( $get, 'my_value_1', 'my_section_1 my_parameter_1' );
+    is( $get, 'my_value_1', 'PIPE | get my_section_1 my_parameter_1; value' );
 
     # TEST
-    ok( !$code );
+    ok( !$code, 'PIPE | get my_section_1 my_parameter_1; exit code' );
 }
 {
     my $get  = qx{$exec get $inifile my_section_1 not_my_parameter not_found};
