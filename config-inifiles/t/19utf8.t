@@ -14,7 +14,7 @@ use warnings;
 use autodie;
 use utf8;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use lib "./t/lib";
 use Config::IniFiles;
@@ -55,4 +55,13 @@ EOF
 
     # TEST
     is( $ini->val( 'section', 'mykey' ), qq#tén#, "->val() parameter" );
+
+    $ini->setval( 'section', 'mykey', 'meö שלום' );
+
+    # TEST
+    is(
+        $ini->val( 'section', 'mykey' ),
+        'meö שלום',
+        "setval(  ) ; ->val() parameter"
+    );
 }
