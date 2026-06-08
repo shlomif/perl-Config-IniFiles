@@ -14,7 +14,7 @@ use warnings;
 use autodie;
 use utf8;
 
-use Test::More tests => 6;
+use Test::More tests => 12;
 
 use lib "./t/lib";
 use Config::IniFiles;
@@ -35,33 +35,65 @@ mykey = tén
 EOF
     }
 
-    open my $in, '<:encoding(utf8)', $filename
-        or die "Cannot open '$filename' for slurping - $!";
+    {
+        open my $in, '<:encoding(utf8)', $filename
+            or die "Cannot open '$filename' for slurping - $!";
 
-    my $ini = Config::IniFiles->new( -file => $in, );
-    close($in);
+        my $ini = Config::IniFiles->new( -file => $in, );
+        close($in);
 
-    # TEST
-    ok( ($ini), "Ini was initialised" );
+        # TEST
+        ok( ($ini), "Ini was initialised" );
 
-    # TEST
-    is( scalar(@Config::IniFiles::errors), 0, "There are no errors." );
+        # TEST
+        is( scalar(@Config::IniFiles::errors), 0, "There are no errors." );
 
-    # TEST
-    ok( $ini->SectionExists('section'), "section exists" );
+        # TEST
+        ok( $ini->SectionExists('section'), "section exists" );
 
-    # TEST
-    ok( $ini->exists( 'section', 'mykey' ), "section catches parameter" );
+        # TEST
+        ok( $ini->exists( 'section', 'mykey' ), "section catches parameter" );
 
-    # TEST
-    is( $ini->val( 'section', 'mykey' ), qq#tén#, "->val() parameter" );
+        # TEST
+        is( $ini->val( 'section', 'mykey' ), qq#tén#, "->val() parameter" );
 
-    $ini->setval( 'section', 'mykey', 'meö שלום' );
+        $ini->setval( 'section', 'mykey', 'meö שלום' );
 
-    # TEST
-    is(
-        $ini->val( 'section', 'mykey' ),
-        'meö שלום',
-        "setval(  ) ; ->val() parameter"
-    );
+        # TEST
+        is(
+            $ini->val( 'section', 'mykey' ),
+            'meö שלום',
+            "setval(  ) ; ->val() parameter"
+        );
+
+        # TEST
+        ok( scalar( $ini->WriteConfig( $filename, ) ), "WriteConfig" );
+    }
+
+    {
+        open my $in, '<:encoding(utf8)', $filename
+            or die "Cannot open '$filename' for slurping - $!";
+
+        my $ini = Config::IniFiles->new( -file => $in, );
+        close($in);
+
+        # TEST
+        ok( ($ini), "Ini was initialised" );
+
+        # TEST
+        is( scalar(@Config::IniFiles::errors), 0, "There are no errors." );
+
+        # TEST
+        ok( $ini->SectionExists('section'), "section exists" );
+
+        # TEST
+        ok( $ini->exists( 'section', 'mykey' ), "section catches parameter" );
+
+        # TEST
+        is(
+            $ini->val( 'section', 'mykey' ),
+            'meö שלום',
+            "->val() parameter"
+        );
+    }
 }
