@@ -2967,9 +2967,10 @@ sub _make_filehandle
     my $fh = qualify_to_ref( $thing, caller(1) );
     return $fh if defined( fileno $fh );
 
-    # otherwise treat it as a file to open
+    # otherwise treat it as a file to open; 3-arg open so the filename is
+    # not interpreted as a command or redirect
     $fh = gensym;
-    open( $fh, $thing ) || return;
+    open( $fh, '<', $thing ) || return;
 
     return $fh;
 }    # end _make_filehandle
