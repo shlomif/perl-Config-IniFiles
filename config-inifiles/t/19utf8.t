@@ -11,6 +11,7 @@
 
 use strict;
 use warnings;
+use autodie;
 use utf8;
 
 use Test::More tests => 5;
@@ -24,7 +25,7 @@ use File::Temp qw(tempdir);
 
 {
     my $dir_name = tempdir( CLEANUP => 1 );
-    my $filename = File::Spec->catfile( $dir_name, "utf8.ini" );
+    my $filename = File::Spec->catfile( $dir_name, "utf8-test.ini" );
     {
         utf8_spew( $filename, <<'EOF' );
 [section]
@@ -44,16 +45,14 @@ EOF
     ok( ($ini), "Ini was initialised" );
 
     # TEST
-    is( scalar(@Config::IniFiles::errors), 0, "There is one error." );
+    is( scalar(@Config::IniFiles::errors), 0, "There are no errors." );
 
     # TEST
-    ok( $ini->SectionExists('section'), "(-fallback) Fallback section exists" );
+    ok( $ini->SectionExists('section'), "section exists" );
 
     # TEST
-    ok( $ini->exists( 'section', 'mykey' ),
-        "(-fallback) Fallback section catches parameter" );
+    ok( $ini->exists( 'section', 'mykey' ), "section catches parameter" );
 
     # TEST
-    is( $ini->val( 'section', 'mykey' ),
-        qq#tén#, "(-fallback) Fallback section catches parameter" );
+    is( $ini->val( 'section', 'mykey' ), qq#tén#, "->val() parameter" );
 }
