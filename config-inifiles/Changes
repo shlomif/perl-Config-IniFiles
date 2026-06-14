@@ -1,3 +1,6 @@
+3.002000    2026-06-14
+    * Refactor t/38security-open.t .
+
 3.001000    2026-06-08
     * Fix for CVE 2026-11527 .
     * Add t/19utf8.t .
