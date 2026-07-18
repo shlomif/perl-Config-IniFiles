@@ -166,6 +166,10 @@ any of the following things:
 If this option is not specified, (i.e. you are creating a config file from scratch)
 you must specify a target file using L<SetFileName> in order to save the parameters.
 
+The passed filehandles can be opened using an encoding-specifying mode such as
+C<< '<+:encoding(utf8)' >> as demonstrated and tested in C<t/19utf8.t> :
+L<GitHub link|https://github.com/shlomif/perl-Config-IniFiles/blob/master/config-inifiles/t/19utf8.t>
+L<MetaCPAN link|https://metacpan.org/release/SHLOMIF/Config-IniFiles-3.002000/source/t/19utf8.t> .
 
 =item I<-default> section
 
